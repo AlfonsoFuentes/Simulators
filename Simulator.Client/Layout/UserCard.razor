@@ -1,0 +1,28 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+<MudCard Elevation="0" Square="true" Class="@Class">
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar >@LetterOfName</MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudStack>
+                <MudText Typo="Typo.body2"> @FirstName @SecondName</MudText>
+                <MudText Typo="Typo.caption">@Email</MudText>
+                <MudText Typo="Typo.caption">@PhoneNumber</MudText>
+                
+            </MudStack>
+            
+        </CardHeaderContent>
+    </MudCardHeader>
+</MudCard>
+
+@code {
+ 
+
+}

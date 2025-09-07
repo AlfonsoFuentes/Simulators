@@ -1,0 +1,32 @@
+﻿
+
+
+<TableTemplate TValue="MaterialEquipmentDTO"
+               AddNew="AddNew"
+               DisableAdd=@DisableAdd
+               @bind-NameFilter=@nameFilter
+               DeleteGroup="DeleteGroup"
+               Items="FilteredItems"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="@TableLegend">
+    <ColumnsTemplate>
+        <SelectColumn T="MaterialEquipmentDTO" />
+        <PropertyColumn Property="x => x.MaterialM_Number" Title="M-Number" TProperty="string" T="MaterialEquipmentDTO" />
+        <PropertyColumn Property="x => x.MaterialSAPName" Title="SAP Name" TProperty="string" T="MaterialEquipmentDTO" />
+        <PropertyColumn Property="x => x.MaterialCommonName" Title="Common Name" TProperty="string" T="MaterialEquipmentDTO" />
+        <PropertyColumn Property="x => x.Capacity.ToString()" Title="Batch Size" TProperty="string" T="MaterialEquipmentDTO" Hidden="@(!IsMixer)" />
+        <TemplateColumn CellClass="d-flex justify-end" T="MaterialEquipmentDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Material!.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Material!.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+@code {
+
+}

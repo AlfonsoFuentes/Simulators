@@ -1,0 +1,52 @@
+﻿<!-- EquipmentMaterialsSection.razor -->
+<MudPaper Elevation="1" Class="pa-3 mb-3">
+    <MudGrid>
+        @if (ConnectedMaterials.Any())
+        {
+            <MudItem xs="12">
+                <MudText Typo="Typo.body2" Color="Color.Success" Class="mb-2">
+                    <strong>Connected Materials (@ConnectedMaterials.Count):</strong>
+                </MudText>
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var material in ConnectedMaterials)
+                    {
+                        <MudTooltip Text="@($"{material.EquipmentType}: {material.EquipmentName}")">
+                            <MudChip T="string" Color="Color.Success"
+                                     Variant="Variant.Filled"
+                                     Size="Size.Small">
+                                @material.MaterialName
+                            </MudChip>
+                        </MudTooltip>
+                    }
+                </div>
+            </MudItem>
+        }
+
+        @if (MissingMaterials.Any())
+        {
+            <MudItem xs="12" Class="mt-3">
+                <MudText Typo="Typo.body2" Color="Color.Error" Class="mb-2">
+                    <strong>Missing Materials (@MissingMaterials.Count):</strong>
+                </MudText>
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var material in MissingMaterials)
+                    {
+                        <MudChip T="string" Color="Color.Warning"
+                                 Variant="Variant.Filled"
+                                 Size="Size.Small">
+                            @material.MaterialName
+                        </MudChip>
+                    }
+                </div>
+            </MudItem>
+        }
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public List<MaterialStatus> ConnectedMaterials { get; set; } = new();
+
+    [Parameter]
+    public List<MaterialStatus> MissingMaterials { get; set; } = new();
+}

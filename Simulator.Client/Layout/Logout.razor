@@ -1,0 +1,18 @@
+﻿@page "/logout"
+@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+
+@code {
+ 
+    protected override async Task OnParametersSetAsync()
+    {
+        await _authenticationManager.Logout();
+      
+        _NavigationManager.NavigateTo("/login");
+    }
+}

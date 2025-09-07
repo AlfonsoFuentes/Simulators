@@ -1,0 +1,79 @@
+﻿@typeparam TValue
+<MudSelect 
+           MultiSelection=true
+           Variant="Variant.Outlined"
+           T="TValue"
+           SelectedValues=Values
+           SelectedValuesChanged="OnValuesChanged"
+           Label="@Label"
+           Margin="Margin.Dense"
+           Dense="true"
+           For="@For"
+           Disabled=@Disable
+           Clearable="@Clearable">
+    @foreach (var row in Items)
+    {
+        <MudSelectItem Value="row">@GetDisplayText(row!)</MudSelectItem>
+    }
+</MudSelect>
+@* Value="Value"
+           ValueChanged="OnValueChanged" *@
+@code {
+    [Parameter]
+    public bool Disable { get; set; } = false;
+    [Parameter]
+    public bool Clearable { get; set; } = false;
+    [Parameter]
+    public List<TValue?> Items { get; set; } = new();
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+    // [Parameter]
+    // public TValue Value { get; set; } = default(TValue)!;
+    [Parameter]
+    public List<TValue>? Values { get; set; } = new();
+    // [Parameter]
+    // public EventCallback<TValue> ValueChanged { get; set; }
+    [Parameter]
+    public EventCallback<List<TValue>?> ValuesChanged { get; set; }
+    [Parameter]
+    public EventCallback ValidateAsync { get; set; }
+    [Parameter]
+    public EventCallback Change { get; set; }
+    [Parameter]
+    public EventCallback<List<TValue>> ChangeItem { get; set; }
+    [Parameter]
+    public Expression<Func<TValue>>? For { get; set; }
+    [Parameter]
+    public Func<TValue, string> Property { get; set; } = null!;
+
+    // async Task OnValueChanged(TValue value)
+    // {
+    //     Value = value;
+    //     if (ValueChanged.HasDelegate)
+    //         await ValueChanged.InvokeAsync(Value);
+    //     if (Change.HasDelegate)
+    //         await Change.InvokeAsync();
+    //     if (ChangeItem.HasDelegate)
+    //         await ChangeItem.InvokeAsync(Value);
+    //     if (ValidateAsync.HasDelegate)
+    //         await ValidateAsync.InvokeAsync();
+    // }
+    // Método auxiliar para manejar la visualización del texto
+    private string GetDisplayText(TValue item)
+    {
+        return Property?.Invoke(item) ?? item?.ToString() ?? string.Empty;
+    }
+    async Task OnValuesChanged(IEnumerable<TValue> value)
+    {
+        Values = value.ToList();
+        if (ValuesChanged.HasDelegate)
+            await ValuesChanged.InvokeAsync(Values);
+        if (Change.HasDelegate)
+            await Change.InvokeAsync();
+        if (ChangeItem.HasDelegate)
+            await ChangeItem.InvokeAsync(Values);
+        if (ValidateAsync.HasDelegate)
+            await ValidateAsync.InvokeAsync();
+    }
+
+}

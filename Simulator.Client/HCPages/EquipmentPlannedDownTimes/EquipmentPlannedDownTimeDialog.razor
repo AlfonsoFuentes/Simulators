@@ -1,0 +1,22 @@
+﻿<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+
+            <TimePicker Label="Start time" @bind-Value=@Model.StartTime ValidateAsync="ValidateAsync" For="()=>Model.StartTime"></TimePicker>
+            <TimePicker Label="End time" @bind-Value=@Model.EndTime ValidateAsync="ValidateAsync" For="() => Model.EndTime"></TimePicker>
+            <Field Label="Span">@Model.SpanTime.ToString()</Field>
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

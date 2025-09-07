@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+<AuthorizeView>
+    <Authorized>
+        <MudMenu  Class="mt-1 ml-4">
+            <ActivatorContent>
+                <MudAvatar Color="Color.Info" Size="Size.Medium">@LetterOfName</MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <UserCard Class="mt-n2" Email="@Email"
+                FirstName="@FirstName" 
+                SecondName="@SecondName" 
+                LetterOfName="@LetterOfName"
+                PhoneNumber="@PhoneNumber" />
+                <MudDivider Class="mb-2" />
+                <MudIconButton OnClick="Logout" Icon="@Icons.Material.Filled.Logout" >Logout</MudIconButton>
+                
+            </ChildContent>
+        </MudMenu>
+
+
+
+
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    public void Logout()
+    {
+        Navigation.NavigateTo("/logout");
+    }
+}

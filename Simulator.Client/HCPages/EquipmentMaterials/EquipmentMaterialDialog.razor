@@ -1,0 +1,36 @@
+﻿<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <AutoCompleteIconButton @bind-Value="@Model.Material"
+                                    TValue="MaterialDTO"
+                                    Label="Select Material"
+                                    ValidateAsync="ValidateAsync"
+                                    For="()=>Model.Material"
+                                    Clearable="true"
+                                    SearchFunc="SearchMaterial"
+                                    ToStringFunc="@(e=> e==null?null : $"{e.M_NumberCommonName} ")"
+                                    Icon="@Icons.Material.Filled.Add"
+                                    ButtonClick="AddMaterial"
+                                    ToolTip="Add new Material"></AutoCompleteIconButton>
+
+            @if (Model.IsMixer)
+            {
+                <SelectUnit @bind-Value=@Model.Capacity For="() => Model.CapacityValue" ValidateAsync="ValidateAsync" Change="Model.ChangeCapacity" Label="Batch Size"></SelectUnit>
+
+            }
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

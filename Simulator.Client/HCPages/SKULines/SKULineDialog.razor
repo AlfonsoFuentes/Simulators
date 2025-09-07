@@ -1,0 +1,63 @@
+﻿@using Simulator.Shared.Models.HCs.SKUs
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            <MudStack>
+                <AutoCompleteIconButton @bind-Value="@Model.SKU"
+                                        TValue="SKUDTO"
+                                        Label="Select SKU"
+                                        ValidateAsync="ValidateAsync"
+                                        For="()=>Model.SKU"
+                                        Clearable="true"
+                                        SearchFunc="SearchSKU"
+                                        ToStringFunc="@(e=> e==null?null : $"{e.Name} ")"
+                                        Icon="@Icons.Material.Filled.Add"
+                                        ButtonClick="AddSKU"
+                                        ToolTip="Add new SKU"></AutoCompleteIconButton>
+                <MudGrid>
+                    <MudItem xs="6"><Field Label="Code">@Model.SKUCode</Field></MudItem>
+                    <MudItem xs="6"> <Field Label="Name">@Model.SKUName</Field></MudItem>
+                </MudGrid>
+                <MudGrid>
+                    <MudItem xs="6"><Field Label="Package Type">@Model.PackageType.ToString()</Field></MudItem>
+                    <MudItem xs="6"><Field Label="Category">@Model.ProductCategory.ToString()</Field></MudItem>
+                </MudGrid>
+                <MudGrid>
+                    <MudItem xs="6"><Field Label="M-Number">@Model.BackBoneM_Number</Field></MudItem>
+                    <MudItem xs="6"> <Field Label="Name">@Model.BackBoneCommonName</Field></MudItem>
+                </MudGrid>
+                <MudGrid>
+                    <MudItem xs="6"><Field Label="Size"> @Model.Size</Field></MudItem>
+                    <MudItem xs="6"><Field Label="Weigth">@Model.Weigth</Field></MudItem>
+                </MudGrid>
+                <MudGrid>
+                    <MudItem xs="6"><DoubleNumericField Label="Cases/Shift" @bind-Value=@Model.Case_Shift ValidateAsync="ValidateAsync" For="() => Model.Case_Shift"></DoubleNumericField></MudItem>
+                    <MudItem xs="6"><SelectUnit @bind-Value=@Model.LineSpeed For="() => Model.LineSpeedValue" ValidateAsync="ValidateAsync" Change="Model.ChangeLineSpeed" Label="Line Speed"></SelectUnit></MudItem>
+                </MudGrid>
+                <MudGrid>
+                    <MudItem xs="6"><Field Label="EA/Case">@Model.EA_Case</Field></MudItem>
+                    <MudItem xs="6"> <Field Label="Planned %AU">@Model.AUPercentage.ToString()</Field></MudItem>
+                </MudGrid>
+               
+
+
+
+
+
+
+
+            </MudStack>
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

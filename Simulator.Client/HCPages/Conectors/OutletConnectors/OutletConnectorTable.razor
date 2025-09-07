@@ -1,0 +1,30 @@
+﻿
+
+
+<TableTemplate TValue="OutletConnectorDTO"
+               AddNew="AddNew"
+               DisableAdd=false
+        
+               DeleteGroup="DeleteGroup"
+               Items="Items"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="@TableLegend">
+    <ColumnsTemplate>
+        <SelectColumn T="OutletConnectorDTO" />
+        <PropertyColumn Property="x => x.ToName" Title="To" TProperty="string" T="OutletConnectorDTO" />
+       
+        <TemplateColumn CellClass="d-flex justify-end" T="OutletConnectorDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.ToName}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.ToName}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+@code {
+ 
+}

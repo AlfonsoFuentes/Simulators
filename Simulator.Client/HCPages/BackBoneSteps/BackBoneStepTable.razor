@@ -1,0 +1,42 @@
+﻿@using Simulator.Shared.Models.HCs.BackBoneSteps
+
+
+
+
+<TableTemplate TValue="BackBoneStepDTO"
+               AddNew="AddNew"
+               Items="OrderedItems"
+               ShowSearch=false
+               ShowOrderUpDown="true"
+               OnRowClicked="RowClicked"
+               DeleteGroup="DeleteGroup"
+               OrderUp="Up"
+               OrderDown="Down"
+               DisableDownButton="@DisableDownButton"
+               DisableUpButton="@DisableUpButton"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="@Legend">
+    <ColumnsTemplate>
+        <SelectColumn T="BackBoneStepDTO" />
+   @*      <PropertyColumn Property="x => x.StepName" Title="Step" TProperty="string" T="BackBoneStepDTO" /> *@
+          <PropertyColumn Property="x => x.BackBoneStepType.ToString()" Title="Type" TProperty="string" T="BackBoneStepDTO" />
+        <PropertyColumn Property="x => x.StepRawMaterialString.ToString()" Title="Raw Material" TProperty="string" T="BackBoneStepDTO" />
+        <PropertyColumn Property="x => x.Percentage.ToString()" Title="Percentage" TProperty="string" T="BackBoneStepDTO" />
+        <PropertyColumn Property="x => x.Time.ToString()" Title="Time" TProperty="string" T="BackBoneStepDTO" />
+        <TemplateColumn CellClass="d-flex justify-end" T="BackBoneStepDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+
+@code {
+
+
+}

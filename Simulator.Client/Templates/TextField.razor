@@ -1,0 +1,71 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+
+<MudTextField Value="@Value"
+              ValueChanged="OnValueChanged"
+              T="string"
+              Lines="@Lines"
+              Label="@Label"
+              AdornmentIcon="@AdornmentIcon"
+              Adornment="@Adornment"
+              AutoGrow=@Autogrow
+              IconSize="@IconSize"
+              Placeholder="@PlaceHolder"
+              Variant="Variant.Outlined"
+              Immediate=true
+              Margin=Margin.Dense
+              InputType="@InputType"
+              Style="padding:2px"
+              Class="@Class"
+              Disabled="@Disabled"
+              For="@For">
+</MudTextField>
+
+@code {
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+    [Parameter]
+    public Size IconSize { get; set; } = Size.Medium;
+    [Parameter]
+    public string? AdornmentIcon { get; set; }
+    [Parameter]
+    public Adornment Adornment { get; set; } = Adornment.None;
+    [Parameter]
+    public InputType InputType { get; set; } = InputType.Text;
+    [Parameter]
+    public int Lines { get; set; } = 1;
+    bool Autogrow => Lines > 1;
+    [Parameter]
+    public string PlaceHolder { get; set; } = string.Empty;
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+    [Parameter]
+    public EventCallback ValidateAsync { get; set; }
+    [Parameter]
+    public EventCallback Change { get; set; }
+    [Parameter]
+    public Expression<Func<string>>? For { get; set; }
+    async Task OnValueChanged(string value)
+    {
+        Value = value;
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(Value);
+        if (Change.HasDelegate)
+            await Change.InvokeAsync();
+        if (ValidateAsync.HasDelegate)
+            await ValidateAsync.InvokeAsync();
+    }
+
+}

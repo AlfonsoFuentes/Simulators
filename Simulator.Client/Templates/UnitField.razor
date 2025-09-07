@@ -1,0 +1,21 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+<MudField Label="@Label" Variant="@Variant" Typo="@Typo" Margin="Margin.Dense">@ChildContent</MudField>
+
+@code {
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Outlined;
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+    [Parameter]
+    [Category(CategoryTypes.Field.Appearance)]
+    public Typo Typo { get; set; } = Typo.subtitle1;
+    [Parameter]
+    [Category(CategoryTypes.Field.Data)]
+    public RenderFragment? ChildContent { get; set; }
+}

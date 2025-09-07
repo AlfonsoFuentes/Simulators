@@ -1,0 +1,25 @@
+﻿@using Simulator.Shared.Simulations.Tanks
+
+<TemplateCard Title="@Tank.Name">
+    <Content>
+        <LabelSimulation Label="Capacity" Value="@Tank.Capacity.ToString("G6")"></LabelSimulation>
+        <LabelSimulation Label="Material" Value="@Tank.MaterialName"></LabelSimulation>
+        <LabelSimulation Label="Current Level" Value="@Tank.CurrentLevel.ToString("G6")"></LabelSimulation>
+        @if (States != null)
+        {
+            @States
+        }
+        </Content>
+</TemplateCard>
+
+
+
+@code {
+
+    [Parameter]
+
+    public BaseTank Tank { get; set; } = null!;
+    [Parameter]
+    public RenderFragment States { get; set; } = null!;
+
+}

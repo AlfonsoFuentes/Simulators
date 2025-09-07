@@ -1,0 +1,53 @@
+﻿
+
+
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-1">
+                <MudTabPanel Text="Configuration">
+                    <TextField @bind-Value="@Model.Name"
+                               Label="Name"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.Name">
+                    </TextField>
+                    <Select For="() => Model.PackageType" @bind-Value="Model.PackageType" 
+                            Label="Package Type" Items="Enum.GetValues<PackageType>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                    <SelectUnit @bind-Value=@Model.TimeToReviewAU For="() => Model.TimeToReviewAUValue" ValidateAsync="ValidateAsync" Change="Model.ChangeTimeToReviewAU" Label="Time to review AU"></SelectUnit>
+
+                    
+
+                </MudTabPanel>
+                <MudTabPanel Text="Line SKUs">
+                    <SKULineTable LineId="@Model.Id" ValidateAsync="ValidateAsync" 
+                    @bind-Items=@Model.LineSKUs EquipmentName="@Model.Name" PackageType="@Model.PackageType"></SKULineTable>
+                
+                </MudTabPanel>
+                <MudTabPanel Text="Planned down time">
+                    <EquipmentPlannedDownTimeTable @bind-Items=@Model.PlannedDownTimes EquipmentId="Model.Id" EquipmentName="@Model.Name"></EquipmentPlannedDownTimeTable>
+                </MudTabPanel>
+                <MudTabPanel Text="Inlets connectors">
+                    <InletConnectorTable Equipment="@Model"
+                                         ValidateAsync="ValidateAsync"
+                                         @bind-Items=@Model.InletConnectors></InletConnectorTable>
+                </MudTabPanel>
+           
+            </MudTabs>
+
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

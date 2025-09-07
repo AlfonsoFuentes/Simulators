@@ -1,0 +1,38 @@
+﻿@using Simulator.Shared.Models.HCs.Tanks
+
+
+
+
+<TableTemplate TValue="TankDTO"
+               AddNew="AddNew"
+               @bind-NameFilter=@nameFilter
+               DeleteGroup="DeleteGroup"
+               Items="FilteredItems"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="Tanks List">
+    <ColumnsTemplate>
+        <SelectColumn T="TankDTO" />
+        <PropertyColumn Property="x => x.Name" Title="Name" TProperty="string" T="TankDTO" />
+        <PropertyColumn Property="x => x.Capacity.ToString()" Title="Capacity" TProperty="string" T="TankDTO" />
+        <PropertyColumn Property="x => x.MaxLevel.ToString()" Title="Max level" TProperty="string" T="TankDTO" />
+        <PropertyColumn Property="x => x.MinLevel.ToString()" Title="Min Level" TProperty="string" T="TankDTO" />
+        <PropertyColumn Property="x => x.LoLoLevel.ToString()" Title="Lo Lo Level" TProperty="string" T="TankDTO" />
+        <PropertyColumn Property="x => x.InitialLevel.ToString()" Title="Initial Level" TProperty="string" T="TankDTO" />
+        <TemplateColumn CellClass="d-flex justify-end" T="TankDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+
+@code {
+    [Parameter]
+    public EventCallback RefreshProcessFlowDiagram { get; set; }
+
+}

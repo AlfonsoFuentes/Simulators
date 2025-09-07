@@ -1,0 +1,72 @@
+﻿@using Simulator.Client.HCPages.BackBoneSteps
+@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+@using Simulator.Shared.Enums.HCEnums.Enums
+@using Simulator.Shared.Models.HCs.Materials
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <MudStack>
+                <MudStack Row=true Spacing="2">
+                    <TextField @bind-Value="@Model.SkuCode"
+                               Label="Code"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.SkuCode">
+                    </TextField>
+                    <TextField @bind-Value="@Model.Name"
+                               Label="Name"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.Name">
+                    </TextField>
+                </MudStack>
+
+            </MudStack>
+            <MudStack>
+                <MudStack Row=true Spacing="2">
+                    <Select For="() => Model.PackageType" @bind-Value="Model.PackageType"
+                            Label="Pachage Type" Items="Enum.GetValues<PackageType>().ToList()" ValidateAsync="ValidateAsync"></Select>
+
+                    <Select For="() => Model.ProductCategory" @bind-Value="Model.ProductCategory"
+                            Label="Category" Items="Enum.GetValues<ProductCategory>().ToList()" ValidateAsync="ValidateAsync"></Select>
+
+                </MudStack>
+                <AutoCompleteIconButton @bind-Value="@Model.BackBone"
+                                        TValue="MaterialDTO"
+                                        Label="Product Backbone"
+                                        ValidateAsync="ValidateAsync"
+                                        For="()=>Model.BackBone"
+                                        Clearable="true"
+                                        SearchFunc="SearchBackBones"
+                                        ToStringFunc="@(e=> e==null?null : $"{e.M_NumberCommonName} ")"
+                                        Icon="@Icons.Material.Filled.Add"
+                                        ButtonClick="AddRawMaterial"
+                                        ToolTip="Add new Raw Material"></AutoCompleteIconButton>
+            </MudStack>
+            <MudStack Row=true Spacing="2">
+                <SelectUnit @bind-Value=@Model.Size For="() => Model.SizeValue" ValidateAsync="ValidateAsync" Change="Model.ChangeSize" Label="Size"></SelectUnit>
+                <SelectUnit @bind-Value=@Model.Weigth For="() => Model.WeigthValue" ValidateAsync="ValidateAsync" Change="Model.ChangeWeigth" Label="Weight"></SelectUnit>
+
+            </MudStack>
+            <IntNumericField Label="EA/Case" @bind-Value="@Model.EA_Case" For="() => Model.EA_Case" ValidateAsync="ValidateAsync"></IntNumericField>
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

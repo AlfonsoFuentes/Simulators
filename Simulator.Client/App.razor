@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+<CascadingValue Value="this">
+    <CascadingAuthenticationState>
+        <Error>
+            <Router AppAssembly="@typeof(Program).Assembly">
+                <Found Context="routeData">
+                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                        <NotAuthorized>
+                            <Login />
+                        </NotAuthorized>
+                    </AuthorizeRouteView>
+
+                </Found>
+                <NotFound>
+
+
+                    <LayoutView Layout="@typeof(NotFoundLayout)">
+                        <p>Sorry, there's nothing at this address.</p>
+                    </LayoutView>
+
+                </NotFound>
+            </Router>
+        </Error>
+    </CascadingAuthenticationState>
+</CascadingValue>
+@code{
+    public string UserId { get; set; } = string.Empty;
+}

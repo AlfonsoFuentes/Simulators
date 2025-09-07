@@ -1,0 +1,34 @@
+﻿<!-- ProductionAnalysisMain.razor -->
+<div class="pa-4">
+    <MudPaper Elevation="1" Class="pa-4 mb-4">
+        <MudText Typo="Typo.h4" Class="mb-4">Production Capacity Analysis</MudText>
+
+        @if (AnalysisResults != null && AnalysisResults.Any())
+        {
+            <!-- Summary Statistics Component -->
+            <AnalysisSummary AnalysisResults="AnalysisResults" />
+
+            <!-- Equipment Results Component -->
+            <EquipmentResultsList AnalysisResults="AnalysisResults" />
+        }
+        else
+        {
+            <MudPaper Elevation="2" Class="pa-8 text-center">
+                <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Large" Class="mb-4" />
+                <MudText Typo="Typo.h6" Class="mb-2">No Analysis Results</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    No production analysis results available. Please run the analysis first.
+                </MudText>
+            </MudPaper>
+        }
+    </MudPaper>
+</div>
+
+@code {
+    [Inject] public ISnackbar? Snackbar { get; set; }
+
+    [Parameter]
+    public NewSimulation Simulation { get; set; } = new();
+
+    public List<EquipmentAnalysisResult>? AnalysisResults => Simulation?.EquipmentAnalysisResults;
+}

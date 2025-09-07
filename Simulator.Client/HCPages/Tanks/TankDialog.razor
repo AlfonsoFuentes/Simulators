@@ -1,0 +1,64 @@
+﻿
+
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-1">
+                <MudTabPanel Text="Configuration">
+                    <TextField @bind-Value="@Model.Name"
+                               Label="Name"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.Name">
+                    </TextField>
+                    <Select For="() => Model.TankCalculationType" @bind-Value="Model.TankCalculationType" Label="Calculation Type" Items="Enum.GetValues<TankCalculationType>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                    <Select For="() => Model.FluidStorage" @bind-Value="Model.FluidStorage" Change=@Model.ChangeFluidToStorage
+                        Label="Fluid to storage" Items="Enum.GetValues<FluidToStorage>().ToList()" ValidateAsync="ValidateAsync"></Select>
+
+                    <SelectUnit @bind-Value=@Model.Capacity For="() => Model.CapacityValue" ValidateAsync="ValidateAsync" Change="Model.ChangeCapacity" Label="Capacity"></SelectUnit>
+                    <SelectUnit @bind-Value=@Model.MaxLevel For="() => Model.MaxLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeMaxLevel" Label="Max level"></SelectUnit>
+                    <SelectUnit @bind-Value=@Model.MinLevel For="() => Model.MinLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeMinLevel" Label="Min Level"></SelectUnit>
+                    <SelectUnit @bind-Value=@Model.LoLoLevel For="() => Model.LoLoLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeLoLoLevel" Label="Lo-Lo Level"></SelectUnit>
+                    <Switch Label="Is Tank for only one material?" @bind-Value="@Model.IsStorageForOneFluid" ValidateAsync="ValidateAsync"></Switch>
+                    @if (Model.MaterialType != MaterialType.ProductBackBone)
+                    {
+                        <SelectUnit @bind-Value=@Model.InitialLevel For="() => Model.InitialLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeInitialLevel" Label="Initial Level"></SelectUnit>
+                    }
+                </MudTabPanel>
+                <MudTabPanel Text="Materials">
+                    <EquipmentMaterialTable EquipmentId="Model.Id"
+                                            MainProcessId="@Model.MainProcessId"
+                                            EquipmentName="@Model.Name"
+                                            IsStorageForOneFluid=@Model.IsStorageForOneFluid
+                                            @bind-Items=@Model.MaterialEquipments ValidateAsync="ValidateAsync"
+                                            MaterialType="@Model.MaterialType"></EquipmentMaterialTable>
+                    <ValidationMessage For="() => Model.Materials.Count" style="color:red; font-size:x-small;" />
+                </MudTabPanel>
+                <MudTabPanel Text="Inlets connectors">
+                    <InletConnectorTable Equipment="@Model"
+                                         ValidateAsync="ValidateAsync"
+                                         @bind-Items=@Model.InletConnectors></InletConnectorTable>
+                </MudTabPanel>
+                <MudTabPanel Text="Outlets connectors">
+                    <OutletConnectorTable Equipment="@Model"
+                                          ValidateAsync="ValidateAsync"
+                                          @bind-Items=@Model.OutletConnectors></OutletConnectorTable>
+                </MudTabPanel>
+            </MudTabs>
+
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

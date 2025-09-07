@@ -1,0 +1,25 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+@inject ILogger<Error> Logger
+
+<CascadingValue Value=this>
+    @ChildContent
+</CascadingValue>
+
+@code {
+#nullable disable
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public void ProcessError(Exception ex)
+    {
+        Logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}",
+            ex.GetType(), ex.Message);
+        //StateHasChanged();
+    }
+}

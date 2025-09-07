@@ -1,0 +1,40 @@
+﻿@using Simulator.Shared.Simulations.Skids
+@using Simulator.Shared.Simulations.Tanks.WIPInletSKIDs
+
+
+<CardTank Tank="@Tank">
+    <States>
+        <LabelSimulation Label="Pending mass" Value="@Tank.MassCurrentSKU.Needed.ToString("G6")"></LabelSimulation>
+        <LabelSimulation Label="Total Outlet Shift" Value="@Tank.TotalMassOutletShift.ToString("G6")"></LabelSimulation>
+
+
+
+        <MudText Typo="Typo.overline" class="display-flex mt-2 my-0"><strong>Manufacturers Attached</strong></MudText>
+
+
+        @foreach (var row in Tank.ManufacturingEquipments)
+        {
+            <MudText Typo="Typo.overline" class="display-flex mt-2 my-0"><strong>@row.Name</strong></MudText>
+
+            @if (row is BaseSKID skid)
+            {
+                <LabelSimulation Label="@skid.LabelState" Value="@skid.CurrentFlow.ToString("G6")"></LabelSimulation>
+
+
+            }
+
+
+        }
+
+    </States>
+</CardTank>
+
+
+@code {
+
+    [Parameter]
+
+    public WIPInletSKID Tank { get; set; } = null!;
+
+
+}

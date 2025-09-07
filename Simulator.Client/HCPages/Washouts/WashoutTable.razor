@@ -1,0 +1,37 @@
+﻿@using Simulator.Shared.Models.HCs.Washouts
+
+
+
+
+<TableTemplate TValue="WashoutDTO"
+               AddNew="AddNew"
+               @bind-NameFilter=@nameFilter
+               DeleteGroup="DeleteGroup"
+               Items="FilteredItems"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="Washouts List">
+    <ColumnsTemplate>
+        <SelectColumn T="WashoutDTO" />
+        <PropertyColumn Property="x => x.ProductCategoryCurrent.ToString()" Title="Backbone current" TProperty="string" T="WashoutDTO" />
+        <PropertyColumn Property="x => x.ProductCategoryNext.ToString()" Title="Backbone next" TProperty="string" T="WashoutDTO" />
+        <PropertyColumn Property="x => x.MixerWashoutTime.ToString()" Title="Mixer washout time" TProperty="string" T="WashoutDTO" />
+        <PropertyColumn Property="x => x.LineWashoutTime.ToString()" Title="Line washout time" TProperty="string" T="WashoutDTO" />
+        
+       
+        <TemplateColumn CellClass="d-flex justify-end" T="WashoutDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.ProductCategoryCurrent.ToString()}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.ProductCategoryCurrent.ToString()}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+
+@code {
+ 
+
+}

@@ -1,0 +1,68 @@
+﻿
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <MudStack>
+                <MudStack Spacing="2">
+                    <TextField @bind-Value="@Model.M_Number"
+                               Label="M-number"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.M_Number">
+                    </TextField>
+
+                    <TextField @bind-Value="@Model.SAPName"
+                               Label="Sap Name"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.SAPName">
+                    </TextField>
+                    <TextField @bind-Value="@Model.CommonName"
+                               Label="Common Name"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.CommonName">
+                    </TextField>
+                </MudStack>
+                <MudStack Row=true Spacing="2">
+                    <Select For="() => Model.MaterialType" @bind-Value="Model.MaterialType" Label="Type" Items="Enum.GetValues<MaterialType>().ToList()" ValidateAsync="ValidateAsync"></Select>
+
+                </MudStack>
+                <MudStack Row=true Spacing="2">
+                    <Select For="() => Model.PhysicalState" @bind-Value="Model.PhysicalState" Label="Phisical state" Items="Enum.GetValues<MaterialPhysicState>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                    @if (Model.MaterialType == MaterialType.RawMaterialBackBone || Model.MaterialType == MaterialType.ProductBackBone)
+                    {
+                        <Select For="() => Model.ProductCategory" @bind-Value="Model.ProductCategory" Label="Category" Items="Enum.GetValues<ProductCategory>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                    }
+                </MudStack>
+                @if (Model.MaterialType == MaterialType.RawMaterial)
+                {
+                    <Switch @bind-Value="@Model.IsForWashing" Label="Is For Washing?" ValidateAsync="ValidateAsync"></Switch>
+                }
+
+                @if ((Model.MaterialType == MaterialType.RawMaterialBackBone || Model.MaterialType == MaterialType.ProductBackBone))
+                {
+                    @if(loaded)
+                    {
+                        <BackBoneStepTable @bind-Material=@Model ValidateAsync="ValidateAsync"></BackBoneStepTable>
+                        <ValidationMessage For="() => Model.BackBoneSteps.Count" style="color:red; font-size:x-small;" />
+                        
+                    }
+                 
+                }
+            </MudStack>
+
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

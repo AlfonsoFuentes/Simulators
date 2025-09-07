@@ -1,0 +1,12 @@
+﻿<!-- EquipmentResultsList.razor -->
+<MudExpansionPanels>
+    @foreach (var equipmentResult in AnalysisResults)
+    {
+        <EquipmentResultItem EquipmentResult="equipmentResult" />
+    }
+</MudExpansionPanels>
+
+@code {
+    [Parameter]
+    public List<EquipmentAnalysisResult> AnalysisResults { get; set; } = new();
+}

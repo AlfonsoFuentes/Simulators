@@ -1,0 +1,77 @@
+﻿
+
+
+
+
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            
+            <Autocomplete Label="Selected Mixer"
+                          @bind-Value=@Model.MixerDTO
+                          For="() => Model.MixerDTO"
+                          ValidateAsync="ValidateAsync"
+                          ToStringFunc="@(e => e == null ? null : $"{e.Name} ")"
+                          Change="ChangeMixer"
+                          SearchFunc="SearchMixer"></Autocomplete>
+            @if (Model.MixerDTO != null)
+            {
+                <Autocomplete @bind-Value="@Model.ProducingTo"
+                              Label="Select Destination"
+                              ValidateAsync="ValidateAsync"
+                              For="() => Model.ProducingTo"
+                              Clearable="true"
+                              SearchFunc="SearchWipTank"
+                              ToStringFunc="@(e => e == null ? null : $"{e.Name} ")"></Autocomplete>
+
+                <Autocomplete @bind-Value="@Model.BackBone"
+                              Label="Select BackBone"
+                              ValidateAsync="ValidateAsync"
+                              For="() => Model.BackBone"
+                              Clearable="true"
+                              SearchFunc="SearchMaterial"
+                              Change="ChangeBackBone"
+                              ToStringFunc="@(e => e == null ? null : $"{e.CommonName} ")"></Autocomplete>
+                @if (Model.BackBone != null)
+                {
+                    <Field Label="Mixer Capacity">@Model.Capacity.ToString()</Field>
+                    <Select For="() => Model.CurrentMixerState" @bind-Value="Model.CurrentMixerState"
+                            Label="Mixer State" Items="Enum.GetValues<CurrentMixerState>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                    @if (Model.CurrentMixerState == CurrentMixerState.Batching)
+                    {
+                        <Autocomplete @bind-Value="@Model.BackBoneStep"
+                                      Label="Select Step"
+                                      ValidateAsync="ValidateAsync"
+                                      For="() => Model.BackBoneStep"
+                                      Clearable="true"
+                                      SearchFunc="SearchBackboneStep"
+                                      Change="ChangeBackBoneStep"
+                                      ToStringFunc="@(e => e == null ? null : $"{e.StepName} ")"></Autocomplete>
+                        @if (Model.BackBoneStep != null)
+                        {
+                            <Field Label="Mixer Current Level">@Model.MixerLevel.ToString()</Field>
+                        }
+                    }
+                    else if (Model.CurrentMixerState == CurrentMixerState.Transfering)
+                    {
+                        <SelectUnit Label="Current Level" @bind-Value=@Model.MixerLevel For="() => Model.MixerLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeMixerLevel"></SelectUnit>
+                    }
+
+                }
+            }
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

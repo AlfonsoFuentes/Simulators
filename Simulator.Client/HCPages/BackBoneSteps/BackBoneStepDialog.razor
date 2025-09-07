@@ -1,0 +1,62 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+@using Simulator.Shared.Enums.HCEnums.Enums
+@using Simulator.Shared.Models.HCs.Materials
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <Select For="() => Model.BackBoneStepType" @bind-Value="Model.BackBoneStepType" Change="ChangetoWashout"
+                    Label="Step Type" Items="Enum.GetValues<BackBoneStepType>().ToList()" ValidateAsync="ValidateAsync"></Select>
+
+            @if (Model.BackBoneStepType == BackBoneStepType.Add)
+            {
+
+                <AutoCompleteIconButton @bind-Value="@Model.StepRawMaterial"
+                                        TValue="MaterialDTO"
+                                        Label="Raw Material"
+                                        ValidateAsync="ValidateAsync"
+                                        For="()=>Model.StepRawMaterial"
+                                        Clearable="true"
+                                        SearchFunc="SearchRawMaterial"
+                                        ToStringFunc="@(e=> e==null?null : $"{e.M_NumberCommonName} ")"
+                                        Icon="@Icons.Material.Filled.Add"
+                                        ButtonClick="AddRawMaterial"
+                                        ToolTip="Add new RawMaterial"></AutoCompleteIconButton>
+
+                <DoubleNumericField Label="Percentage" @bind-Value="@Model.Percentage" For="() => Model.Percentage" ValidateAsync="ValidateAsync"></DoubleNumericField>
+
+            }
+            else if (Model.BackBoneStepType == BackBoneStepType.Washout)
+            {
+
+                <Field Label="Washing Material">@Model.StepRawMaterialString</Field>
+            }
+            else if (Model.BackBoneStepType != BackBoneStepType.None)
+            {
+
+
+                <SelectUnit Label="Time" @bind-Value=@Model.Time For="() => Model.TimeValue" ValidateAsync="ValidateAsync" Change="Model.ChangeTime"></SelectUnit>
+
+
+            }
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

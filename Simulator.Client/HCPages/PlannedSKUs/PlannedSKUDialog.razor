@@ -1,0 +1,65 @@
+﻿
+
+
+
+
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            <MudStack>
+                <Autocomplete Label="Selected SKU"
+                              @bind-Value=@Model.SKU
+                              For="() => Model.SKU"
+                              ValidateAsync="ValidateAsync"
+                              Change="ChangeSku"
+                              ToStringFunc="@(e => e == null ? null : $"{e.SKUCodeName} ")"
+                              SearchFunc="SearchSKULine"></Autocomplete>
+                @if (Model.SKU != null)
+                {
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <IntNumericField Label="Planned cases" @bind-Value=@Model.PlannedCases ValidateAsync="ValidateAsync" For="() => Model.PlannedCases"></IntNumericField>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <SelectUnit Label="Change Over Time" @bind-Value=@Model.TimeToChangeSKU For="() => Model.TimeToChangeSKUValue" ValidateAsync="ValidateAsync" Change="Model.ChangeTimeToChangeSKU"></SelectUnit>
+                        </MudItem>
+                    </MudGrid>
+                    <MudGrid>
+                        <MudItem xs="6"><Field Label="Case/Shift">@Model.Case_Shift.ToString()</Field></MudItem>
+                        <MudItem xs="6"> <Field Label="Planned Shift">@Model.PlannedShifts.ToString()</Field></MudItem>
+                    </MudGrid>
+                    <MudGrid>
+                        <MudItem xs="6"> <Field Label="Planned Bottles">@Model.PlannedBottles.ToString()</Field></MudItem>
+                        <MudItem xs="6"><Field Label="Planned Mass">@Model.PlannedProductMass.ToString()</Field></MudItem>
+                    </MudGrid>
+                    <MudGrid>
+                        <MudItem xs="6"> <Field Label="Line Speed">@Model.LineSpeed.ToString()</Field></MudItem>
+                        <MudItem xs="6"><Field Label="Mass Flow">@Model.MassFlowSKU.ToString()</Field></MudItem>
+                    </MudGrid>
+                    <MudGrid>
+                        <MudItem xs="6"><Field Label="Planned %AU">@Model.PlannedAU.ToString()</Field></MudItem>
+                        <MudItem xs="6"></MudItem>
+                    </MudGrid>
+                   
+           
+                    
+                   
+                    
+                   
+                }
+
+            </MudStack>
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

@@ -1,0 +1,24 @@
+﻿@using Simulator.Shared.Simulations.Tanks
+
+<CardTank Tank="@Tank">
+    <States>
+        @foreach (var row in Tank.ConnectedOutletEquipments)
+        {
+            <LabelSimulation Label="@($"{row.Name} Ocupied by:")" Value="@row.OcupiedByName"></LabelSimulation>
+
+        }
+    </States>
+</CardTank>
+
+
+
+@code {
+
+    [Parameter]
+    public RawMaterialTank Tank { get; set; } = null!;
+
+    [Parameter]
+
+    public RenderFragment States { get; set; } = null!;
+
+}

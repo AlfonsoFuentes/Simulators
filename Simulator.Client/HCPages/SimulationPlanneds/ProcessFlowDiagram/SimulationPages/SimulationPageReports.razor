@@ -1,0 +1,288 @@
+﻿@if(debug)
+{
+    
+}
+@if (Simulation != null && Simulation.EquipmentEvents.Any())
+{
+    <MudPaper Elevation="2" Class="pa-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <MudText Typo="Typo.h5" Class="d-flex align-items-center">
+                <MudIcon Icon="@Icons.Material.Filled.Timeline" Class="mr-2" Color="Color.Primary" />
+                Equipment Events Timeline
+                    <MudBadge Color="Color.Primary"  Class="ml-2" >@Simulation.EquipmentEvents.Count</MudBadge>
+            </MudText>
+            <MudButton Color="Color.Secondary" 
+                       Variant="Variant.Outlined" 
+                       Size="Size.Small" 
+                       OnClick="ClearEvents">
+                <MudIcon Icon="@Icons.Material.Filled.Clear" Size="Size.Small" Class="mr-1" />
+                Clear Events
+            </MudButton>
+        </div>
+
+        <!-- Estadísticas resumen -->
+        <MudPaper Elevation="1" Class="pa-3 mb-4" Style="background-color: #f5f5f5;">
+            <MudGrid>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Class="pa-2 text-center" Style="background-color: #ffebee;">
+                        <MudText Typo="Typo.h6">@GetEventCountBySeverity("Error")</MudText>
+                        <MudText Typo="Typo.body2">Errors</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Class="pa-2 text-center" Style="background-color: #fff3e0;">
+                        <MudText Typo="Typo.h6">@GetEventCountBySeverity("Warning")</MudText>
+                        <MudText Typo="Typo.body2">Warnings</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Class="pa-2 text-center" Style="background-color: #e8f5e9;">
+                        <MudText Typo="Typo.h6">@GetEventCountByType("Started")</MudText>
+                        <MudText Typo="Typo.body2">Active Events</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6" sm="3">
+                    <MudPaper Class="pa-2 text-center" Style="background-color: #e3f2fd;">
+                        <MudText Typo="Typo.h6">@GetEventCountByType("Ended")</MudText>
+                        <MudText Typo="Typo.body2">Completed</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <!-- Filtros -->
+        <MudStack Row="true" Spacing="2" Class="mb-4">
+            <MudTextField @bind-Value="searchTerm" 
+                         Placeholder="Search events..." 
+                         Adornment="Adornment.Start" 
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="flex-grow-1" />
+         
+            
+            <MudSelect T="string" @bind-Value="@selectedSeverity" Label="Severity" Variant="Variant.Outlined" Dense="true" >
+                <MudSelectItem Value="@("")">All Severities</MudSelectItem>
+                <MudSelectItem Value="@("Info")">Info</MudSelectItem>
+                <MudSelectItem Value="@("Warning")">Warning</MudSelectItem>
+                <MudSelectItem Value="@("Error")">Error</MudSelectItem>
+                <MudSelectItem Value="@("Critical")">Critical</MudSelectItem>
+            </MudSelect>
+            
+            <MudSelect T="string" @bind-Value="selectedEventType" Label="Event Type" Variant="Variant.Outlined" Dense="true">
+                <MudSelectItem Value="@("")">All Types</MudSelectItem>
+                <MudSelectItem Value="@("Started")">Started</MudSelectItem>
+                <MudSelectItem Value="@("Ended")">Ended</MudSelectItem>
+                <MudSelectItem Value="@("Instant")">Instant</MudSelectItem>
+            </MudSelect>
+        </MudStack>
+
+        <!-- Lista de eventos con timeline -->
+        <div class="timeline-container" Style="max-height: 600px; overflow-y: auto;">
+            @foreach (var eventGroup in GetGroupedEvents())
+            {
+                <MudExpansionPanel>
+                    <TitleContent>
+                        <div class="d-flex align-items-center w-100">
+                            <MudAvatar Color="GetAvatarColor(eventGroup.First().Severity)" Size="Size.Small" Class="mr-3">
+                                <MudIcon Icon="@(eventGroup.First().EventType == "Started" ? Icons.Material.Filled.PlayArrow : 
+                                               eventGroup.First().EventType == "Ended" ? Icons.Material.Filled.Stop : 
+                                               Icons.Material.Filled.Info)" 
+                                         Size="Size.Small" />
+                            </MudAvatar>
+                            
+                            <div class="flex-grow-1">
+                                <MudText Typo="Typo.body1">
+                                    <strong>@eventGroup.First().Equipment?.Name ?? "Unknown Equipment"</strong>
+                                </MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    <small>@eventGroup.First().EventName</small>
+                                </MudText>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                @if (eventGroup.Any(e => e.EventType == "Started"))
+                                {
+                                    var startedEvent = eventGroup.First(e => e.EventType == "Started");
+                                    if (eventGroup.Any(e => e.EventType == "Ended"))
+                                    {
+                                        var endedEvent = eventGroup.First(e => e.EventType == "Ended");
+                                        <MudChip T="string" Color="Color.Success" Size="Size.Small" Class="mr-2">
+                                            <MudIcon Icon="@Icons.Material.Filled.Check" Size="Size.Small" Class="mr-1" />
+                                            <small>Completed (@FormatDuration(endedEvent.Duration))</small>
+                                        </MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudChip T="string" Color="Color.Warning" Size="Size.Small" Class="mr-2">
+                                            <MudIcon Icon="@Icons.Material.Filled.AccessTime" Size="Size.Small" Class="mr-1" />
+                                            <small>Active</small>
+                                        </MudChip>
+                                    }
+                                }
+                                
+                                <MudText Typo="Typo.body2" Color="GetSeverityColor(eventGroup.First().Severity)">
+                                    <small>@eventGroup.First().Timestamp.ToString("HH:mm:ss")</small>
+                                </MudText>
+                            </div>
+                        </div>
+                    </TitleContent>
+                    
+                    <ChildContent>
+                        <MudTimeline>
+                            @foreach (var evt in eventGroup.OrderBy(e => e.Timestamp))
+                            {
+                                <MudTimelineItem Variant="Variant.Outlined">
+                                    <MudTimelineItem>
+                                        <div class="d-flex">
+                                            <MudAvatar Color="GetTimelineItemColor(evt.EventType)" Size="Size.Small" Class="mr-3">
+                                                <MudIcon Icon="@(evt.EventType == "Started" ? Icons.Material.Filled.PlayArrow : 
+                                                               evt.EventType == "Ended" ? Icons.Material.Filled.Stop : 
+                                                               Icons.Material.Filled.Info)" 
+                                                         Size="Size.Small" />
+                                            </MudAvatar>
+                                            
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between">
+                                                    <MudText Typo="Typo.body1" Color="GetSeverityColor(evt.Severity)">
+                                                        <strong>@evt.Description</strong>
+                                                    </MudText>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                                        <small>@evt.Timestamp.ToString("HH:mm:ss")</small>
+                                                    </MudText>
+                                                </div>
+                                                
+                                                @if (!string.IsNullOrEmpty(evt.Details))
+                                                {
+                                                    <MudText Typo="Typo.body2" Class="mt-1">
+                                                        @evt.Details
+                                                    </MudText>
+                                                }
+                                                
+                                                @if (evt.Duration > TimeSpan.Zero)
+                                                {
+                                                    <MudChip T="string" Color="Color.Info" Size="Size.Small" Class="mt-2">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Timer" Size="Size.Small" Class="mr-1" />
+                                                        <small>Duration: @FormatDuration(evt.Duration)</small>
+                                                    </MudChip>
+                                                }
+                                                
+                                                <div class="d-flex mt-2">
+                                                    <MudChip T="string" Color="GetSeverityColor(evt.Severity)" Size="Size.Small" Class="mr-2">
+                                                        <small>@evt.Severity</small>
+                                                    </MudChip>
+                                                    <MudChip T="string" Color="Color.Secondary" Size="Size.Small">
+                                                        <small>@evt.EventType</small>
+                                                    </MudChip>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </MudTimelineItem>
+                                </MudTimelineItem>
+                            }
+                        </MudTimeline>
+                    </ChildContent>
+                </MudExpansionPanel>
+            }
+        </div>
+    </MudPaper>
+}
+
+@code {
+    [Parameter]
+    public NewSimulation Simulation { get; set; } = new();
+    bool debug = true;
+    private string searchTerm = "";
+    private string selectedSeverity = "";
+    private string selectedEventType = "";
+    
+    private IEnumerable<IGrouping<string, NewBaseEquipmentEventArgs>> GetGroupedEvents()
+    {
+        var filteredEvents = Simulation?.EquipmentEvents ?? new List<NewBaseEquipmentEventArgs>();
+        
+        // Aplicar filtros
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            filteredEvents = filteredEvents.Where(e => 
+                (e.Equipment?.Name?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (e.EventName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (e.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (e.Details?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+            ).ToList();
+        }
+        
+        if (!string.IsNullOrEmpty(selectedSeverity))
+        {
+            filteredEvents = filteredEvents.Where(e => e.Severity == selectedSeverity).ToList();
+        }
+        
+        if (!string.IsNullOrEmpty(selectedEventType))
+        {
+            filteredEvents = filteredEvents.Where(e => e.EventType == selectedEventType).ToList();
+        }
+        
+        // Agrupar por equipo y tipo de evento
+        return filteredEvents
+            .GroupBy(e => $"{e.Equipment?.Id}_{e.EventName}")
+            .OrderByDescending(g => g.Max(e => e.Timestamp));
+    }
+    
+    private int GetEventCountBySeverity(string severity)
+    {
+        return Simulation?.EquipmentEvents.Count(e => e.Severity == severity) ?? 0;
+    }
+    
+    private int GetEventCountByType(string eventType)
+    {
+        return Simulation?.EquipmentEvents.Count(e => e.EventType == eventType) ?? 0;
+    }
+    
+    private Color GetAvatarColor(string severity)
+    {
+        return severity switch
+        {
+            "Critical" => Color.Error,
+            "Error" => Color.Error,
+            "Warning" => Color.Warning,
+            "Info" => Color.Info,
+            _ => Color.Default
+        };
+    }
+    
+    private Color GetSeverityColor(string severity)
+    {
+        return severity switch
+        {
+            "Critical" => Color.Error,
+            "Error" => Color.Error,
+            "Warning" => Color.Warning,
+            "Info" => Color.Info,
+            _ => Color.Default
+        };
+    }
+    
+    private Color GetTimelineItemColor(string eventType)
+    {
+        return eventType switch
+        {
+            "Started" => Color.Success,
+            "Ended" => Color.Primary,
+            "Instant" => Color.Info,
+            _ => Color.Default
+        };
+    }
+    
+    private string FormatDuration(TimeSpan duration)
+    {
+        if (duration == TimeSpan.Zero) return "0s";
+        if (duration.TotalSeconds < 60) return $"{duration.TotalSeconds:F0}s";
+        if (duration.TotalMinutes < 60) return $"{duration.TotalMinutes:F1}m";
+        return $"{duration.TotalHours:F1}h";
+    }
+    
+    private void ClearEvents()
+    {
+        Simulation?.ClearEquipmentEvents();
+        StateHasChanged();
+    }
+}
+
+

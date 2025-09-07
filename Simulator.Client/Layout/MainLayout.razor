@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+
+@inherits LayoutComponentBase
+<MudLayout>
+    <MudAppBar Dense=true>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Size=Size.Medium Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+
+        <MudSpacer />
+        <LoginDisplay CurrentUserId="@MainApp.UserId" />
+    </MudAppBar>
+    @* <MudDrawer @bind-Open="@_drawerOpen">
+        <NewMenu></NewMenu>
+    </MudDrawer> *@
+    <MudMainContent>
+        <AuthorizeView>
+            <NotAuthorized>
+                @Body
+            </NotAuthorized>
+            <Authorized>
+                <ErrorBoundary>
+                    <ChildContent>
+                        <div style="padding:4px">
+                            @Body
+                        </div>
+
+                    </ChildContent>
+                    <ErrorContent Context="ex">
+                        <div class="blazor-error-boundary">@ex.Message</div>
+                    </ErrorContent>
+                </ErrorBoundary>
+            </Authorized>
+        </AuthorizeView>
+    </MudMainContent>
+</MudLayout>
+
+@* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider FullWidth="true"                  
+                   CloseButton="true"
+                   BackdropClick="false"   
+                    
+                   Position="DialogPosition.Center"
+                   CloseOnEscapeKey="true"
+                 />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+@code {
+    [CascadingParameter]
+    public App MainApp { get; set; } = null!;
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

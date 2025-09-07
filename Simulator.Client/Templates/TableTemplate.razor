@@ -1,0 +1,108 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+@typeparam TValue
+<MudStack>
+    @if (!string.IsNullOrEmpty(TableTitle))
+    {
+        <Field><strong>@TableTitle</strong></Field>
+    }
+    @if (ShowToolbar)
+    {
+
+        <MudStack Row=true Spacing="3">
+
+            @if (ShowAdd)
+            {
+                <IconButton Size=@Size.Small ToolTip="Add new Item" Icon="@Icons.Material.Filled.Add" Variant=Variant.Outlined OnClick="AddNew" Disabled=@DisableAdd></IconButton>
+            }
+            @if (ShowDelete)
+            {
+                <IconButton Size=@Size.Small ToolTip="Delete Selected Items" Icon="@Icons.Material.Filled.PlaylistRemove" Variant=Variant.Outlined
+                            Disabled=@(DisableDeleteGroup||SelectedItems==null||SelectedItems.Count==0) OnClick="DeleteGroup"></IconButton>
+            }
+            @if (ShowCopyPasteGroup)
+            {
+                <IconButton Size=@Size.Small ToolTip="Copy Selected Items" Icon="@Icons.Material.Filled.ContentCopy" Variant=Variant.Outlined
+                            Disabled=@(DisableDeleteGroup||SelectedItems==null||SelectedItems.Count==0) OnClick="CopyGroup"></IconButton>
+
+            }
+            @if (ShowOrderUpDown)
+            {
+
+                <IconButton Size=@Size.Small ToolTip="Order Up" Icon="@Icons.Material.Filled.MoveUp" Variant=Variant.Outlined OnClick="OrderUp" Disabled=@DisableUpButton></IconButton>
+                <IconButton Size=@Size.Small ToolTip="Order Down" Icon="@Icons.Material.Filled.MoveDown" Variant=Variant.Outlined OnClick="OrderDown" Disabled=@DisableDownButton></IconButton>
+            }
+            @if (ShowPrint)
+            {
+                <IconButton Size=@Size.Small ToolTip="Export to excel" Icon="@Icons.Material.Filled.TableView" Variant=Variant.Outlined OnClick="ExportExcel"></IconButton>
+                <IconButton Size=@Size.Small ToolTip="Export to pdf" Icon="@Icons.Material.Filled.PictureAsPdf" Variant=Variant.Outlined OnClick="ExportPDF"></IconButton>
+            }
+            @if (Buttons != null)
+            {
+                @Buttons
+            }
+
+            <MudSpacer></MudSpacer>
+            @if (ShowSearch)
+            {
+                <TextField ValueChanged=OnNameFilter Value="@NameFilter" Placeholder="Search" Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small" Class="mt-0"></TextField>
+            }
+
+        </MudStack>
+
+    }
+    @if (OtherButtons != null)
+    {
+        @OtherButtons
+    }
+
+    <MudDataGrid T="TValue"
+                 MultiSelection="true"
+                 Items="@Items"
+                 Hideable="true"
+                 Dense=true
+                 Bordered=true
+                 Hover=true
+                 Outlined=true
+                 Striped=true
+                 RowsPerPage=@(Items.Count==0?100:Items.Count)
+                 RowClick="@RowClicked"
+                 RowContextMenuClick="RowRightClicked"
+                 SelectedItemsChanged="@OnSelectedItemsChanged">
+        <Columns>
+            @if (ChildRowContent != null)
+            {
+                <HierarchyColumn T="TValue" />
+
+            }
+            @if (ColumnsTemplate != null)
+            {
+                @ColumnsTemplate
+            }
+        </Columns>
+        <ChildRowContent>
+            @if (ChildRowContent != null)
+            {
+                @ChildRowContent(context)
+
+            }
+        </ChildRowContent>
+       
+        <PagerContent>
+            <MudDataGridPager T="TValue" />
+        </PagerContent>
+    </MudDataGrid>
+</MudStack>
+@code {
+
+
+
+
+
+}

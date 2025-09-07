@@ -1,0 +1,31 @@
+﻿@using Simulator.Shared.Simulations.Mixers
+@using Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStates
+
+
+<TemplateCard Title="@Mixer.Name">
+    <Content>
+
+        <LabelSimulation Label="Capacity" Value="@Mixer.CurrentMixerBackBoneCapacity.ToString()"></LabelSimulation>
+       
+        <MudSpacer></MudSpacer>
+        @if (Mixer.MixerState is not MixerStateAvailable)
+        {
+            <CardMixerData Mixer="@Mixer"></CardMixerData>
+
+        }
+        
+
+
+    </Content>
+</TemplateCard>
+
+
+@code {
+
+    [Parameter]
+
+    public BaseMixer Mixer { get; set; } = null!;
+
+
+
+}

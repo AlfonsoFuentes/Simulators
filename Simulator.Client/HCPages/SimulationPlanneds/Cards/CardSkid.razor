@@ -1,0 +1,28 @@
+﻿@using Simulator.Shared.Simulations.Skids
+<TemplateCard Title="@SKID.Name">
+    <Content>
+
+        <LabelSimulation Label="Material" Value="@SKID.MaterialName"></LabelSimulation>
+        <LabelSimulation Label="State" Value="@SKID.LabelState"></LabelSimulation>
+
+        <LabelSimulation Label="Flow" Value="@SKID.CurrentFlow.ToString("G6")"></LabelSimulation>
+
+        <LabelSimulation Label="Producing to: " Value="@SKID.Producingto"></LabelSimulation>
+
+
+
+
+
+
+    </Content>
+</TemplateCard>
+
+
+
+@code {
+
+    [Parameter]
+
+    public BaseSKID SKID { get; set; } = null!;
+
+}

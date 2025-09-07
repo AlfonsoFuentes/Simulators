@@ -1,0 +1,31 @@
+﻿<MudCard Outlined="true">
+    <MudCardHeader>
+        <CardHeaderContent>
+            @if (!string.IsNullOrEmpty(Title))
+            {
+                <MudChip T="string" Color="Color.Success"><strong>@Title</strong></MudChip>
+            }
+
+
+        </CardHeaderContent>
+
+    </MudCardHeader>
+    <MudCardContent>
+        <MudStack Spacing="2">
+            @if (Content != null)
+            {
+                @Content
+
+            }
+        </MudStack>
+
+    </MudCardContent>
+
+</MudCard>
+
+@code {
+    [Parameter]
+    public RenderFragment Content { get; set; } = null!;
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+}

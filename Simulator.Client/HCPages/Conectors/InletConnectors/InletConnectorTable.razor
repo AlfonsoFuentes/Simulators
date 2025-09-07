@@ -1,0 +1,30 @@
+﻿
+
+
+<TableTemplate TValue="InletConnectorDTO"
+               AddNew="AddNew"
+               DisableAdd=false
+        
+               DeleteGroup="DeleteGroup"
+               Items="Items"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="@TableLegend">
+    <ColumnsTemplate>
+        <SelectColumn T="InletConnectorDTO" />
+        <PropertyColumn Property="x => x.FromName" Title="From" TProperty="string" T="InletConnectorDTO" />
+       
+        <TemplateColumn CellClass="d-flex justify-end" T="InletConnectorDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.FromName}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.FromName}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+@code {
+ 
+}

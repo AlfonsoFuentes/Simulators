@@ -1,0 +1,41 @@
+﻿@using Simulator.Client.HCPages.PlannedSKUs
+
+
+
+
+
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            
+            <Autocomplete Label="Selected Line"
+                          @bind-Value=@Model.LineDTO
+                          For="() => Model.LineDTO"
+                          ValidateAsync="ValidateAsync"
+                          ToStringFunc="@(e => e == null ? null : $"{e.Name} ")"
+                          SearchFunc="SearchLine"></Autocomplete>
+            @if (Model.LineDTO != null)
+            {
+                <Select For="() => Model.ShiftType" @bind-Value="Model.ShiftType"
+                        Label="Schedule Shifts" Items="Enum.GetValues<ShiftType>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                <SelectUnit Label="Wip Level" @bind-Value=@Model.WIPLevel For="() => Model.WIPLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeWIPLevel"></SelectUnit>
+
+                <PlannedSKUTable @bind-Items=@Model.PlannedSKUDTOs LineId="@Model.LineId" LinePlannedId="@Model.Id" ValidateAsync="ValidateAsync" ></PlannedSKUTable>
+                <ValidationMessage For="() => Model.PlannedSKUDTOs.Count" style="color:red; font-size:x-small;" />
+            }
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

@@ -1,0 +1,14 @@
+﻿<MudStack Row=true Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="p-2">
+
+    <MudText Typo="Typo.button">@Label</MudText>
+    <MudText Typo="Typo.body2"><strong>@Value</strong></MudText>
+
+</MudStack>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+  
+}

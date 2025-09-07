@@ -1,0 +1,36 @@
+﻿
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <MudStack>
+
+                <MudStack Row=true Spacing="2">
+                    <Select For="() => Model.ProductCategoryCurrent" @bind-Value="Model.ProductCategoryCurrent" Label="Initial Backbone" Items="Enum.GetValues<ProductCategory>().ToList()" ValidateAsync="ValidateAsync"></Select>
+                    <Select For="() => Model.ProductCategoryNext" @bind-Value="Model.ProductCategoryNext" Label="New Backbone" Items="Enum.GetValues<ProductCategory>().ToList()" ValidateAsync="ValidateAsync"></Select>
+
+                </MudStack>
+                <MudStack Row=true>
+                    <SelectUnit @bind-Value=@Model.MixerWashoutTime For="() => Model.MixerWashoutValue" Label="Mixer Washout time" ValidateAsync="ValidateAsync" Change="Model.ChangeMixerWashout"></SelectUnit>
+                    <SelectUnit @bind-Value=@Model.LineWashoutTime For="() => Model.LineWashoutValue" Label="Line Washout time" ValidateAsync="ValidateAsync" Change="Model.ChangeLineWashout"></SelectUnit>
+
+                </MudStack>
+
+            </MudStack>
+
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

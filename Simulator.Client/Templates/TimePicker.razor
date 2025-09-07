@@ -1,0 +1,44 @@
+﻿<MudTimePicker Label="@Label"
+               Elevation="12"
+               Time="@Value"
+               Variant="Variant.Outlined"
+               AutoClose="@_autoClose"
+               Margin="Margin.Dense"
+               TimeChanged=OnValueChanged
+               For="@For" />
+
+@code {
+
+    private bool _autoClose = true;
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public string Label { get; set; } = string.Empty;
+    [Parameter]
+    public TimeSpan? Value { get; set; }
+    [Parameter]
+    public EventCallback<TimeSpan?> ValueChanged { get; set; }
+    [Parameter]
+    public EventCallback ValidateAsync { get; set; }
+    [Parameter]
+    public EventCallback Change { get; set; }
+    [Parameter]
+    public EventCallback ChangePrior { get; set; }
+    [Parameter]
+    public Expression<Func<TimeSpan?>>? For { get; set; }
+    async Task OnValueChanged(TimeSpan? value)
+    {
+
+        if (ChangePrior.HasDelegate)
+            await ChangePrior.InvokeAsync();
+        Value = value;
+        if (ValueChanged.HasDelegate)
+            await ValueChanged.InvokeAsync(Value);
+        if (Change.HasDelegate)
+            await Change.InvokeAsync();
+        if (ValidateAsync.HasDelegate)
+            await ValidateAsync.InvokeAsync();
+    }
+}

@@ -1,0 +1,36 @@
+﻿@using Simulator.Shared.Models.HCs.Pumps
+
+
+
+
+<TableTemplate TValue="PumpDTO"
+               AddNew="AddNew"
+               @bind-NameFilter=@nameFilter
+               DeleteGroup="DeleteGroup"
+               Items="FilteredItems"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="Pumps List">
+    <ColumnsTemplate>
+        <SelectColumn T="PumpDTO" />
+        <PropertyColumn Property="x => x.Name" Title="Name" TProperty="string" T="PumpDTO" />
+        <PropertyColumn Property="x => x.Flow.ToString()" Title="Flow" TProperty="string" T="PumpDTO" />
+        <PropertyColumn Property="x => x.IsForWashing" Title="Is For Washout?" TProperty="bool" T="PumpDTO" />
+     
+        <TemplateColumn CellClass="d-flex justify-end" T="PumpDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback RefreshProcessFlowDiagram { get; set; }
+}

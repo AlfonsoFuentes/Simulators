@@ -1,0 +1,45 @@
+﻿@using Simulator.Shared.Models.HCs.PlannedSKUs
+
+
+
+
+<TableTemplate TValue="PlannedSKUDTO"
+               AddNew="AddNew"
+                ShowOrderUpDown="true"
+               OnRowClicked="RowClicked"
+       
+               OrderUp="Up"
+               OrderDown="Down"
+               DisableDownButton="@DisableDownButton"
+               DisableUpButton="@DisableUpButton"
+               DeleteGroup="DeleteGroup"
+               Items="OrderedItems"
+               ShowSearch=false
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="PlannedSKUs List">
+    <ColumnsTemplate>
+        <SelectColumn T="PlannedSKUDTO" />
+        <PropertyColumn Property="x => x.SkuName" Title="Sku" TProperty="string" T="PlannedSKUDTO" />
+        <PropertyColumn Property="x => x.PlannedCases" Title="Planned cases" TProperty="int" T="PlannedSKUDTO" />
+      
+        <PropertyColumn Property="x => x.LineSpeed.ToString()" Title="Line Speed" TProperty="string" T="PlannedSKUDTO" />
+        <PropertyColumn Property="x => x.PlannedProductMass.ToString()" Title="Planned mass" TProperty="string" T="PlannedSKUDTO" />
+       
+        <TemplateColumn CellClass="d-flex justify-end" T="PlannedSKUDTO">
+           
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+
+@code {
+
+
+}

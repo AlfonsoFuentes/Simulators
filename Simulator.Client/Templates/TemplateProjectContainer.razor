@@ -1,0 +1,56 @@
+﻿@using Simulator.Client.Services.Authentications
+@using Simulator.Client.Services.Identities.Accounts
+@using Simulator.Client.Services.Identities.Authentications
+@using Simulator.Client.Services.Identities.Users
+@using Simulator.Client.Services.Interceptor
+@using Simulator.Client.Services.Navigations
+@using Simulator.Client.Services.SnackBars
+@if (ShowAll || ShowContent)
+{
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <Field><strong>@Title</strong></Field>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                @if (ShowContent)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" Color="Color.Default" OnClick="@OnClickButton" />
+                }
+                else
+                {
+                     <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" Color="Color.Default" OnClick="@OnClickButton" />
+                }
+               
+            </CardHeaderActions>
+        </MudCardHeader>
+        @if (ShowContent)
+        {
+            <MudCardContent>
+
+                @Content
+
+
+            </MudCardContent>
+        }
+    </MudCard>
+}
+
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+    bool ShowContent { get; set; } = false;
+    [Parameter]
+    public bool ShowAll { get; set; } = false;
+    [Parameter]
+    public RenderFragment Content { get; set; } = null!;
+    [Parameter]
+    public EventCallback ShowContentChanged { get; set; }
+    async Task OnClickButton()
+    {
+        ShowContent = !ShowContent;
+        if (ShowContentChanged.HasDelegate) await ShowContentChanged.InvokeAsync(ShowContent);
+    }
+
+}
