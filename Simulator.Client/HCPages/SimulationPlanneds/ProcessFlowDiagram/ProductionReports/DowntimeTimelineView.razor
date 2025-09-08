@@ -1,0 +1,99 @@
+﻿<!-- DowntimeTimelineView.razor -->
+<MudPaper Elevation="1" Class="pa-4">
+    <MudText Typo="Typo.h6" Class="mb-4">Downtime Timeline</MudText>
+
+    @if (Events != null && Events.Any())
+    {
+        <div class="d-flex flex-column gap-3">
+            @foreach (var evt in Events.Take(50)) // Limitar a 50 eventos para performance
+            {
+                <MudPaper Elevation="1" Class="pa-3">
+                    <div class="d-flex">
+                        <MudAvatar Color="@(evt.EventStatus == EventStatus.Open ? Color.Warning : Color.Success)"
+                                   Size="Size.Small"
+                                   Class="mr-3">
+                            <MudIcon Icon="@(evt.EventStatus == EventStatus.Open ? Icons.Material.Filled.AccessTime : Icons.Material.Filled.Check)"
+                                     Size="Size.Small" />
+                        </MudAvatar>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <MudText Typo="Typo.body1">
+                                    <strong>@evt.EquipmentName</strong>
+                                </MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                                    <small>@evt.StartDate.ToString("yyyy-MM-dd HH:mm:ss")</small>
+                                </MudText>
+                            </div>
+
+                            <MudText Typo="Typo.body2" Class="mt-1">
+                                @evt.Description
+                            </MudText>
+
+                            <div class="d-flex mt-2">
+                                <MudChip T="string"
+                                         Color="@(evt.EventStatus == EventStatus.Open ? Color.Warning : Color.Success)"
+                                         Variant="Variant.Outlined"
+                                         Size="Size.Small"
+                                         Class="mr-2">
+                                    @(evt.EventStatus == EventStatus.Open ? "Active" : "Closed")
+                                </MudChip>
+
+                                @if (evt.EventStatus == EventStatus.Closed)
+                                {
+                                    <MudChip T="string"
+                                             Color="Color.Info"
+                                             Variant="Variant.Outlined"
+                                             Size="Size.Small">
+                                        @FormatDuration(evt.Duration)
+                                    </MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string"
+                                             Color="Color.Info"
+                                             Variant="Variant.Outlined"
+                                             Size="Size.Small">
+                                        @FormatDuration(DateTime.Now - evt.StartDate) (Active)
+                                    </MudChip>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </MudPaper>
+            }
+        </div>
+
+        @if (Events.Count > 50)
+        {
+            <MudPaper Elevation="0" Class="pa-3 mt-3 text-center" Style="background-color: #fff3e0;">
+                <MudText Typo="Typo.body2" Color="Color.Warning">
+                    <small>Showing 50 of @Events.Count events. Use filters to see more specific events.</small>
+                </MudText>
+            </MudPaper>
+        }
+    }
+    else
+    {
+        <MudPaper Elevation="0" Class="pa-8 text-center" Style="background-color: #f5f5f5;">
+            <MudIcon Icon="@Icons.Material.Filled.Timeline" Size="Size.Large" Class="mb-4" />
+            <MudText Typo="Typo.h6" Class="mb-2">No Downtime Events</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                No downtime events recorded in the selected timeframe.
+            </MudText>
+        </MudPaper>
+    }
+</MudPaper>
+
+@code {
+    [Parameter]
+    public List<NewBaseEquipmentEventArgs> Events { get; set; } = new();
+
+    private string FormatDuration(TimeSpan duration)
+    {
+        if (duration == TimeSpan.Zero) return "0s";
+        if (duration.TotalSeconds < 60) return $"{duration.TotalSeconds:F0}s";
+        if (duration.TotalMinutes < 60) return $"{duration.TotalMinutes:F1}m";
+        return $"{duration.TotalHours:F1}h";
+    }
+}

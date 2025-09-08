@@ -22,6 +22,10 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStat
             {
                
                 Mixer.MixerState = new MixerStateStarvedByTankHiLevel(Mixer);
+                if (Mixer.CurrentEventId == Guid.Empty)
+                {
+                    Mixer.StartEquipmentEvent($"Wip tank {Mixer.ProducingTo.Name} High Level");
+                }
             }
             else if (Mixer.CurrentLevel == ZeroLevel)
             {
@@ -63,15 +67,8 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStat
             {
             
                 Mixer.MixerState = new MixerStateStarvedByTankNoAvailable(Mixer);
+                Mixer.StartEquipmentEvent($"Wip tank {Mixer.ProducingTo.Name} No Available");
 
-                var eventId = Mixer.StartEquipmentEvent(
-               "MixerStop",  // Tipo de evento
-               "WIP Tank No Available",  // Razón específica
-               $"Mixer {Mixer.Name} stopped due Wip No Avaialble","",
-               "Error");
-
-                // Guardar el ID en el contexto para usarlo al salir
-                Mixer.CurrentEventId = eventId;
             }
 
 

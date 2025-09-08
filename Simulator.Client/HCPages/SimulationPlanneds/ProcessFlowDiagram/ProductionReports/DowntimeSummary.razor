@@ -1,0 +1,60 @@
+﻿<!-- DowntimeSummary.razor -->
+<MudPaper Elevation="2" Class="pa-4 mb-4">
+    <MudText Typo="Typo.h6" Class="mb-3">Downtime Summary</MudText>
+    <MudGrid>
+        <MudItem xs="12" sm="3">
+            <MudPaper Class="pa-3 text-center" Style="background-color: #ffebee;">
+                <MudText Typo="Typo.h5">@totalDowntimeEvents</MudText>
+                <MudText Typo="Typo.body2">Total Events</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudPaper Class="pa-3 text-center" Style="background-color: #fff3e0;">
+                <MudText Typo="Typo.h5">@activeDowntimeEvents</MudText>
+                <MudText Typo="Typo.body2">Active Events</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudPaper Class="pa-3 text-center" Style="background-color: #e8f5e9;">
+                <MudText Typo="Typo.h5">@FormatDuration(totalDowntime)</MudText>
+                <MudText Typo="Typo.body2">Total Downtime</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudPaper Class="pa-3 text-center" Style="background-color: #e3f2fd;">
+                <MudText Typo="Typo.h5">@affectedEquipmentCount</MudText>
+                <MudText Typo="Typo.body2">Affected Equipment</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public NewSimulation Simulation { get; set; } = new();
+
+    private int totalDowntimeEvents => Simulation?.GetAllEquipmentEvents().Count ?? 0;
+    private int activeDowntimeEvents => Simulation?.GetOpenEquipmentEvents().Count ?? 0;
+    private int affectedEquipmentCount => Simulation?.GetAllEquipmentEvents()
+        .Select(e => e.Equipment?.Id)
+        .Distinct()
+        .Count() ?? 0;
+
+    private TimeSpan totalDowntime
+    {
+        get
+        {
+            var closedEvents = Simulation?.GetClosedEquipmentEvents() ?? new List<NewBaseEquipmentEventArgs>();
+            var result = TimeSpan.FromTicks(closedEvents.Sum(e => e.Duration.Ticks));
+            return result;
+        }
+    }
+
+    private string FormatDuration(TimeSpan duration)
+    {
+        if (duration == TimeSpan.Zero) return "0s";
+        if (duration.TotalSeconds < 60) return $"{duration.TotalSeconds:F0}s";
+        if (duration.TotalMinutes < 60) return $"{duration.TotalMinutes:F1}m";
+        return $"{duration.TotalHours:F1}h";
+    }
+}

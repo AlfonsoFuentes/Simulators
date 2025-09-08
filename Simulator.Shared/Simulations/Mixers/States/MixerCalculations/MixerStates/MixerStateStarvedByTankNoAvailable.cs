@@ -21,16 +21,7 @@
             {
              
                 Mixer.MixerState = new MixerStateTransfering(Mixer);
-                if (!string.IsNullOrEmpty(Mixer.CurrentEventId))
-                {
-                    Mixer.EndEquipmentEvent(
-                        Mixer.CurrentEventId,
-                        "WIP Available",
-                        $"Mixer {Mixer.Name} resumed operation - WIP tank level restored at {Mixer.Simulation?.CurrentDate:HH:mm:ss}"
-                    );
-
-                    Mixer.CurrentEventId = null!;
-                }
+                Mixer.CloseCurrentEvent();
             }
         }
 

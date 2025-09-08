@@ -8,13 +8,14 @@ namespace Simulator.Shared.Simulations
 {
     public abstract class NewBaseEquipment
     {
+        public Guid CurrentEventId { get; set; }
         public override string ToString()
         {
             return Name;
         }
         protected Amount OneSecond = new(1, TimeUnits.Second);
-        public string CurrentEventId { get; set; } = null!; // Para eventos de parada
-
+       
+       
         public virtual Guid Id { get; }
         public virtual string Name { get; } = string.Empty;
         protected List<EquipmentPlannedDownTimeDTO> PlannedDownTimes { get; set; } = new();
@@ -55,7 +56,7 @@ namespace Simulator.Shared.Simulations
             }
         }
         // Referencia a la simulación para obtener la fecha actual
-       
+
 
 
 
@@ -152,10 +153,7 @@ namespace Simulator.Shared.Simulations
         public NewBaseEquipment AddProcessEquipmentInletOrPutQueue(MaterialSimulation material)
         {
             var equipmenlist = GetEquipmentListInlet(material);
-            if (material.Id.ToString() == "16a43a89-0c98-4173-97fd-f3db45d73865")
-            {
-
-            }
+            
             NewBaseEquipment retorno = null!;
             if (equipmenlist.Count > 0)
             {
@@ -275,7 +273,7 @@ namespace Simulator.Shared.Simulations
                     row.AddMaterialSimulation(item);
                 }
 
-             
+
             }
         }
 
@@ -286,107 +284,68 @@ namespace Simulator.Shared.Simulations
         public NewSimulation Simulation { get; set; } = null!;
 
         // Evento para que cada instancia pueda disparar eventos
-        public event EventHandler<NewBaseEquipmentEventArgs> EquipmentEvent = null!;
-
-        // Método protegido para que las clases derivadas puedan disparar eventos
-        protected virtual void OnEquipmentEvent(NewBaseEquipmentEventArgs e)
+        public void StartEquipmentEvent(string description)
         {
-            EquipmentEvent?.Invoke(this, e);
+            // Crear nuevo evento
+            var eventArgs = new NewBaseEquipmentEventArgs(this, description);
+
+            // Asignar este evento como el evento actual
+            CurrentEventId = eventArgs.EventId;
+
+            // Publicar el evento a través de la simulación
+            Simulation?.PublishEquipmentEvent(eventArgs);
+
+           
         }
-
-        // Método para INICIAR un evento con identificación única
-        public string StartEquipmentEvent(
-            string eventType,  // Tipo de evento: "LineStop", "MixerBlock", etc.
-            string reason,     // Razón del evento
-            string description,
-            string details = "",
-            string severity = "Info")
+        public void CloseCurrentEvent()
         {
-            // Generar ID único para este evento específico
-            var eventId = $"{this.Id}_{eventType}_{Guid.NewGuid():N}";
-
-            var eventArgs = new NewBaseEquipmentEventArgs
+            if (CurrentEventId != Guid.Empty && Simulation != null)
             {
-                Equipment = this,
-                EventId = eventId,
-                EventName = eventType,
-                Description = description,
-                Details = $"{reason}: {details}",
-                Timestamp = Simulation?.CurrentDate ?? DateTime.Now,
-                EventType = "Started",
-                Severity = severity,
-                Reason = reason
-            };
-
-            OnEquipmentEvent(eventArgs);
-            return eventId; // Devolver el ID para usarlo al finalizar
-        }
-
-        // Método para FINALIZAR un evento específico usando su ID
-        public void EndEquipmentEvent(
-            string eventId,
-            string endReason = "",
-            string additionalDetails = "",
-            string severity = "Info")
-        {
-            var eventArgs = new NewBaseEquipmentEventArgs
-            {
-                Equipment = this,
-                EventId = eventId,
-                EventName = "Event Completion",
-                Description = string.IsNullOrEmpty(endReason) ? "Event completed" : endReason,
-                Details = additionalDetails,
-                Timestamp = Simulation?.CurrentDate ?? DateTime.Now,
-                EventType = "Ended",
-                Severity = severity
-            };
-
-            OnEquipmentEvent(eventArgs);
-        }
-
-        // Método para reportar eventos puntuales
-        public void ReportEquipmentEvent(
-            string eventType,
-            string reason,
-            string description,
-            string details = "",
-            TimeSpan duration = default,
-            string severity = "Info")
-        {
-            var eventId = $"{this.Id}_{eventType}_{Guid.NewGuid():N}";
-
-            var eventArgs = new NewBaseEquipmentEventArgs
-            {
-                Equipment = this,
-                EventId = eventId,
-                EventName = eventType,
-                Description = description,
-                Details = $"{reason}: {details}",
-                Timestamp = Simulation?.CurrentDate ?? DateTime.Now,
-                Duration = duration,
-                EventType = "Instant",
-                Severity = severity,
-                Reason = reason
-            };
-
-            OnEquipmentEvent(eventArgs);
+                var currentEvent = Simulation.GetEquipmentEventById(CurrentEventId);
+                if (currentEvent != null && currentEvent.EventStatus == EventStatus.Open)
+                {
+                    currentEvent.CloseEvent();
+                    Simulation?.UpdateEquipmentEvent(currentEvent);
+                    CurrentEventId = Guid.Empty; // Limpiar referencia
+                }
+            }
         }
     }
     public class NewBaseEquipmentEventArgs : EventArgs
     {
         public NewBaseEquipment Equipment { get; set; } = null!;
-        public string EventId { get; set; } = string.Empty; // ID único para cada evento
-        public string EventName { get; set; } = string.Empty; // Tipo de evento
+        public Guid EventId { get; set; } = Guid.NewGuid(); // ID único para cada evento
+        public ProccesEquipmentType EquipmentType => Equipment?.EquipmentType ?? ProccesEquipmentType.None;
+        public string EquipmentName => Equipment?.Name ?? string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Details { get; set; } = string.Empty;
-        public string Reason { get; set; } = string.Empty; // Razón específica del evento
-        public DateTime Timestamp { get; set; }
-        public TimeSpan Duration { get; set; } = TimeSpan.Zero;
-        public string EventType { get; set; } = "Instant"; // Started, Ended, Instant
-        public string Severity { get; set; } = "Info"; // Info, Warning, Error, Critical
 
-        // PROPIEDAD QUE FALTABA: Clave única para correlacionar eventos de inicio y fin
-        public string EventKey => string.IsNullOrEmpty(EventId) ? $"{Equipment?.Id}_{EventName}_{Timestamp.Ticks}" : EventId;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public TimeSpan Duration => EndDate == DateTime.MinValue ? TimeSpan.Zero : EndDate - StartDate;
+        public EventStatus EventStatus { get; set; } = EventStatus.Open;
+
+        // Constructor para eventos que inician
+        public NewBaseEquipmentEventArgs(NewBaseEquipment equipment, string description)
+        {
+            Equipment = equipment;
+            Description = description;
+            StartDate = equipment?.Simulation?.CurrentDate ?? DateTime.Now;
+            EventStatus = EventStatus.Open;
+        }
+
+        // Constructor vacío para serialización
+        public NewBaseEquipmentEventArgs() { }
+
+        // Método para cerrar el evento
+        public void CloseEvent()
+        {
+            EndDate = Equipment?.Simulation?.CurrentDate ?? DateTime.Now;
+            EventStatus = EventStatus.Closed;
+        }
     }
-
+    public enum EventStatus
+    {
+        Open,
+        Closed
+    }
 }

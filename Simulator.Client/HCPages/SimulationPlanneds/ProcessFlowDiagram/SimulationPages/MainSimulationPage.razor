@@ -1,5 +1,4 @@
-﻿@using Simulator.Client.HCPages.SimulationPlanneds.Cards
-@using Simulator.Shared.Simulations
+﻿
 
 @if (Simulation != null)
 {
@@ -77,7 +76,7 @@
                         <SimulationPageCards Simulation="@Simulation"></SimulationPageCards>
                     </MudTabPanel>
                     <MudTabPanel Text="Results">
-                        <SimulationPageReports Simulation="@Simulation"></SimulationPageReports>
+                        <EquipmentDowntimeReport Simulation="@Simulation"></EquipmentDowntimeReport>
                     </MudTabPanel>
                 </MudTabs>
             }

@@ -1,0 +1,39 @@
+﻿<!-- DowntimeDetails.razor (ordenado por tipo de equipo) -->
+<MudExpansionPanels>
+    @foreach (var equipmentType in orderedEquipmentTypes)
+    {
+        <EquipmentTypeDowntimeSection EquipmentType="@equipmentType" Simulation="@Simulation" />
+    }
+</MudExpansionPanels>
+
+@code {
+    [Parameter]
+    public NewSimulation Simulation { get; set; } = new();
+
+    // Orden específico: Líneas primero, luego otros tipos en orden alfabético
+    private List<string> orderedEquipmentTypes
+    {
+        get
+        {
+            var allTypes = Simulation?.EquipmentEventsRegistry
+                .Values
+                .Select(e => e.EquipmentType.ToString())
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            // Orden personalizado: Líneas primero, luego alfabético
+            var orderedTypes = new List<string>();
+
+            // Primero líneas
+            if (allTypes.Contains("Line"))
+                orderedTypes.Add("Line");
+
+            // Luego el resto en orden alfabético
+            orderedTypes.AddRange(allTypes
+                .Where(t => t != "Line")
+                .OrderBy(t => t));
+
+            return orderedTypes;
+        }
+    }
+}

@@ -36,15 +36,9 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStep
             MixerState.UpdateStepState(LabelStepStateSuperior);
             if (equipment != null)
             {
-                if (!string.IsNullOrEmpty(Mixer.CurrentEventId))
+                if(Mixer.CurrentEventId!=Guid.Empty)
                 {
-                    Mixer.EndEquipmentEvent(
-                        Mixer.CurrentEventId,
-                        "Raw Material available",
-                        $"Mixer {Mixer.Name} resumed operation - WIP tank level restored at {Mixer.Simulation?.CurrentDate:HH:mm:ss}"
-                    );
-
-                    Mixer.CurrentEventId = null!;
+                    Mixer.CloseCurrentEvent();
                 }
 
                 if (equipment is BasePump pump)
@@ -64,17 +58,11 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStep
             {
                 LabelStepStateInferior = $"Starved: {stepSimulation.StepRawMaterial.SAPName}";
                 MixerState.UpdateStepState(LabelStepStateInferior);
-                if(string.IsNullOrEmpty(Mixer.CurrentEventId))
+                if(Mixer.CurrentEventId==Guid.Empty)
                 {
-                    var eventId = Mixer.StartEquipmentEvent(
-             "MixerStop",  // Tipo de evento
-             "RawMaterialPumpOccupied",  // Razón específica
-             $"Mixer {Mixer.Name} stopped due Raw Material No available", "",
-             "Error");
-
-                    // Guardar el ID en el contexto para usarlo al salir
-                    Mixer.CurrentEventId = eventId;
+                    Mixer.StartEquipmentEvent($"Pump of {stepSimulation.StepRawMaterial.CommonName} not available");
                 }
+                
                
 
             }

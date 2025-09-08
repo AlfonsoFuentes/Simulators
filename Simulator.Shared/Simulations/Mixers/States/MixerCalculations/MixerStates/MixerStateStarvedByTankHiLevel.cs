@@ -21,7 +21,7 @@
             {
                
                 Mixer.MixerState = new MixerStateTransfering(Mixer);
-
+                Mixer.CloseCurrentEvent();
             }
         }
 
