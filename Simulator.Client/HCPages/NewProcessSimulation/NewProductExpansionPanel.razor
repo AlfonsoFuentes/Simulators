@@ -1,0 +1,140 @@
+﻿@using Simulator.Shared.NuevaSimlationconQwen
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
+
+@using Simulator.Shared.NuevaSimlationconQwen.Materials
+<MudExpansionPanel ExpandedChanged="OnProductExpandedChanged">
+    <TitleContent>
+
+
+        @if (Product.Material != null && Product.Material is IRecipedMaterial material)
+        {
+            if (Product.Equipment is ProcessMixer)
+            {
+
+
+                <MudGrid Class="production-details-grid" Spacing="2">
+                    <MudItem xs="12" sm="3">
+                        <MudText><strong>@Product.MaterialName</strong></MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+                        <MudText><strong>Capacity:</strong> @Product.Capacity.GetValue(MassUnits.KiloGram) Kg</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+                        <MudText><strong>Batch Cycle Time:</strong> @Product.BatchTime.GetValue(TimeUnits.Minute).ToString("N1") min</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+                        <MudText><strong>Transfer Time:</strong> @Product.TransferTime.GetValue(TimeUnits.Minute).ToString("N1") min</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+                        <MudText><strong>Total Time:</strong> @Product.TotalTime.GetValue(TimeUnits.Minute).ToString("N1") min</MudText>
+                    </MudItem>
+                </MudGrid>
+
+            }
+            else if (Product.Equipment is ProcessContinuousSystem skid)
+            {
+                <MudDivider Class="my-3" />
+
+                <MudGrid Class="production-details-grid" Spacing="2">
+                    <MudItem xs="12" sm="3">
+                        <MudText><strong>@Product.MaterialName</strong></MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+                        <MudText><strong>Capacity:</strong> @skid.Capacity.GetValue(MassFlowUnits.Kg_hr) Kg/hr</MudText>
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+
+                    </MudItem>
+                    <MudItem xs="12" sm="2">
+
+                    </MudItem>
+                </MudGrid>
+
+
+
+            }
+
+        }
+
+    </TitleContent>
+    <ChildContent>
+        @if (IsProductExpanded)
+        {
+            <MudCardContent>
+                <!-- Status chip -->
+                <div class="d-flex align-center mb-3">
+                    <MudChip T="string"
+                             Color="Color.Success"
+                             Variant="Variant.Filled">
+                        Can Produce
+                    </MudChip>
+
+                </div>
+
+
+                <!-- Production details and steps -->
+                @if (Product.Material != null && Product.Material is IRecipedMaterial material)
+                {
+                    if (Product.Equipment is ProcessMixer)
+                    {
+
+                        @if (material.RecipeSteps.Any())
+                        {
+
+                            <MudDivider Class="my-3" />
+                            <MudExpansionPanel Text="Production Steps" MaxHeight="600">
+                                <NewProductionStepsForMixersTable StepDetails="@material.RecipeSteps" />
+                            </MudExpansionPanel>
+                        }
+                    }
+                    else if (Product.Equipment is ProcessContinuousSystem skid)
+                    {
+
+                        @if (material.RecipeSteps.Any())
+                        {
+                            <MudDivider Class="my-3" />
+                            <MudExpansionPanel Text="Raw Material Flows" MaxHeight="600">
+                                <NewProductionStepsForSKID StepDetails="@material.RecipeSteps" />
+                            </MudExpansionPanel>
+                        }
+
+
+                    }
+
+                }
+
+
+
+            </MudCardContent>
+        }
+        else
+        {
+            <MudCardContent>
+                <MudText Color="Color.Secondary">Click to load product details...</MudText>
+            </MudCardContent>
+        }
+    </ChildContent>
+
+</MudExpansionPanel>
+
+@code {
+    [Parameter] public ManufacturingReport Product { get; set; } = new();
+
+
+    private bool IsProductExpanded { get; set; } = false;
+
+    private async Task OnProductExpandedChanged(bool expanded)
+    {
+        IsProductExpanded = expanded;
+
+        if (expanded)
+        {
+            await Task.Delay(10);
+            StateHasChanged();
+        }
+    }
+}

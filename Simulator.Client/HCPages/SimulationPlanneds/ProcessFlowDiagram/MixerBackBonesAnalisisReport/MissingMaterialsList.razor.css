@@ -1,0 +1,19 @@
+﻿::deep .mud-list {
+    padding: 0.5rem 0;
+}
+
+::deep .mud-list-item {
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.3rem;
+    background-color: #fff0f0;
+}
+
+::deep .mud-chip {
+    margin-right: 0.5rem;
+}
+
+.material-supplier {
+    font-size: 0.85rem;
+    color: #616161;
+}

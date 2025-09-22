@@ -1,0 +1,18 @@
+﻿.step-line {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+::deep .mud-divider {
+    align-self: stretch;
+    margin: 0 !important;
+}
+
+::deep .mud-list-item {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+    ::deep .mud-list-item:last-child {
+        border-bottom: none;
+    }

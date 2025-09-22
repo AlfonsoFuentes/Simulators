@@ -1,0 +1,29 @@
+﻿@using Simulator.Shared.NuevaSimlationconQwen
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
+
+<div class="full-width-container">
+    <MudText Typo="Typo.h4" Class="mb-4">Production Capacity Report</MudText>
+
+    @if (Equipments == null)
+    {
+        <div class="loading-container">
+            <MudProgressCircular Class="mt-5" Size="Size.Large" Indeterminate="true" />
+            <MudText Class="mt-2">Loading analysis...</MudText>
+        </div>
+    }
+    else
+    {
+        <MudExpansionPanels MultiExpansion="true" Class="mt-4">
+            @foreach (var equipmentResult in Equipments)
+            {
+                <NewEquipmentExpansionPanel Equipment=@equipmentResult />
+            }
+        </MudExpansionPanels>
+    }
+</div>
+@code {
+    public List<ManufaturingEquipment>? Equipments => Simulation?.Equipments.OfType<ManufaturingEquipment>().ToList();
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+
+}

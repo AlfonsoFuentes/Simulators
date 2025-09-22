@@ -9,12 +9,12 @@ public partial class PlannedSKUTable
     [Parameter]
     public EventCallback<List<PlannedSKUDTO>> ItemsChanged { get; set; }
     string nameFilter = string.Empty;
-    public Func<PlannedSKUDTO, bool> Criteria => x => 
-    x.SkuName.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase)||
+    public Func<PlannedSKUDTO, bool> Criteria => x =>
+    x.SkuName.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase) ||
     x.SkuCode.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
     public List<PlannedSKUDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
         Items.Where(Criteria).ToList();
-    public List<PlannedSKUDTO> OrderedItems => Items.OrderBy(x => x.Order).ToList();
+    public List<PlannedSKUDTO> OrderedItems => Items.OrderBy(x=>x.Order).ToList();
     int LastOrder => OrderedItems.Count > 0 ? OrderedItems.Max(x => x.Order) + 1 : 1;
     [Parameter]
     [EditorRequired]
@@ -24,14 +24,12 @@ public partial class PlannedSKUTable
     public Guid LineId { get; set; }
     [Parameter]
     public EventCallback ValidateAsync { get; set; }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
-        {
-            await GetAll();
-        }
+       
+        await GetAll();
     }
-
     async Task GetAll()
     {
         if (LinePlannedId != Guid.Empty)
@@ -45,9 +43,11 @@ public partial class PlannedSKUTable
             if (result.Succeeded)
             {
                 Items = result.Data.Items;
+                await ItemsChanged.InvokeAsync(Items);
             }
+          
         }
-        await ItemsChanged.InvokeAsync(Items);
+      
     }
     public async Task AddNew()
     {

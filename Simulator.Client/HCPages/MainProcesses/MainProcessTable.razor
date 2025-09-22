@@ -1,4 +1,5 @@
-﻿@using Simulator.Shared.Models.HCs.MainProcesss
+﻿@using Simulator.Client.HCPages.NewProcessSimulation
+@using Simulator.Shared.Models.HCs.MainProcesss
 
 
 
@@ -12,7 +13,7 @@
                @bind-SelectedItems=@SelecteItems
                TableTitle="MainProcesss List">
     <ChildRowContent Context="context">
-        <MainProcessEquipmentTabs MainProcessId="@context.Item.Id"></MainProcessEquipmentTabs>
+        <NewMainProcessEquipmentTabs MainProcessId="@context.Item.Id"></NewMainProcessEquipmentTabs>
     </ChildRowContent>
     <ColumnsTemplate>
         <SelectColumn T="MainProcessDTO" />

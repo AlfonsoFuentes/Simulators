@@ -1,0 +1,26 @@
+﻿<div class="full-width-container">
+    <MudText Typo="Typo.h4" Class="mb-4">Production Capacity Report</MudText>
+
+    @if (AnalysisResults == null)
+    {
+        <div class="loading-container">
+            <MudProgressCircular Class="mt-5" Size="Size.Large" Indeterminate="true" />
+            <MudText Class="mt-2">Loading analysis...</MudText>
+        </div>
+    }
+    else
+    {
+        <MudExpansionPanels MultiExpansion="true" Class="mt-4">
+            @foreach (var equipmentResult in AnalysisResults)
+            {
+                <EquipmentExpansionPanel EquipmentResult="equipmentResult" />
+            }
+        </MudExpansionPanels>
+    }
+</div>
+@code {
+    public List<EquipmentAnalysisResult>? AnalysisResults => Simulation?.EquipmentAnalysisResults;
+    [Parameter]
+    public NewSimulation Simulation { get; set; } = new();
+
+}

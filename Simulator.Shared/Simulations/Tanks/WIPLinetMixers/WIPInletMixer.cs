@@ -105,7 +105,8 @@ namespace Simulator.Shared.Simulations.Tanks.WIPLinetMixers
                 var MixerSelected = CurrentPlannedSKU.BackBoneSimulation.GetMixerAvailableForWIP(this);
                 if (IsAbleToStartBatchCurrentBackBone(MixerSelected))
                 {
-                    StartBatchCurrentBackBone(MixerSelected);
+                    var batchdata = CurrentPlannedSKU.BackBoneSimulation.BatchDataMixer[MixerSelected];
+                    StartBatchCurrentBackBone(MixerSelected, batchdata);
                 }
             }
         }
@@ -151,9 +152,9 @@ namespace Simulator.Shared.Simulations.Tanks.WIPLinetMixers
             }
 
         }
-        void StartBatchCurrentBackBone(BaseMixer mixer)
+        void StartBatchCurrentBackBone(BaseMixer mixer, BackBoneStepSimulationCalculation BatchData)
         {
-            Amount Capacity = new Amount(0, MassUnits.KiloGram);
+            Amount Capacity = BatchData.Capacity;
             MassCurrentSku.Producing += Capacity;
             MassCurrentSku.Needed -= Capacity;
             AddProcessInletEquipment(mixer.OutletPump);
@@ -218,20 +219,20 @@ namespace Simulator.Shared.Simulations.Tanks.WIPLinetMixers
             Amount washouttime, Amount Producing)
         {
 
-            var BatchTime = washouttime + BatchData.BatchCycleTime;
-            var capacity=BatchData.Capacity;
+            var BatchTime = washouttime + BatchData.BatchCycleTime + BatchData.TransferTime;
+            var capacity = BatchData.Capacity;
             var outletMassDuringBatch = BatchTime * Plann.AverageMassFlow;//Aqui se sumar meter el tiempo de transferencia
 
             var WIPFinaLevelAfterBatch = CurrentLevel + Producing + capacity - outletMassDuringBatch;
 
             return WIPFinaLevelAfterBatch <= Capacity;
         }
-        Amount Time10Minutes=new(10,TimeUnits.Minute);
+        Amount Time10Minutes = new(10, TimeUnits.Minute);
         bool IsNeedToStartBatchToAvoidEmptyWIP(BackBoneStepSimulationCalculation BatchData, PlannedSKUSimulation Plann,
             Amount washouttime, Amount Producing, Amount TimeToChangeSKU = null!)
         {
             if (CurrentLevel.Value == 0) return true;
-            var BatchTime = washouttime + BatchData.BatchCycleTime + Time10Minutes; // aumenta 10 min para evitar otras perdidas de tiempo no conocidas
+            var BatchTime = washouttime + BatchData.BatchCycleTime + Time10Minutes + BatchData.TransferTime; // aumenta 10 min para evitar otras perdidas de tiempo no conocidas
 
             var WIPFinaLevelAfterBatch = CurrentLevel + Producing;
             var OutletFlow = Plann.AverageMassFlow;
@@ -249,7 +250,7 @@ namespace Simulator.Shared.Simulations.Tanks.WIPLinetMixers
             if (MassCurrentSku.Needed.Value <= 0) return new(TimeUnits.Minute);
             var BatchData = CurrentPlannedSKU.BackBoneSimulation.BatchDataMixer[MixerCurrentBackBone];
             var washouttime = MixerCurrentBackBone.GetNextWashoutTime(CurrentPlannedSKU.BackBoneSimulation);
-            var BatchTime = washouttime + BatchData.BatchCycleTime;
+            var BatchTime = washouttime + BatchData.BatchCycleTime + BatchData.TransferTime;
 
             var WIPFinaLevelAfterBatch = CurrentLevel + MassCurrentSku.Producing;
             var TimeToFinishCurrentMass = WIPFinaLevelAfterBatch / CurrentPlannedSKU.AverageMassFlow;
@@ -368,7 +369,7 @@ namespace Simulator.Shared.Simulations.Tanks.WIPLinetMixers
         bool IsPendingLineTimeLessThanBatchTime(PlannedSKUSimulation sKUSimulation,
             BackBoneStepSimulationCalculation BatchData, Amount Producing, Amount washouttime)
         {
-            var TotalTime = washouttime + BatchData.BatchCycleTime;
+            var TotalTime = washouttime + BatchData.BatchCycleTime + BatchData.TransferTime;
 
             var MasPendingToDeliver = CurrentLevel + Producing;
             var flowLine = sKUSimulation.AverageMassFlow;

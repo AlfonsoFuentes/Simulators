@@ -116,42 +116,7 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
 
             _ => false
         };
-        //public MainProcessDTO MainProcess { get; private set; } = null!;
-        //public List<TankDTO> WIPTanks { get; set; } = new();
-        //public List<TankDTO> GetLinesWIPAssociatedtoMixers(MixerPlannedDTO plannedmixer)
-        //{
-        //    var outletpumps = MainProcess.Conectors.Where(x => x.FromId == plannedmixer.MixerId).Select(x => x.To).ToList();
-
-        //    List<TankDTO> outletWIPs = new List<TankDTO>();
-
-        //    foreach (var pump in outletpumps)
-        //    {
-        //        foreach (var wip in pump!.OutletConnections)
-        //        {
-        //            foreach (var pumpwip in wip.Equipment.OutletConnections)
-        //            {
-        //                foreach (var line in pumpwip.Equipment.OutletConnections)
-        //                {
-        //                    if (PlannedLines.Any(x => x.LineId == line.Equipment.Id && x.PlannedSKUDTOs.Count > 0
-        //                    && CheckPlannedShift(x.ShiftType)))
-        //                    {
-        //                        var plannedlined = PlannedLines.First(x => x.LineId == line.Equipment.Id);
-        //                        var wipdto = WIPTanks.FirstOrDefault(x => x.Id == wip.Equipment.Id);
-        //                        outletWIPs.Add(wipdto!);
-        //                        var plannedsku = plannedlined.PlannedSKUDTOs.MinBy(x => x.Order);
-
-        //                        plannedmixer.BackBone = plannedsku!.SKU!.BackBone!;
-
-        //                    }
-        //                }
-
-        //            }
-
-        //        }
-        //    }
-
-        //    return outletWIPs;
-        //}
+        
 
     }
     public class DeleteSimulationPlannedRequest : DeleteMessageResponse, IRequest

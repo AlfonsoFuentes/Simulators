@@ -1,0 +1,16 @@
+﻿<MudText Typo="Typo.subtitle2" Color="Color.Error">Missing Materials:</MudText>
+<MudList Dense="true" T="string">
+    @foreach (var missing in Materials)
+    {
+        <MudListItem>
+            <MudChip T="string" Color="Color.Error" Size="Size.Small" Variant="Variant.Outlined">
+                @missing.MaterialName
+            </MudChip>
+            <MudText Class="ml-2">Supplied by: @missing.EquipmentType - @missing.EquipmentName</MudText>
+        </MudListItem>
+    }
+</MudList>
+
+@code {
+    [Parameter] public IEnumerable<MaterialStatus> Materials { get; set; } = new List<MaterialStatus>();
+}

@@ -1,0 +1,50 @@
+﻿@using Simulator.Client.HCPages.SimulationPlanneds.ProcessFlowDiagram.MixerBackBonesAnalisisReport
+@using Simulator.Shared.NuevaSimlationconQwen
+
+
+<MudStack Spacing="3" Breakpoint="Breakpoint.Md">
+    <MudStack Row="true" Justify="Justify.FlexStart" AlignItems="AlignItems.Center" Class="mb-4">
+        <MudTooltip Text="Load Process flow diagram">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size=Size.Medium OnClick="RefreshProcessFlowDiagram" StartIcon="@Icons.Material.Filled.CloudUpload">Load Process</MudButton>
+
+        </MudTooltip>
+
+    </MudStack>
+    @if (!isLoading && Simulation != null)
+    {
+        <MudTabs>
+            <MudTabPanel Text="Process Flow Diagram">
+                <NewProcessFlowDiagram Simulation="@Simulation" GetAll="RefreshProcessFlowDiagram" />
+            </MudTabPanel>
+            <MudTabPanel Text="Process Analysis">
+                <NewProductionCapacityReport Simulation=@Simulation />
+            </MudTabPanel>
+            <MudTabPanel Text="Production Plans">
+                <NewSimulationPlannedTable MainProcessId="@MainProcessId" @bind-Simulation=@Simulation></NewSimulationPlannedTable>
+            </MudTabPanel>
+            
+        </MudTabs>
+    }
+    else
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" Class="my-4" />
+    }
+
+
+</MudStack>
+
+@code {
+
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+    [Parameter]
+    public Guid MainProcessId { get; set; }
+
+    [Parameter]
+    public bool isLoading { get; set; } = false;
+
+    [Parameter]
+    public EventCallback RefreshProcessFlowDiagram { get; set; }
+
+
+}

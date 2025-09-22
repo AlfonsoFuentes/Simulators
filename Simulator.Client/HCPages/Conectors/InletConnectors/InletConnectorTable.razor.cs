@@ -44,11 +44,13 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
                 {
                     InletConnectorResponseList = result.Data;
                     Items = InletConnectorResponseList.Items;
+                    await ItemsChanged.InvokeAsync(Items);
 
                 }
+              
             }
 
-            await ItemsChanged.InvokeAsync(Items);
+           
         }
         public async Task AddNew()
         {

@@ -1,0 +1,25 @@
+﻿<MudCard Class="mb-4" Elevation="4">
+    <MudCardHeader>
+        <MudText Typo="Typo.h5">@EquipmentResult.EquipmentName (@EquipmentResult.EquipmentType)</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (!EquipmentResult.ProductResults.Any())
+        {
+            <MudAlert Severity="Severity.Info">This equipment has no assigned products.</MudAlert>
+        }
+        else
+        {
+            <MudExpansionPanels MultiExpansion="true">
+                @foreach (var product in EquipmentResult.ProductResults)
+                {
+                    <ProductExpansionPanel Product="product" 
+                                          EquipmentResult="EquipmentResult" />
+                }
+            </MudExpansionPanels>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public EquipmentAnalysisResult EquipmentResult { get; set; } = new();
+}

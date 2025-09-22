@@ -92,7 +92,7 @@ namespace Simulator.Shared.Simulations.ProductionAnalyzers
             return true; // Todas las materias primas están disponibles
         }
 
-      
+
 
 
         // Clases para los resultados
@@ -113,7 +113,7 @@ namespace Simulator.Shared.Simulations.ProductionAnalyzers
             public Amount Capacity { get; set; } = new Amount(0, MassUnits.KiloGram);
             public Amount BatchTime { get; set; } = new Amount(0, TimeUnits.Minute);
             public Amount TransferTime { get; set; } = new Amount(0, TimeUnits.Minute);
-            public Amount TotalStepsTime { get; set; } = new Amount(0, TimeUnits.Minute);
+            public Amount TotalTime => BatchTime + TransferTime;
             public bool CanProduce { get; set; }
             public List<string> MissingMaterials { get; set; } = new();
             public List<StepTimeDetail> StepTimes { get; set; } = new();
@@ -234,6 +234,7 @@ namespace Simulator.Shared.Simulations.ProductionAnalyzers
                             var batchData = backboneProduct.BatchDataMixer[mixer];
                             capabilityInfo.Capacity = batchData.Capacity;
                             capabilityInfo.BatchTime = batchData.BatchCycleTime;
+                            capabilityInfo.TransferTime = batchData.TransferTime;
                             // NUEVO: Incluir tiempos de pasos individuales
                             capabilityInfo.StepTimes = batchData.StepTimes.ToList();
                         }
@@ -257,59 +258,8 @@ namespace Simulator.Shared.Simulations.ProductionAnalyzers
                 BackboneCapabilities = backboneCapabilities
             };
         }
-        // Método auxiliar para crear resultados de análisis de equipos
-        private EquipmentAnalysisResult CreateEquipmentAnalysisResult2<T>(
-            T equipment,
-            Dictionary<BackBoneSimulation, bool> products,
-            string equipmentType) where T : NewBaseEquipment
-        {
-            var productResults = new List<ProductAnalysisResult>();
-            var allConnectedMaterials = new Dictionary<string, MaterialStatus>();
-            var allMissingMaterials = new Dictionary<string, MaterialStatus>();
-
-            foreach (var product in products)
-            {
-                var detailedMaterials = GetDetailedMaterialStatusForProduct(equipment, product.Key);
-                var connectedMaterials = detailedMaterials.Where(m => m.IsAvailable).ToList();
-                var missingMaterials = detailedMaterials.Where(m => !m.IsAvailable).ToList();
-
-                // Agregar materiales conectados (evitar repeticiones)
-                foreach (var material in connectedMaterials)
-                {
-                    if (!allConnectedMaterials.ContainsKey(material.MaterialName))
-                    {
-                        allConnectedMaterials[material.MaterialName] = material;
-                    }
-                }
-
-                // Agregar materiales faltantes (evitar repeticiones)
-                foreach (var material in missingMaterials)
-                {
-                    if (!allMissingMaterials.ContainsKey(material.MaterialName))
-                    {
-                        allMissingMaterials[material.MaterialName] = material;
-                    }
-                }
-
-                productResults.Add(new ProductAnalysisResult
-                {
-                    ProductName = product.Key.M_NumberCommonName ?? "Unnamed Product",
-                    CanProduce = product.Value,
-                    Reason = product.Value ? "" : "Missing required materials",
-                    ConnectedMaterials = connectedMaterials,
-                    MissingMaterials = missingMaterials
-                });
-            }
-
-            return new EquipmentAnalysisResult
-            {
-                EquipmentName = equipment.Name ?? "Unnamed Equipment",
-                EquipmentType = equipmentType,
-                ProductResults = productResults,
-                UniqueConnectedMaterials = allConnectedMaterials.Values.ToList(),
-                UniqueMissingMaterials = allMissingMaterials.Values.ToList()
-            };
-        }
+    
+       
 
         // Método mejorado para obtener resultados con estado detallado de materiales (genérico)
         private List<MaterialStatus> GetDetailedMaterialStatusForProduct(NewBaseEquipment equipment, MaterialSimulation material)
@@ -333,7 +283,7 @@ namespace Simulator.Shared.Simulations.ProductionAnalyzers
                         // Verificar en bombas de entrada del equipo
                         var supplyingPump = equipment.ConnectedInletEquipments
                             .OfType<BasePump>()
-                            .FirstOrDefault(pump => pump.InletMaterials.Any(x => x.Id == rawMaterial.Id));
+                            .FirstOrDefault(pump => pump.MaterialSimulations.Any(x => x.Id == rawMaterial.Id));
 
                         // Verificar en operadores de entrada del equipo
                         var supplyingOperator = equipment.ConnectedInletEquipments

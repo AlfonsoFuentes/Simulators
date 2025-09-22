@@ -32,38 +32,39 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStep
             MaxMass = Mixer.CurrentMixerBackBoneCapacity * stepSimulation.Percentage / 100;
 
             var equipment = Mixer.AddProcessEquipmentInletOrPutQueue(stepSimulation.StepRawMaterial);
-            LabelStepStateSuperior = $"Add: {stepSimulation.StepRawMaterial.SAPName}";
+            LabelStepStateSuperior = $"Step {stepSimulation.Order} Add: {stepSimulation.StepRawMaterial.CommonName} {MaxMass.ToString()}";
             MixerState.UpdateStepState(LabelStepStateSuperior);
             if (equipment != null)
             {
-                if(Mixer.CurrentEventId!=Guid.Empty)
+                if(equipment.OcupiedBy == Mixer)
                 {
-                    Mixer.CloseCurrentEvent();
-                }
+                    if (Mixer.CurrentEventId != Guid.Empty)
+                    {
+                        Mixer.CloseCurrentEvent();
+                    }
 
-                if (equipment is BasePump pump)
-                {
-                    Pump = pump;
-                    CalculateMass = CalculateByPump;
+                    if (equipment is BasePump pump)
+                    {
+                        Pump = pump;
+                        CalculateMass = CalculateByPump;
 
-                }
-                else if (equipment is BaseOperator _operator)
-                {
-                    Operator = _operator;
-                    CalculateMass = CalculateByOperator;
+                    }
+                    else if (equipment is BaseOperator _operator)
+                    {
+                        Operator = _operator;
+                        CalculateMass = CalculateByOperator;
 
+                    }
                 }
-            }
-            else
-            {
-                LabelStepStateInferior = $"Starved: {stepSimulation.StepRawMaterial.SAPName}";
-                MixerState.UpdateStepState(LabelStepStateInferior);
-                if(Mixer.CurrentEventId==Guid.Empty)
+                else
                 {
-                    Mixer.StartEquipmentEvent($"Pump of {stepSimulation.StepRawMaterial.CommonName} not available");
+                    LabelStepStateInferior = $"Starved: {stepSimulation.StepRawMaterial.CommonName}";
+                    MixerState.UpdateStepState(LabelStepStateInferior);
+                    if (Mixer.CurrentEventId == Guid.Empty)
+                    {
+                        Mixer.StartEquipmentEvent($"Pump of {stepSimulation.StepRawMaterial.CommonName} occupied by {equipment.OcupiedBy.Name}");
+                    }
                 }
-                
-               
 
             }
 

@@ -25,9 +25,9 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStep
         }
 
         public override void Init()
-        {
+        { 
             MaxTime = stepSimulation.Time;
-            LabelStepStateSuperior = $"Step: {stepSimulation.BackBoneStepType}";
+            LabelStepStateSuperior = $"Step {stepSimulation.Order}: {stepSimulation.BackBoneStepType} {MaxTime.ToString()}";
             MixerState.UpdateStepState(LabelStepStateSuperior);
         }
 

@@ -58,11 +58,11 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
         public static async Task ReadPlannedSKU(this LinePlannedDTO plannedLine, IQueryRepository Repository)
         {
             Func<IQueryable<PlannedSKU>, IIncludableQueryable<PlannedSKU, object>> includes = x => x
-                  .Include(y => y.SKU)
-                  .Include(x => x.LinePlanned); ;
+             .Include(x => x.LinePlanned)
+                  .Include(y => y.SKU).ThenInclude(x => x.SKULines);
             Expression<Func<PlannedSKU, bool>> Criteria = x => x.LinePlannedId == plannedLine.Id;
             string CacheKey = StaticClass.PlannedSKUs.Cache.GetAll(plannedLine.Id);
-            var rows = await Repository.GetAllAsync<PlannedSKU>(Cache: CacheKey, Criteria: Criteria, Includes: includes);
+            var rows = await Repository.GetAllAsync(Cache: CacheKey, Criteria: Criteria, Includes: includes);
 
             if (rows != null && rows.Count > 0)
             {

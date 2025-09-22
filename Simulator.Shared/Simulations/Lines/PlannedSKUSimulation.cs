@@ -13,7 +13,7 @@ namespace Simulator.Shared.Simulations.Lines
         public PlannedSKUSimulation(PlannedSKUDTO plannedSKUDTO, BaseLine line, SKUSimulation sKUSimulation, List<SKULineDTO> skulines)
         {
             PlannedSKU = plannedSKUDTO;
-            LineTimeToReviewAU = line.TimeToReviewAU;
+            LineTimeToReviewAU = line.TimeToReviewAU1;
             PlannedSKUSimulationCalculator = new(this);
             var skuline = skulines.FirstOrDefault(x => x.SKUId == plannedSKUDTO.SKUId && x.LineId == line.Id);
             if (skuline != null)

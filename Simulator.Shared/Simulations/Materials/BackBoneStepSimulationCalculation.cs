@@ -1,5 +1,6 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Simulations.Mixers;
+using Simulator.Shared.Simulations.Pumps;
 
 namespace Simulator.Shared.Simulations.Materials
 {
@@ -12,14 +13,14 @@ namespace Simulator.Shared.Simulations.Materials
 
         // Propiedades pre-calculadas para evitar cálculos en UI
         public List<StepTimeDetail> StepTimes { get; private set; } = new();
-        public Amount TotalTime { get; private set; } = new Amount(0, TimeUnits.Minute);
+        public Amount TotalTime =>TransferTime + BatchCycleTime;
         public Amount TransferTime { get; private set; } = new Amount(0, TimeUnits.Minute);
         public Amount BatchCycleTime { get; set; } = new Amount(0, TimeUnits.Minute);
 
-       
+
         private bool _isCalculated = false;
 
-       
+
 
         public BackBoneStepSimulationCalculation(BaseMixer mixer, Queue<BackBoneStepSimulation> step, Amount capacity)
         {
@@ -65,29 +66,38 @@ namespace Simulator.Shared.Simulations.Materials
                 {
                     var stepTime = GetTime(step);
                     totalTime += stepTime;
-
+                    Amount mass =new Amount(0, MassUnits.KiloGram);
+                    Amount pumpFlow = new Amount(0, MassFlowUnits.Kg_min);
+                    if (step.BackBoneStepType == BackBoneStepType.Add && step.StepRawMaterial != null)
+                    {
+                        mass = GetMass(step);
+                        var pump = step.StepRawMaterial.GetRawMaterialPumpByDestinationId(Mixer.Id);
+                        pumpFlow = pump != null && pump is BasePump ? pump.Flow : new Amount(0, MassFlowUnits.Kg_min);
+                    }
                     StepTimes.Add(new StepTimeDetail
                     {
                         Step = step,
                         Time = stepTime,
                         StepDescription = GetStepDescription(step),
-                        StepType = step.BackBoneStepType.ToString()
+                        StepType = step.BackBoneStepType,
+                        PumpFlow = pumpFlow,
+                        Mass = mass
                     });
                 }
             }
 
             BatchCycleTime = totalTime;
 
-            TotalTime = totalTime + TransferTime;
+           
         }
 
         private string GetStepDescription(BackBoneStepSimulation step)
         {
             if (step.StepRawMaterial != null)
             {
-                return $"{step.BackBoneStepType} {step.StepRawMaterial.M_NumberCommonName ?? step.StepRawMaterial.SAPName ?? "Unknown Material"}";
+                return $"{step.Order} {step.BackBoneStepType} {step.StepRawMaterial.CommonName}";
             }
-            return $"{step.BackBoneStepType} Step";
+            return $"{step.Order} {step.BackBoneStepType}";
         }
 
         public Amount GetTime(BackBoneStepSimulation step) => step.BackBoneStepType switch
@@ -116,12 +126,19 @@ namespace Simulator.Shared.Simulations.Materials
 
             return new Amount(0, TimeUnits.Minute);
         }
+        Amount GetMass(BackBoneStepSimulation step)
+        {
+            return Capacity * step.Percentage / 100;
+
+        }
     }
     public class StepTimeDetail
     {
         public BackBoneStepSimulation Step { get; set; } = null!;
         public Amount Time { get; set; } = new Amount(0, TimeUnits.Minute);
+        public Amount Mass { get; set; } = new Amount(0, MassUnits.KiloGram);
         public string StepDescription { get; set; } = string.Empty;
-        public string StepType { get; set; } = string.Empty;
+        public BackBoneStepType StepType { get; set; } = BackBoneStepType.None;
+        public Amount PumpFlow { get; set; } = new Amount(0, MassFlowUnits.Kg_min);
     }
 }

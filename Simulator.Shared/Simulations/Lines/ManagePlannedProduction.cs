@@ -23,7 +23,7 @@ namespace Simulator.Shared.Simulations.Lines
         public bool IsTimeStarvedAUAchieved => getTimeStarvedAU();
         public bool IsPlannedCasesAchieved => CurrentSKU == null ? true : CurrentSKU.IsPlannedCasesAchieved;
         public bool IsProductionPlanAchieved => QueueSKUs.Count == 0 && IsPlannedCasesAchieved;
-        public bool IsNextBackBoneSameAsCurrent => NextSKU == null ? false : NextSKU.BackBoneSimulation.Id == CurrentSKU.BackBoneSimulation.Id;
+        public bool IsNextBackBoneSameAsCurrent=> NextSKU == null ? false : NextSKU.BackBoneSimulation.Id == CurrentSKU.BackBoneSimulation.Id;
         public Amount AverageMassFlow => CurrentSKU == null ? new(MassFlowUnits.Kg_hr) : CurrentSKU.AverageMassFlow;
         public Amount CurrentCases => CurrentSKU == null ? new(CaseUnits.Case) : CurrentSKU.CurrentCases;
         public Amount Cases => CurrentSKU == null ? new(CaseUnits.Case) : CurrentSKU.Cases;
@@ -37,7 +37,7 @@ namespace Simulator.Shared.Simulations.Lines
             WashouTimes = line.WashouTimes;
 
         }
-        public void Init()
+        public void Init2()
         {
             QueueSKUs = ReadPlannedSKUS();
         }

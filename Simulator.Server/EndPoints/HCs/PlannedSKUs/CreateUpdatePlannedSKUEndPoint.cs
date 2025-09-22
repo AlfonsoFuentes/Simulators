@@ -26,13 +26,12 @@ namespace Simulator.Server.EndPoints.HCs.PlannedSKUs
             {
                 app.MapPost(StaticClass.PlannedSKUs.EndPoint.CreateUpdate, async (PlannedSKUDTO Data, IRepository Repository) =>
                 {
-
+                    var lastorder = await GetLastOrder(Repository, Data.LinePlannedId);
                     PlannedSKU? row = null;
                     if (Data.Id == Guid.Empty)
                     {
                         row = PlannedSKU.Create(Data.LinePlannedId);
-
-
+                        row.Order = lastorder + 1;
                         await Repository.AddAsync(row);
                     }
                     else
@@ -57,7 +56,14 @@ namespace Simulator.Server.EndPoints.HCs.PlannedSKUs
 
 
             }
+            async Task<int> GetLastOrder(IRepository Repository, Guid LinePlannedId)
+            {
+                Expression<Func<PlannedSKU, bool>> Criteria = x => x.LinePlannedId == LinePlannedId;
+                var rows = await Repository.GetAllAsync(Criteria: Criteria);
 
+                var lastorder = rows.Count > 0 ? rows.Max(x => x.Order) : 0;
+                return lastorder;
+            }
         }
 
 
@@ -146,8 +152,9 @@ namespace Simulator.Server.EndPoints.HCs.PlannedSKUs
                 {
 
                     Func<IQueryable<PlannedSKU>, IIncludableQueryable<PlannedSKU, object>> includes = x => x
-                   .Include(y => y.SKU)
-                   .Include(x => x.LinePlanned); ;
+
+                   .Include(x => x.LinePlanned)
+                   .Include(y => y.SKU).ThenInclude(x => x.SKULines);
                     Expression<Func<PlannedSKU, bool>> Criteria = x => x.LinePlannedId == request.LinePlannedId;
                     string CacheKey = StaticClass.PlannedSKUs.Cache.GetAll(request.LinePlannedId);
                     var rows = await Repository.GetAllAsync<PlannedSKU>(Cache: CacheKey, Criteria: Criteria, Includes: includes);
@@ -180,8 +187,9 @@ namespace Simulator.Server.EndPoints.HCs.PlannedSKUs
                 app.MapPost(StaticClass.PlannedSKUs.EndPoint.GetById, async (GetPlannedSKUByIdRequest request, IQueryRepository Repository) =>
                 {
                     Func<IQueryable<PlannedSKU>, IIncludableQueryable<PlannedSKU, object>> includes = x => x
+                    .Include(x => x.LinePlanned)
                   .Include(y => y.SKU).ThenInclude(x => x.SKULines)
-                  .Include(x => x.LinePlanned);
+                  ;
                     Expression<Func<PlannedSKU, bool>> Criteria = x => x.Id == request.Id;
 
                     string CacheKey = StaticClass.PlannedSKUs.Cache.GetById(request.Id);
@@ -201,7 +209,7 @@ namespace Simulator.Server.EndPoints.HCs.PlannedSKUs
 
         public static PlannedSKUDTO Map(this PlannedSKU row)
         {
-            var skulines = row.SKU == null ? null! : row.SKU.SKULines;
+
 
             PlannedSKUDTO result = new PlannedSKUDTO()
             {
@@ -216,7 +224,9 @@ namespace Simulator.Server.EndPoints.HCs.PlannedSKUs
                 Order = row.Order,
                 LineSpeedUnitName = row.LineSpeedUnit,
                 LineSpeedValue = row.LineSpeedValue,
+
             };
+            var skulines = row.SKU == null ? null! : row.SKU.SKULines;
             if (skulines != null && skulines.Any())
             {
                 var case_shift = skulines.FirstOrDefault(x => x.LineId == result.LineId);

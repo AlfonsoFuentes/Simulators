@@ -19,7 +19,7 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
                 simulation.MaterialEquipments = rows.Select(x => x.Map(simulation)).ToList();
             }
         }
-        public static Shared.Models.HCs.MaterialEquipments.MaterialEquipmentRecord Map(this Databases.Entities.HC.MaterialEquipment entity, NewSimulationDTO simulation)
+        public static MaterialEquipmentRecord Map(this Databases.Entities.HC.MaterialEquipment entity, NewSimulationDTO simulation)
         {
             return new MaterialEquipmentRecord()
             {

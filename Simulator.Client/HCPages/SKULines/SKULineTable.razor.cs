@@ -51,11 +51,11 @@ namespace Simulator.Client.HCPages.SKULines
                 {
                     SKULineResponseList = result.Data;
                     Items = SKULineResponseList.Items;
-
+                    await ItemsChanged.InvokeAsync(Items);
                 }
             }
 
-            await ItemsChanged.InvokeAsync(Items);
+           
         }
         public async Task AddNew()
         {

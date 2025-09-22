@@ -19,6 +19,7 @@
                TableTitle="PlannedSKUs List">
     <ColumnsTemplate>
         <SelectColumn T="PlannedSKUDTO" />
+        <PropertyColumn Property="x => x.Order" Title="Order" TProperty="int" T="PlannedSKUDTO" />
         <PropertyColumn Property="x => x.SkuName" Title="Sku" TProperty="string" T="PlannedSKUDTO" />
         <PropertyColumn Property="x => x.PlannedCases" Title="Planned cases" TProperty="int" T="PlannedSKUDTO" />
       

@@ -178,7 +178,7 @@ namespace Simulator.Shared.Models.HCs.Tanks
                     MaterialType = MaterialType.RawMaterialBackBone;
                     break;
                 case FluidToStorage.ProductBackBone:
-                case FluidToStorage.ProductBackBoneToWIPs:
+               
                     MaterialType = MaterialType.ProductBackBone;
                     break;
             }

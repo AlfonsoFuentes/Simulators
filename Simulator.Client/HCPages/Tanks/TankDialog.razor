@@ -36,6 +36,9 @@
                                             MaterialType="@Model.MaterialType"></EquipmentMaterialTable>
                     <ValidationMessage For="() => Model.Materials.Count" style="color:red; font-size:x-small;" />
                 </MudTabPanel>
+                <MudTabPanel Text="Planned down time">
+                    <EquipmentPlannedDownTimeTable @bind-Items=@Model.PlannedDownTimes EquipmentId="Model.Id" EquipmentName="@Model.Name"></EquipmentPlannedDownTimeTable>
+                </MudTabPanel>
                 <MudTabPanel Text="Inlets connectors">
                     <InletConnectorTable Equipment="@Model"
                                          ValidateAsync="ValidateAsync"

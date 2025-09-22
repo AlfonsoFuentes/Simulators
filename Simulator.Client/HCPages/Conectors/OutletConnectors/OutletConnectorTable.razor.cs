@@ -48,11 +48,13 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
                 {
                     OutletConnectorResponseList = result.Data;
                     Items = OutletConnectorResponseList.Items;
+                    await ItemsChanged.InvokeAsync(Items);
 
                 }
+              
             }
 
-            await ItemsChanged.InvokeAsync(Items);
+           
         }
         public async Task AddNew()
         {

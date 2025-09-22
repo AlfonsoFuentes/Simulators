@@ -63,12 +63,14 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
                 if (result.Succeeded)
                 {
                     MaterialEquipmentResponseList = result.Data;
-                    Items = MaterialEquipmentResponseList.Items;
+                    Items = MaterialEquipmentResponseList.Items;     
+                    await ItemsChanged.InvokeAsync(Items);
 
                 }
+
+         
             }
 
-            await ItemsChanged.InvokeAsync(Items);
         }
         public async Task AddNew()
         {

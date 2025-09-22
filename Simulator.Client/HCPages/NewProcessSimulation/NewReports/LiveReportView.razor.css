@@ -1,0 +1,61 @@
+﻿.live-report-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    overflow-x: auto;
+    background-color: #f9f9f9;
+}
+
+.report-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+    .report-column h3 {
+        text-align: center;
+        background-color: #4a4a4a;
+        color: white;
+        padding: 12px;
+        border-radius: 5px 5px 0 0;
+        margin: 0;
+        font-size: 1.1em;
+    }
+
+.report-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 15px;
+}
+
+.report-item {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 12px;
+    font-size: 0.9em;
+    min-height: 60px; /* ← Altura mínima fija para alineación */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+    .report-item.empty {
+        min-height: 60px; /* ← Misma altura que report-item */
+        background-color: transparent;
+        border: none;
+    }
+
+.report-field {
+    padding: 3px 0;
+    line-height: 1.4;
+}
+
+    .report-field strong {
+        color: #333;
+    }

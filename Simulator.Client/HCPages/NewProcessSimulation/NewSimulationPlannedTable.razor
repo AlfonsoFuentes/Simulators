@@ -1,0 +1,41 @@
+﻿@using Simulator.Client.HCPages.SimulationPlanneds.ProcessFlowDiagram.SimulationPages
+@using Simulator.Shared.Models.HCs.SimulationPlanneds
+
+<MudStack>
+
+
+    <TableTemplate TValue="SimulationPlannedDTO"
+                   AddNew="AddNew"
+                   @bind-NameFilter=@nameFilter
+                   DeleteGroup="DeleteGroup"
+                   Items="FilteredItems"
+                   @bind-SelectedItems=@SelecteItems
+                   TableTitle="SimulationPlanneds List">
+        <ColumnsTemplate>
+            <SelectColumn T="SimulationPlannedDTO" />
+            <PropertyColumn Property="x => x.Name" Title="Name" TProperty="string" T="SimulationPlannedDTO" />
+            <PropertyColumn Property="x => x.InitDateString" Title="Init date" TProperty="string" T="SimulationPlannedDTO" />
+            <PropertyColumn Property="x => x.Hours" Title="Planned Hours" TProperty="double" T="SimulationPlannedDTO" />
+            <PropertyColumn Property="x => x.EndDateString" Title="End Date" TProperty="string" T="SimulationPlannedDTO" />
+            <TemplateColumn CellClass="d-flex justify-end" T="SimulationPlannedDTO">
+                <CellTemplate Context="template">
+                    <MudStack Row=true Spacing="2">
+                        <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                        <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                        <IconButton ToolTip="@($"Load {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.AssuredWorkload" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => LoadPlann(template.Item))" />
+
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+
+        </ColumnsTemplate>
+    </TableTemplate>
+    <NewMainSimulationPage Simulation="@Simulation"></NewMainSimulationPage>
+
+</MudStack>
+@code {
+
+
+
+
+}

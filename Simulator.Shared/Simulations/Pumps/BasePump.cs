@@ -16,24 +16,7 @@ namespace Simulator.Shared.Simulations.Pumps
         public Amount Flow => PumpDTO.Flow;
         public string FlowString => Flow.GetValue(MassFlowUnits.Kg_hr).ToString();
 
-        
-
-        private bool _materialsCached = false;
-        List<MaterialSimulation> _InletMaterials = null!;
        
-        public List<MaterialSimulation> InletMaterials
-        {
-            get
-            {
-                if (!_materialsCached)
-                {
-                    
-                    _InletMaterials = ConnectedInletEquipments.SelectMany(x=>x.MaterialSimulations).ToList();
-                    _materialsCached = true;
-                }
-                return _InletMaterials;
-            }
-        }
         public BasePump(PumpDTO pumpDTO)
         {
             PumpDTO = pumpDTO;
@@ -51,10 +34,9 @@ namespace Simulator.Shared.Simulations.Pumps
 
 
 
-
         public override void Calculate(DateTime currentdate)
         {
-            foreach (var row in ConnectedInletEquipments)
+            foreach (var row in ProcessInletEquipments)
             {
                 if (row is RawMaterialTank)
                 {
@@ -62,7 +44,7 @@ namespace Simulator.Shared.Simulations.Pumps
                 }
 
             }
-
+            base.Calculate(currentdate);
 
         }
         Amount SKIDflow = null!;
@@ -76,7 +58,7 @@ namespace Simulator.Shared.Simulations.Pumps
         public void SetNormalSKIDFlow()
         {
             Amount flow = SKIDflow;
-            foreach (var InletEquipment in ConnectedInletEquipments)
+            foreach (var InletEquipment in ProcessInletEquipments)
             {
                 if (InletEquipment is BaseTank tank)
                 {
@@ -91,7 +73,7 @@ namespace Simulator.Shared.Simulations.Pumps
         public void SetZeroFlow()
         {
             Amount flow = new(MassFlowUnits.Kg_hr);
-            foreach (var InletEquipment in ConnectedInletEquipments)
+            foreach (var InletEquipment in ProcessInletEquipments)
             {
                 if (InletEquipment is BaseTank tank)
                 {
@@ -105,7 +87,7 @@ namespace Simulator.Shared.Simulations.Pumps
         }
         public void SetInletFlow(Amount flow)
         {
-            foreach (var InletEquipment in ConnectedInletEquipments)
+            foreach (var InletEquipment in ProcessInletEquipments)
             {
                 if (InletEquipment is BaseTank tank)
                 {
@@ -117,7 +99,7 @@ namespace Simulator.Shared.Simulations.Pumps
         }
         public void SetOutletFlow(Amount flow)
         {
-            foreach (BaseTank row in ConnectedOutletEquipments)
+            foreach (BaseTank row in ProcessOutletEquipments)
             {
                 row.SetInletFlow(flow);
             }

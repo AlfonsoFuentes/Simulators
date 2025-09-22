@@ -8,8 +8,8 @@
 <LabelSimulation Label="Init Batch" Value="@Mixer.InitBatchDate.ToString()"></LabelSimulation>
 @if (Mixer.MixerState is MixerStateBatching)
 {
-    <LabelSimulation Value="@Mixer.MixerStepState.LabelStepStateSuperior"></LabelSimulation>
-    <LabelSimulation Value="@Mixer.MixerStepState.LabelStepStateInferior"></LabelSimulation>
+    @* <LabelSimulation Value="@Mixer.MixerStepState.LabelStepStateSuperior"></LabelSimulation> *@
+    <LabelSimulation Label="@Mixer.MixerStepState.LabelStepStateSuperior" Value="@Mixer.MixerStepState.LabelStepStateInferior"></LabelSimulation>
     
 }
 else if (Mixer.MixerState is MixerStateTransfering)

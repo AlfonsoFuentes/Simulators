@@ -1,5 +1,5 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
-using Simulator.Shared.Simulations;
+using Simulator.Shared.NuevaSimlationconQwen.Equipments;
 
 namespace Simulator.Client.HCPages.SimulationPlanneds.ProcessFlowDiagram
 {
@@ -8,7 +8,7 @@ namespace Simulator.Client.HCPages.SimulationPlanneds.ProcessFlowDiagram
     {
         public Guid Id => Equipment.Id; 
         public ProccesEquipmentType Type => Equipment.EquipmentType; 
-        public NewBaseEquipment Equipment { get; set; } = null!;
+        public IEquipment Equipment { get; set; } = null!;
         public double X { get; set; }
         public double Y { get; set; }
         public string Name { get; set; } = string.Empty;

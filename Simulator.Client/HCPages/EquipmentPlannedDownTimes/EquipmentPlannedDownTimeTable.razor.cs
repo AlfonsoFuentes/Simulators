@@ -49,11 +49,13 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
                 {
                     EquipmentPlannedDownTimeResponseList = result.Data;
                     Items = EquipmentPlannedDownTimeResponseList.Items;
+                    await ItemsChanged.InvokeAsync(Items);
 
                 }
+             
             }
        
-            await ItemsChanged.InvokeAsync(Items);
+         
         }
         public async Task AddNew()
         {

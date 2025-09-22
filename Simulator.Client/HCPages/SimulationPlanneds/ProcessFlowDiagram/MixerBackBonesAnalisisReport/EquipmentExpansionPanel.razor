@@ -1,0 +1,101 @@
+﻿<MudExpansionPanel Text="@GetHeaderText()" MaxHeight="800" ExpandedChanged="OnEquipmentExpandedChanged">
+    @if (IsEquipmentExpanded)
+    {
+        <MudCardContent Class="py-2">
+            <!-- Connected and missing materials -->
+            <MudGrid Class="mb-3">
+                <MudItem xs="12" Class="mb-2">
+                    <MudText Typo="Typo.subtitle2" Color="Color.Success">Connected Materials (@EquipmentResult.UniqueConnectedMaterials.Count)</MudText>
+                    @if (EquipmentResult.UniqueConnectedMaterials.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            @foreach (var material in EquipmentResult.UniqueConnectedMaterials)
+                            {
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Filled">
+                                    @material.MaterialName
+                                </MudChip>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Secondary">No connected materials.</MudText>
+                    }
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Color="Color.Error">Missing Materials (@EquipmentResult.UniqueMissingMaterials.Count)</MudText>
+                    @if (EquipmentResult.UniqueMissingMaterials.Any())
+                    {
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            @foreach (var material in EquipmentResult.UniqueMissingMaterials)
+                            {
+                                <MudChip T="string" Color="Color.Error" Size="Size.Small" Variant="Variant.Filled">
+                                    @material.MaterialName
+                                </MudChip>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Success">All materials connected.</MudText>
+                    }
+                </MudItem>
+            </MudGrid>
+
+            <!-- Products section -->
+            @if (!EquipmentResult.ProductResults.Any())
+            {
+                <MudAlert Severity="Severity.Info">This equipment has no assigned products.</MudAlert>
+            }
+            else
+            {
+                <MudExpansionPanels MultiExpansion="true">
+                    @foreach (var product in EquipmentResult.ProductResults)
+                    {
+                        <ProductExpansionPanel Product="product" EquipmentResult="EquipmentResult" />
+                    }
+                </MudExpansionPanels>
+            }
+        </MudCardContent>
+    }
+    else
+    {
+        <MudCardContent>
+            <MudText Color="Color.Secondary">Click to load equipment details...</MudText>
+        </MudCardContent>
+    }
+</MudExpansionPanel>
+
+@code {
+    [Parameter] public EquipmentAnalysisResult EquipmentResult { get; set; } = new();
+
+    private bool IsEquipmentExpanded { get; set; } = false;
+
+    private async Task OnEquipmentExpandedChanged(bool expanded)
+    {
+        IsEquipmentExpanded = expanded;
+
+        if (expanded)
+        {
+            // Pequeño delay para liberar el hilo de UI
+            await Task.Delay(10);
+            StateHasChanged();
+        }
+    }
+
+    private string GetHeaderText()
+    {
+        var total = EquipmentResult.ProductResults.Count;
+        var producible = EquipmentResult.ProductResults.Count(p => p.CanProduce);
+        var missingMaterials = EquipmentResult.UniqueMissingMaterials.Count;
+
+        var baseText = $"{EquipmentResult.EquipmentName} ({EquipmentResult.EquipmentType})";
+
+        var summaryParts = new List<string>();
+        if (total > 0) summaryParts.Add($"{producible}/{total} producible");
+        if (missingMaterials > 0) summaryParts.Add($"{missingMaterials} missing mat.");
+
+        return summaryParts.Any() ? $"{baseText} • {string.Join(" • ", summaryParts)}" : baseText;
+    }
+}

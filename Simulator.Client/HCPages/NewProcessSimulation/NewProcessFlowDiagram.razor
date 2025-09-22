@@ -1,0 +1,88 @@
+﻿
+<MudStack Spacing="3" Breakpoint="Breakpoint.Md">
+    <div class="visualization-container" style="position: relative; min-height: 600px; border: 1px solid #ddd; overflow: auto;">
+        @if (Simulation != null)
+        {
+            if (allEquipment.Count > 0)
+            {
+                <svg width="@svgWidth" height="@svgHeight" style="background-color: #f8f9fa; min-width: 100%; min-height: 100%;">
+                    @foreach (var connection in connections)
+                    {
+                        <line x1="@connection.FromX" y1="@connection.FromY"
+                              x2="@connection.ToX" y2="@connection.ToY"
+                              stroke="@connection.StrokeColor"
+                              stroke-width="@connection.StrokeWidth"
+                              stroke-dasharray="@connection.DashArray"
+                              marker-end="url(#@connection.MarkerId)" />
+                    }
+                    @foreach (var equipment in allEquipment)
+                    {
+                        <g transform="translate(@equipment.X, @equipment.Y)"
+                           @onclick="@(e => OnEquipmentClick(equipment))" @ondblclick="@(e => OnEquipmentDoubleClick(equipment))">
+                            @((MarkupString)AddTitleToSvg(equipment.GetShapeSvg(), equipment.Equipment.Name))
+                            <text x="0" y="45" text-anchor="middle" font-size="10" fill="black" font-family="Arial">
+                                @equipment.Name
+                            </text>
+                             <text x="0" y="58" text-anchor="middle" font-size="8" fill="#666" font-family="Arial">
+                            @GetEquipmentType(equipment.Equipment)
+                        </text>
+                        </g>
+                    }
+
+
+
+                    <defs>
+                        <!-- Marcador de flecha azul (para conexiones salientes) -->
+                        <marker id="arrowhead-blue" markerWidth="8" markerHeight="6"
+                                refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#007bff" />
+                        </marker>
+
+                        <!-- Marcador de flecha verde (para conexiones entrantes) -->
+                        <marker id="arrowhead-green" markerWidth="8" markerHeight="6"
+                                refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#28a745" />
+                        </marker>
+
+                        <!-- Marcador de flecha gris (por defecto) -->
+                        <marker id="arrowhead-gray" markerWidth="8" markerHeight="6"
+                                refX="7" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" fill="#6c757d" />
+                        </marker>
+                    </defs>
+                </svg>
+            }
+
+        }
+        else if (LoadingSimulation)
+        {
+            <div class="text-center p-5">
+                <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
+                    Loading Process, please wait....
+                </MudAlert>
+            </div>
+        }
+    </div>
+    @if (selectedEquipment != null)
+    {
+        <div class="mt-3 card">
+            <div class="card-header">
+                <h5>Equipment Details: @selectedEquipment.Name</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tipo:</strong> @GetEquipmentType(selectedEquipment)</p>
+                        <p><strong>ID:</strong> @selectedEquipment.Id</p>
+                        <p><strong>Entradas:</strong> @selectedEquipment.InletEquipments.Count</p>
+                        <p><strong>Salidas:</strong> @selectedEquipment.OutletEquipments.Count</p>
+                    </div>
+                  
+                </div>
+            </div>
+        </div>
+    }
+
+
+
+</MudStack>

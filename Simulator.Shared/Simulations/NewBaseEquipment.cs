@@ -1,12 +1,24 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.EquipmentPlannedDownTimes;
+using Simulator.Shared.Simulations.Lines;
 using Simulator.Shared.Simulations.Materials;
+using Simulator.Shared.Simulations.Mixers;
+using Simulator.Shared.Simulations.Operators;
 using Simulator.Shared.Simulations.Pumps;
+using Simulator.Shared.Simulations.States;
+using Simulator.Shared.Simulations.Tanks;
 
 namespace Simulator.Shared.Simulations
 {
-    public abstract class NewBaseEquipment
+    public interface IEquipmentCalculation
+    {
+        void Init();
+        void Calculate(DateTime currentdate);
+        IState InletState { get; set; }
+        IState OutletState { get; set; }
+    }
+    public abstract class NewBaseEquipment : IEquipmentCalculation
     {
         public Guid CurrentEventId { get; set; }
         public override string ToString()
@@ -14,8 +26,9 @@ namespace Simulator.Shared.Simulations
             return Name;
         }
         protected Amount OneSecond = new(1, TimeUnits.Second);
-       
-       
+        public IState InletState { get; set; } = null!;
+        public IState OutletState { get; set; } = null!;
+
         public virtual Guid Id { get; }
         public virtual string Name { get; } = string.Empty;
         protected List<EquipmentPlannedDownTimeDTO> PlannedDownTimes { get; set; } = new();
@@ -23,6 +36,30 @@ namespace Simulator.Shared.Simulations
         public string OcupiedByName => OcupiedBy == null ? "None" : OcupiedBy.Name;
         public List<NewBaseEquipment> ProcessInletEquipments { get; set; } = new List<NewBaseEquipment>();
         public List<NewBaseEquipment> ProcessOutletEquipments { get; set; } = new List<NewBaseEquipment>();
+
+        public List<BaseLine> OutletLines => ConnectedOutletEquipments.OfType<BaseLine>().ToList();
+        public List<BasePump> OutletPumps => ConnectedOutletEquipments.OfType<BasePump>().ToList();
+        public List<BaseTank> OutletTanks => ConnectedOutletEquipments.OfType<BaseTank>().ToList();
+        public List<BaseMixer> OutletMixers => ConnectedOutletEquipments.OfType<BaseMixer>().ToList();
+
+
+        public List<BaseLine> AvailableOutletLines => OutletLines.Where(x => x.OutletState is EquipmentAvailableState).ToList();
+        public List<BasePump> AvailableOutletPumps => OutletPumps.Where(x => x.OutletState is EquipmentAvailableState).ToList();
+        public List<BaseTank> AvailableOutletTanks => OutletTanks.Where(x => x.OutletState is EquipmentAvailableState).ToList();
+        public List<BaseMixer> AvailableOutletMixers => OutletMixers.Where(x => x.OutletState is EquipmentAvailableState).ToList();
+
+
+        public List<BasePump> InletPumps => ConnectedInletEquipments.OfType<BasePump>().ToList();
+        public List<BaseTank> InletTanks => ConnectedInletEquipments.OfType<BaseTank>().ToList();
+        public List<BaseMixer> InletMixers => ConnectedInletEquipments.OfType<BaseMixer>().ToList();
+        public List<BaseOperator> InletOperators => ConnectedInletEquipments.OfType<BaseOperator>().ToList();
+
+
+        public List<BasePump> AvailableInletPumps => InletPumps.Where(x => x.InletState is EquipmentAvailableState).ToList();
+        public List<BaseTank> AvailableInletTanks => InletTanks.Where(x => x.InletState is EquipmentAvailableState).ToList();
+        public List<BaseMixer> AvailableInletMixers => InletMixers.Where(x => x.InletState is EquipmentAvailableState).ToList();
+        public List<BaseOperator> AvailableInletOperators => InletOperators.Where(x => x.InletState is EquipmentAvailableState).ToList();
+
         public NewBaseEquipment OcupiedBy => ProcessOutletEquipments.Count == 0 ? null! : ProcessOutletEquipments.First();
 
         public bool IsForWashing { get; set; }
@@ -45,7 +82,11 @@ namespace Simulator.Shared.Simulations
 
         }
 
-        public abstract void Calculate(DateTime currentdate);
+        public virtual void Calculate(DateTime currentdate)
+        {
+            OutletState?.Calculate();
+            InletState?.Calculate();
+        }
 
 
         public void CalculateAtachedInlets(DateTime date)
@@ -55,12 +96,6 @@ namespace Simulator.Shared.Simulations
                 row.Calculate(date);
             }
         }
-        // Referencia a la simulación para obtener la fecha actual
-
-
-
-
-
 
 
         public void AddConnectedInletEquipment(NewBaseEquipment item)
@@ -150,47 +185,122 @@ namespace Simulator.Shared.Simulations
 
             }
         }
+        public NewBaseEquipment AddProcessEquipmentInletOrPutQueue2(MaterialSimulation material)
+        {
+            var inletEquipments = GetEquipmentListInlet(material);
+
+            if (!inletEquipments.Any())
+                return null!;
+
+            // Buscar equipos libres (sin conexiones de salida)
+            var freeEquipments = inletEquipments
+                .Where(e => e.ProcessOutletEquipments.Count == 0)
+                .ToList();
+
+            // Si hay equipos libres, asignar inmediatamente
+            if (freeEquipments.Any())
+            {
+                var selectedEquipment = freeEquipments.First();
+                AddProcessInletEquipment(selectedEquipment);
+                return selectedEquipment;
+            }
+
+            // Si no hay equipos libres, encontrar el equipo con la cola más corta
+            var equipmentWithQueues = inletEquipments
+                .Where(e => e.ProcessOutletEquipments.Count > 0) // Equipos ocupados
+                .OrderBy(e => e.queueOutlet.Count) // Ordenar por tamaño de cola (menor primero)
+                .ToList();
+
+            if (equipmentWithQueues.Any())
+            {
+                var selectedEquipment = equipmentWithQueues.First(); // Equipo con cola más corta
+
+                // Verificar si ya estamos en la cola
+                if (!IsAlreadyInQueue(selectedEquipment))
+                {
+                    selectedEquipment.queueOutlet.Enqueue(this);
+                }
+
+                return selectedEquipment; // En cola, esperando turno
+            }
+
+            return null!; // No se pudo asignar
+        }
+
+        // Método auxiliar para verificar si ya estamos en la cola de un equipo
+        private bool IsAlreadyInQueue(NewBaseEquipment equipment)
+        {
+            return equipment.queueOutlet.Contains(this);
+        }
         public NewBaseEquipment AddProcessEquipmentInletOrPutQueue(MaterialSimulation material)
         {
-            var equipmenlist = GetEquipmentListInlet(material);
-            
-            NewBaseEquipment retorno = null!;
-            if (equipmenlist.Count > 0)
-            {
-                if (equipmenlist.All(x => x.ProcessOutletEquipments.Count > 0))
-                {
-                    retorno = equipmenlist.FirstOrDefault()!;
-                }
-                else
-                {
-                    retorno = equipmenlist.FirstOrDefault(x => x.ProcessOutletEquipments.Count == 0)!;
-                }
+            var inletEquipments = GetEquipmentListInlet(material);
 
-            }
-
-            if (retorno == null) return retorno!;
-
-            if (retorno.ProcessOutletEquipments.Count > 0)
-            {
-                if (!retorno.queueOutlet.Contains(this))
-                {
-                    retorno.queueOutlet.Enqueue(this);
-                }
+            if (!inletEquipments.Any())
                 return null!;
-            }
-            else if (retorno.queueOutlet.Count == 0)
+
+            // Buscar equipos libres (sin conexiones de salida)
+            var freeEquipments = inletEquipments
+                .Where(e => e.ProcessOutletEquipments.Count == 0)
+                .ToList();
+
+            // Si hay equipos libres, verificar primero si estamos al frente de alguna cola
+            if (freeEquipments.Any())
             {
-                AddProcessInletEquipment(retorno);
-                return retorno;
+                // Verificar si estamos al frente de la cola de algún equipo libre
+                foreach (var freeEquipment in freeEquipments)
+                {
+                    if (IsAtFrontOfQueue(freeEquipment))
+                    {
+                        // Estamos al frente, remover de la cola y asignar
+                        freeEquipment.queueOutlet.Dequeue(); // Removernos de la cola
+                        AddProcessInletEquipment(freeEquipment);
+                        return freeEquipment;
+                    }
+                }
 
+                // No estamos al frente de ninguna cola, asignar al primer equipo libre
+                var selectedEquipment = freeEquipments.First();
+                AddProcessInletEquipment(selectedEquipment);
+                return selectedEquipment;
             }
-            else if (retorno.queueOutlet.Peek().Id != Id) return null!;
 
-            retorno.queueOutlet.Dequeue();
-            AddProcessInletEquipment(retorno);
-            return retorno;
+            // Si no hay equipos libres, encontrar el equipo con la cola más corta
+            var equipmentOrderedByQueueLength = inletEquipments
+                .OrderBy(e => e.queueOutlet.Count) // Ordenar por tamaño de cola (menor primero)
+                .ToList();
 
+            if (equipmentOrderedByQueueLength.Any())
+            {
+                var selectedEquipment = equipmentOrderedByQueueLength.First(); // Equipo con cola más corta
+
+                // Verificar si ya estamos en la cola para evitar duplicados
+                if (!IsAlreadyInQueue(selectedEquipment))
+                {
+                    selectedEquipment.queueOutlet.Enqueue(this);
+                }
+
+                return selectedEquipment; // En cola, esperando turno
+            }
+
+            return null!; // No se pudo asignar
         }
+
+
+
+
+        // Método auxiliar para verificar si estamos al frente de la cola
+        private bool IsAtFrontOfQueue(NewBaseEquipment equipment)
+        {
+            // Verificar si hay elementos en la cola y si somos el primero
+            if (equipment.queueOutlet.Count > 0)
+            {
+                var frontEquipment = equipment.queueOutlet.Peek();
+                return frontEquipment?.Id == Id;
+            }
+            return false;
+        }
+
 
 
         public BasePump SearchInletWashingEquipment()
@@ -295,7 +405,7 @@ namespace Simulator.Shared.Simulations
             // Publicar el evento a través de la simulación
             Simulation?.PublishEquipmentEvent(eventArgs);
 
-           
+
         }
         public void CloseCurrentEvent()
         {

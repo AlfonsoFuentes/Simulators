@@ -6,7 +6,7 @@
         RawMaterial = 1,
         ProductBackBone = 2,
         RawMaterialBackBone = 3,
-        ProductBackBoneToWIPs = 4,
+       
 
     }
 }

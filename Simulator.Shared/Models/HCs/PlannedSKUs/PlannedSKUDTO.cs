@@ -180,6 +180,7 @@ namespace Simulator.Shared.Models.HCs.PlannedSKUs
                 Name = response.Name,
              
                 Order = response.Order,
+                LinePlannedId = response.LinePlannedId, 
 
 
             };
@@ -192,6 +193,7 @@ namespace Simulator.Shared.Models.HCs.PlannedSKUs
                 Id = response.Id,
                 Name = response.Name,
                 Order = response.Order,
+                LinePlannedId = response.LinePlannedId,
             };
         }
 

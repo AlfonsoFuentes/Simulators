@@ -1,0 +1,73 @@
+﻿@using Simulator.Shared.NuevaSimlationconQwen
+<div class="critical-reports-container">
+    <h3>Critical Downtime Reports</h3>
+
+    @foreach (var group in ReportsByCategory)
+    {
+        <div class="accordion-panel">
+            <div class="accordion-header" @onclick="() => ToggleGroup(group.Key)">
+                <span class="category-title">@group.Key</span>
+                <span class="toggle-icon">@(_expandedGroups.ContainsKey(group.Key) ? "▲" : "▼")</span>
+                <span class="report-count">@group.Value.Count()</span>
+            </div>
+
+            @if (_expandedGroups.ContainsKey(group.Key) && _expandedGroups[group.Key])
+            {
+                <div class="accordion-content">
+                    <table class="critical-table">
+                        <thead>
+                            <tr>
+                                <th>Generator Equipment</th>
+                                <th>Source Equipment</th>
+                                <th>Reason</th>
+                                <th>Description</th>
+                                <th>Start Time</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var report in group.Value)
+                            {
+                                <tr class="table-row @(report.IsCompleted ? "completed" : "active")">
+                                    <td>@report.Generator.Name<br /><small>@report.Generator.EquipmentType</small></td>
+                                    <td>@report.Source!.Name<br /><small>@report.Source.EquipmentType</small></td>
+                                    <td>@report.Reason</td>
+                                    <td>@report.Description</td>
+                                    <td>@report.StartTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td class="duration-cell">@report.Duration.ToString(@"hh\:mm\:ss")</td>
+                                    <td class="status-cell">
+                                        <span class="badge @(report.IsCompleted ? "badge-completed" : "badge-active")">
+                                            @(report.IsCompleted ? "Completed" : "Active")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+    @if (ReportsByCategory.Count == 0)
+    {
+        <div class="empty-message">No critical downtimes recorded.</div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+    private Dictionary<string, bool> _expandedGroups = new();
+
+    private Dictionary<string, List<CriticalDowntimeReport>> ReportsByCategory =>
+        Simulation.CriticalDowntimeReportManager.GetReportsGroupedByEquipmentType();
+
+    private void ToggleGroup(string category)
+    {
+        _expandedGroups[category] = !_expandedGroups.GetValueOrDefault(category, false);
+    }
+}
+    
+  

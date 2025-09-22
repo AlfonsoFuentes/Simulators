@@ -1,15 +1,12 @@
-﻿using Simulator.Shared.Commons.FileResults;
-using Simulator.Shared.Models.HCs.EquipmentPlannedDownTimes;
+﻿using Simulator.Shared.Models.HCs.EquipmentPlannedDownTimes;
 using Simulator.Shared.Models.HCs.LinePlanneds;
 using Simulator.Shared.Models.HCs.Lines;
 using Simulator.Shared.Models.HCs.SKULines;
-using Simulator.Shared.Models.HCs.Washouts;
-using Simulator.Shared.Simulations.Lines.States;
+using Simulator.Shared.Simulations.AStates.Lines;
 using Simulator.Shared.Simulations.Materials;
 using Simulator.Shared.Simulations.Pumps;
-using Simulator.Shared.Simulations.SimulationResults.Lines;
+using Simulator.Shared.Simulations.States.Lines;
 using Simulator.Shared.Simulations.Tanks;
-using Simulator.Shared.Simulations.Tanks.WIPLinetMixers;
 
 namespace Simulator.Shared.Simulations.Lines
 {
@@ -29,7 +26,7 @@ namespace Simulator.Shared.Simulations.Lines
             PlannedDownTimes = LineDTO.PlannedDownTimes;
             ShiftManagement = new(this);
             ManagePlannedProduction = new(this);
-            LineState = new LineStateNotScheduled(this);
+            OutletState = new LineStateNotScheduled(this);
         }
 
         public BaseLine()
@@ -79,7 +76,7 @@ namespace Simulator.Shared.Simulations.Lines
         public bool IsTimeStarvedAUAchieved => ManagePlannedProduction.IsTimeStarvedAUAchieved;
         public bool IsPlannedCasesAchieved => ManagePlannedProduction.IsPlannedCasesAchieved;
         public bool IsProductionPlanAchieved => ManagePlannedProduction.IsProductionPlanAchieved;
-        public bool IsNextBackBoneSameAsCurrent => ManagePlannedProduction.IsNextBackBoneSameAsCurrent;
+        public bool IsNextBackBoneSameAsCurrent1 => ManagePlannedProduction.IsNextBackBoneSameAsCurrent;
         public bool IsWipTankLoLevel => WIPTank.IsTankLoLevel;
 
         public bool IsPlannedDowTime => PlannedDownTimes.Count == 0 ? false : PlannedDownTimes.Any(x => x.Between(CurrentDate));
@@ -89,24 +86,24 @@ namespace Simulator.Shared.Simulations.Lines
         public string CurrentPlannedDowntimeName => EquipmentPlannedDownTimeFound == null! ? string.Empty : EquipmentPlannedDownTimeFound.Name;
 
         public bool IsPlannedDowntimeAchieved => CurrentPlannedDowntime == null ? false : CurrenTime >= CurrentPlannedDowntime;
-        public Amount TimeToReviewAU => LineDTO.TimeToReviewAU;
+        public Amount TimeToReviewAU1 => LineDTO.TimeToReviewAU;
 
         public bool IsNextShiftPlanned => ShiftManagement.IsNextShiftPlanned;
         public bool IsPlannedShift => ShiftManagement.IsPlannedShift;
         public bool IsTimeChangingSKUAchieved => ManagePlannedProduction.IsTimeChangingSKUAchieved(CurrenTime);
 
-        public string LabelLineState => LineState == null ? "" : LineState.StateLabel;
+        public string LabelLineState => OutletState == null ? "" : OutletState.StateLabel;
         protected BasePump InletPump => (BasePump)GetInletAttachedEquipment()!;
         public WIPTank WIPTank { get; set; } = null!;
 
-        public LineState LineState { get; set; } = null!;
+        public LineState Ouletstate { get; set; } = null!;
 
-        public bool LineScheduled => LineState is not LineStateNotScheduled;
+        public bool LineScheduled => OutletState is not LineStateNotScheduled;
 
 
         public void SetLineStateState(LineState newLineState)
         {
-            LineState = newLineState;
+            OutletState = newLineState;
         }
         Amount LineSpeedEmpty { get; set; } = new Amount(LineVelocityUnits.EA_min);
         Amount FlowEmpty { get; set; } = new Amount(MassFlowUnits.Kg_sg);
@@ -177,7 +174,7 @@ namespace Simulator.Shared.Simulations.Lines
             }
             else
             {
-                ManagePlannedProduction.Init();
+                ManagePlannedProduction.Init2();
                 ChangeSku();
                 InitPumpWIP();
                 if (!ShiftManagement.IsPlannedShift)
@@ -226,7 +223,8 @@ namespace Simulator.Shared.Simulations.Lines
         public override void Calculate(DateTime currentdate)
         {
             ManageTime(currentdate);
-            LineState.Calculate();
+            base.Calculate(currentdate);
+          
         }
         public void SetTime(DateTime currentdate)
         {
@@ -241,27 +239,7 @@ namespace Simulator.Shared.Simulations.Lines
             CurrenTimeShift+= OneSecond;
 
         }
-        List<LineResult> Linesresult = new();
-        public void StorageDataToSimulation(string state)
-        {
-            if (ManagePlannedProduction.CurrentSKU == null) return;
-            Linesresult.Add(new()
-            {
-                CurrentDate = CurrentDate,
-                Cases = CurrentCases,
-                Flow = LabelCurrentMassFlow,
-                ProducedMass = ProducedMass,
-                PendingMass = PendingMass,
-                State = state,
-                WIPLevel = WIPTank.CurrentLevel,
-                SKU = CurrentSKU,
-                TimeInitNextBatch = WIPTank is not WIPInletMixer ? null! : ((WIPInletMixer)WIPTank).TimeToStartNextBatch,
-
-
-
-
-            });
-        }
+       
         public BasePump Washoutpump { get; set; } = null!;
         public BasePump GetWashoutPump()
         {

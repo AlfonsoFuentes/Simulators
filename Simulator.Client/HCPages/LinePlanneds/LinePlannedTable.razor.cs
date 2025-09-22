@@ -40,9 +40,11 @@ public partial class LinePlannedTable
             if (result.Succeeded)
             {
                 Items = result.Data.Items;
+                await ItemsChanged.InvokeAsync(Items);
             }
+           
         }
-        await ItemsChanged.InvokeAsync(Items);
+     
     }
     public async Task AddNew()
     {

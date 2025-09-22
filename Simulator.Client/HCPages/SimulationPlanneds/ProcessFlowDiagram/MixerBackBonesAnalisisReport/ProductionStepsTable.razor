@@ -1,0 +1,26 @@
+﻿<MudTable T="StepTimeDetail"
+          Items="StepDetails"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          Dense="true"
+          Class="mt-2">
+    <HeaderContent>
+        <MudTh>Description</MudTh>
+       
+        <MudTh>Time, min</MudTh>       
+        <MudTh>%w/w</MudTh>
+        <MudTh>Mass, Kg</MudTh>
+        <MudTh>Flow, Kg/min</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Description">@context.StepDescription</MudTd>    
+        <MudTd DataLabel="Time">@context.Time.GetValue(TimeUnits.Minute).ToString("N1")</MudTd>
+        <MudTd DataLabel="%Mass">@context.Step.Percentage%</MudTd>
+        <MudTd DataLabel="Mass">@context.Mass.GetValue(MassUnits.KiloGram).ToString("N1")</MudTd>
+        <MudTd DataLabel="Flow">@context.PumpFlow.GetValue(MassFlowUnits.Kg_min).ToString("N1")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter] public IEnumerable<StepTimeDetail> StepDetails { get; set; } = new List<StepTimeDetail>();
+}

@@ -1,0 +1,15 @@
+﻿@using Simulator.Shared.NuevaSimlationconQwen
+
+
+<MudTabs>
+    <MudTabPanel Text="Live">
+        <LiveReportView Simulation="@Simulation"></LiveReportView>
+    </MudTabPanel>
+    <MudTabPanel Text="Stoppages">
+        <StoppageReports Simulation="@Simulation"></StoppageReports>
+    </MudTabPanel>
+</MudTabs>
+@code {
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+}

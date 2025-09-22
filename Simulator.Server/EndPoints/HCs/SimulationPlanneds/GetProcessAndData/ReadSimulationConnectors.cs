@@ -19,14 +19,7 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
         public static ConnectorRecord Map(this Conector entity, NewSimulationDTO simulation)
         {
             return new ConnectorRecord(entity.FromId, entity.ToId);
-            //{
-            //    MainProcessId = entity.MainProcessId,
-            //    From = simulation.AllEquipments.FirstOrDefault(x => x.Id == entity.FromId),
-            //    To = simulation.AllEquipments.FirstOrDefault(x => x.Id == entity.ToId),
-            //    FromId = entity.FromId,
-            //    ToId = entity.ToId,
-
-            //};
+            
         }
     }
 }

@@ -26,7 +26,7 @@
 @using Simulator.Client.HCPages.BackBoneSteps
 @using Simulator.Shared.Models.HCs.MaterialEquipments
 @using Simulator.Shared.Enums.HCEnums.Enums
-
+@using UnitSystem
 @using System.Linq.Expressions
 @using System.Globalization
 @using Simulator.Client.HCPages.Materials
@@ -47,14 +47,19 @@
 @using Simulator.Shared.Simulations.Skids
 @using Simulator.Shared.Simulations.Tanks
 @using static Simulator.Shared.Simulations.ProductionAnalyzers.ProductionAnalyzer
-@using Simulator.Client.HCPages.SimulationPlanneds.ProcessFlowDiagram.AnalisisResults
+@using Simulator.Client.HCPages.ContinuousSystems
+@using Simulator.Client.HCPages.Lines
+@using Simulator.Client.HCPages.Mixers
+@using Simulator.Client.HCPages.Operators
+@using Simulator.Client.HCPages.Pumps
+@using Simulator.Client.HCPages.Tanks
 @using Simulator.Shared.Models.HCs.SimulationPlanneds
 @using Simulator.Shared.Simulations.Materials
 @using Simulator.Client.HCPages.SimulationPlanneds.Cards
 
 @using Simulator.Client.HCPages.SimulationPlanneds.ProcessFlowDiagram.ProductionReports
 
-
+@using Simulator.Shared.NuevaSimlationconQwen.Reports
 @attribute [Authorize]
 @inject IBlazorDownloadFileService blazorDownloadFileService
 @inject IAuthenticationManager _authenticationManager

@@ -357,14 +357,14 @@ namespace Simulator.Shared.Simulations
 
                     }
                     break;
-                case FluidToStorage.ProductBackBoneToWIPs:
-                    {
-                        var result = new WIPForProductBackBone(dto);
-                        WIPProductTanks.Add(result);
-                        SubscribeEquipmentToEvents(result);
+                //case FluidToStorage.ProductBackBoneToWIPs:
+                //    {
+                //        var result = new WIPForProductBackBone(dto);
+                //        WIPProductTanks.Add(result);
+                //        SubscribeEquipmentToEvents(result);
 
-                        return result;
-                    }
+                //        return result;
+                //    }
                 case FluidToStorage.RawMaterialBackBone:
                     {
                         switch (dto.TankCalculationType)

@@ -20,7 +20,7 @@ namespace Simulator.Shared.Simulations.Tanks.WIPInletSKIDs
 
         }
         public ManageMassWIPTank MassCurrentSKU { get; set; } = new();
-        public bool IsTankAchievedMassProduced => Line.IsNextBackBoneSameAsCurrent ? false : MassCurrentSKU.Needed.Value <= 0;
+        public bool IsTankAchievedMassProduced => Line.IsNextBackBoneSameAsCurrent1 ? false : MassCurrentSKU.Needed.Value <= 0;
 
         public WIPSkidState WIPState { get; set; } = null!;
 

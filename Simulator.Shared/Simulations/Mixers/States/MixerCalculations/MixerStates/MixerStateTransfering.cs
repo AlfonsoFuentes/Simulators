@@ -27,7 +27,7 @@ namespace Simulator.Shared.Simulations.Mixers.States.MixerCalculations.MixerStat
                     Mixer.StartEquipmentEvent($"Wip tank {Mixer.ProducingTo.Name} High Level");
                 }
             }
-            else if (Mixer.CurrentLevel == ZeroLevel)
+            else if (Mixer.CurrentLevel.Value <= ZeroLevel.Value)
             {
                
                 Mixer.MixerState = new MixerStateRealisingWIP(Mixer);

@@ -16,16 +16,12 @@
                           ValidateAsync="ValidateAsync"
                           ToStringFunc="@(e => e == null ? null : $"{e.Name} ")"
                           SearchFunc="SearchLine"></Autocomplete>
-            @if (Model.LineDTO != null)
-            {
+           
                 <Select For="() => Model.ShiftType" @bind-Value="Model.ShiftType"
                         Label="Schedule Shifts" Items="Enum.GetValues<ShiftType>().ToList()" ValidateAsync="ValidateAsync"></Select>
-                <SelectUnit Label="Wip Level" @bind-Value=@Model.WIPLevel For="() => Model.WIPLevelValue" ValidateAsync="ValidateAsync" Change="Model.ChangeWIPLevel"></SelectUnit>
-
-                <PlannedSKUTable @bind-Items=@Model.PlannedSKUDTOs LineId="@Model.LineId" LinePlannedId="@Model.Id" ValidateAsync="ValidateAsync" ></PlannedSKUTable>
-                <ValidationMessage For="() => Model.PlannedSKUDTOs.Count" style="color:red; font-size:x-small;" />
-            }
-
+               
+            <PlannedSKUTable @bind-Items=@Model.PlannedSKUDTOs LineId="@Model.LineId" LinePlannedId="@Model.Id" ValidateAsync="ValidateAsync"></PlannedSKUTable>
+            <ValidationMessage For="() => Model.PlannedSKUDTOs.Count" style="color:red; font-size:x-small;" />
 
         </MudCardContent>
         <MudCardActions>

@@ -1,0 +1,31 @@
+﻿
+@using Simulator.Shared.NuevaSimlationconQwen.Materials
+<MudTable T="IRecipeStep"
+          Items="StepDetails"
+          Hover="true"
+          Breakpoint="Breakpoint.Sm"
+          Dense="true"
+          Class="mt-2">
+    <HeaderContent>
+        <MudTh>Order</MudTh>
+        <MudTh>Step Type</MudTh>
+        <MudTh>Material</MudTh>
+        <MudTh>Time, min</MudTh>
+        <MudTh>%w/w</MudTh>
+        <MudTh>Mass, Kg</MudTh>
+        <MudTh>Flow, Kg/min</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Order">@context.StepNumber</MudTd>
+        <MudTd DataLabel="Type">@context.BackBoneStepType</MudTd>
+        <MudTd DataLabel="Material">@context.RawMaterialName</MudTd>
+        <MudTd DataLabel="Time">@context.Time.GetValue(TimeUnits.Minute).ToString("N1")</MudTd>
+        <MudTd DataLabel="%Mass">@context.Percentage%</MudTd>
+        <MudTd DataLabel="Mass">@context.Mass.GetValue(MassUnits.KiloGram).ToString("N1")</MudTd>
+        <MudTd DataLabel="Flow">@context.Flow.GetValue(MassFlowUnits.Kg_min).ToString("N1")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    [Parameter] public IEnumerable<IRecipeStep> StepDetails { get; set; } = new List<IRecipeStep>();
+}

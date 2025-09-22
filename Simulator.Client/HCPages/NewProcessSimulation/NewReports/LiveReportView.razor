@@ -1,0 +1,196 @@
+﻿@using Simulator.Shared.NuevaSimlationconQwen
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
+<MudStack>
+    <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+        <MudText Typo=Typo.button Color="Color.Dark">@($"Init time: {Simulation.InitDate.ToString()}")</MudText>
+        <MudText Typo=Typo.button>@($"End time: {Simulation.EndDate.ToString()}")</MudText>
+
+
+    </MudStack>
+
+    <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+
+        <MudText Typo=Typo.button>@($"Date: {Simulation.CurrentDate.ToShortDateString()}")</MudText>
+        <MudText Typo=Typo.button>@($"Current Shift: {Simulation.CurrentShift}")</MudText>
+        <MudText Typo=Typo.button>@($"Hour: {Simulation.CurrentDate.Hour}")</MudText>
+        <MudText Typo=Typo.button>@($"Minute: {Simulation.CurrentDate.Minute}")</MudText>
+        <MudText Typo=Typo.button>@($"Second: {Simulation.CurrentDate.Second}")</MudText>
+        <MudText Typo=Typo.button>@($"Run Time: {Simulation.CurrenTime.ToString()}")</MudText>
+
+    </MudStack>
+    <MudSlider @bind-Value="@velocity" Min="1" Max="500" Color="Color.Info">Simulation Speed: @velocity.ToString()</MudSlider>
+    <div class="live-report-container">
+        @foreach (var column in ColumnOrder)
+        {
+            <div class="report-column">
+                <h3>@GetColumnTitle(column)</h3>
+                <div class="report-rows">
+                    @for (int row = 0; row <= MaxRowIndex; row++)
+                    {
+                        ReportLayoutItem? item = GetLayoutItem(column, row);
+                        if (item != null)
+                        {
+                            <div class="report-item" style="@(GetItemStyle())">
+                                @foreach (var field in item.Equipment.GetLiveReportItems())
+                                {
+                                    <div class="report-field" style="@(GetFieldStyle(field))">
+                                        <strong>@field.Label:</strong> @field.Value
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="report-item empty"></div> <!-- Espacio vacío para alineación -->
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</MudStack>
+@code {
+    [Parameter] public GeneralSimulation Simulation { get; set; } = null!;
+    protected override void OnInitialized()
+    {
+        Simulation.UpdateModel = UpdateSimulation;
+    }
+    int Showvelocity =>500 - velocity>0? 500 - velocity:1;
+    int velocity = 499;
+    async Task UpdateSimulation()
+    {
+        await Task.Delay(Showvelocity);
+        StateHasChanged();
+    }
+    private List<ReportColumn> ColumnOrder { get; } = new()
+    {
+        ReportColumn.Column1_OperatorsAndRawMaterialTanks,
+        ReportColumn.Column2_SkidsAndMixers,
+        ReportColumn.Column3_WipTanks,
+        ReportColumn.Column4_Lines
+    };
+
+    private List<ReportLayoutItem> Layout { get; set; } = new();
+    private int MaxRowIndex => Layout.Any() ? Layout.Max(x => x.RowIndex) : 0;
+
+    protected override void OnParametersSet()
+    {
+        Layout = BuildLayout();
+    }
+
+    private List<ReportLayoutItem> BuildLayout()
+    {
+        var reportable = Simulation.Equipments.OfType<ILiveReportable>().ToList();
+        var layout = new List<ReportLayoutItem>();
+
+        // Procesar columnas en orden
+        foreach (var column in ColumnOrder)
+        {
+            var items = reportable.Where(e => e.ReportColumn == column).ToList();
+
+            // Para columna 3 (WIP), ordenar: SKIDs arriba, luego por tipo de producto
+            if (column == ReportColumn.Column3_WipTanks)
+            {
+                items = OrderWipTanks(items);
+            }
+
+            // Ordenar por prioridad (High primero, Low después)
+            items = items.OrderByDescending(e => e.ReportPriority == ReportPriorityInColumn.High)
+                         .ThenBy(e => e.GetType().Name)
+                         .ToList();
+
+            // Asignar índices de fila
+            for (int i = 0; i < items.Count; i++)
+            {
+                layout.Add(new ReportLayoutItem
+                {
+                    Equipment = items[i],
+                    RowIndex = i,
+                    Column = column
+                });
+            }
+        }
+
+        // Alinear líneas con su primer tanque WIP
+        AlignLinesWithWipTanks(layout);
+
+        return layout;
+    }
+
+    private List<ILiveReportable> OrderWipTanks(List<ILiveReportable> wipTanks)
+    {
+        var skidWips = new List<ILiveReportable>();
+        var lineWips = new List<ILiveReportable>();
+
+        foreach (var wip in wipTanks)
+        {
+            if (wip is ProcessWipTankForLine wipTank)
+            {
+                var skid = wipTank.InletSKIDS.FirstOrDefault();
+                if (skid != null)
+                {
+                    skidWips.Add(wip);
+                }
+                else
+                {
+                    lineWips.Add(wip);
+                }
+            }
+        }
+
+        // Ordenar WIP de líneas por tipo de producto
+        var productTypeOrder = new Dictionary<string, int>
+        {
+            { "botellas", 1 },
+            { "doypacks", 2 },
+            { "sachets", 3 },
+            { "tubos", 4 }
+        };
+
+       
+
+        return skidWips.Concat(lineWips).ToList();
+    }
+
+    private void AlignLinesWithWipTanks(List<ReportLayoutItem> layout)
+    {
+        var wipItems = layout.Where(x => x.Column == ReportColumn.Column3_WipTanks).ToList();
+        var lineItems = layout.Where(x => x.Column == ReportColumn.Column4_Lines).ToList();
+
+        foreach (var lineItem in lineItems)
+        {
+            if (lineItem.Equipment is ProcessLine line)
+            {
+                var wipTanks = line.InletPumps.SelectMany(p => p.InletWipTanks).Distinct().ToList();
+                if (wipTanks.Any())
+                {
+                    var firstWip = wipTanks.First();
+                    var wipLayoutItem = layout.FirstOrDefault(x => x.Equipment is ProcessWipTankForLine w && w.Id == firstWip.Id);
+                    if (wipLayoutItem != null)
+                    {
+                        lineItem.RowIndex = wipLayoutItem.RowIndex; // ← Alinear con el primer WIP
+                    }
+                }
+            }
+        }
+    }
+
+    private ReportLayoutItem? GetLayoutItem(ReportColumn column, int rowIndex)
+    {
+        return Layout.FirstOrDefault(x => x.Column == column && x.RowIndex == rowIndex);
+    }
+
+    private string GetColumnTitle(ReportColumn column) => column switch
+    {
+        ReportColumn.Column1_OperatorsAndRawMaterialTanks => "Operarios y Tanques MP",
+        ReportColumn.Column2_SkidsAndMixers => "SKIDs y Fabricantes",
+        ReportColumn.Column3_WipTanks => "Tanques WIP",
+        ReportColumn.Column4_Lines => "Líneas",
+        _ => "Desconocido"
+    };
+
+    private string GetItemStyle() => "padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px;";
+
+    private string GetFieldStyle(LiveReportItem field) => $"color: {field.Style.Color}; font-weight: {field.Style.FontEmphasis};";
+}
