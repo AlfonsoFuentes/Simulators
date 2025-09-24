@@ -25,11 +25,7 @@ public partial class PlannedSKUTable
     [Parameter]
     public EventCallback ValidateAsync { get; set; }
     
-    protected override async Task OnParametersSetAsync()
-    {
-       
-        await GetAll();
-    }
+   
     async Task GetAll()
     {
         if (LinePlannedId != Guid.Empty)

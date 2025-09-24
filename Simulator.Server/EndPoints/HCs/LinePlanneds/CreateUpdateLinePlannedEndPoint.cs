@@ -1,6 +1,7 @@
 ﻿using Simulator.Server.Databases.Entities.HC;
 using Simulator.Server.EndPoints.HCs.Lines;
 using Simulator.Server.EndPoints.HCs.PlannedSKUs;
+using Simulator.Server.EndPoints.HCs.PreferedMixers;
 using Simulator.Shared.Models.HCs.LinePlanneds;
 
 
@@ -33,7 +34,7 @@ namespace Simulator.Server.EndPoints.HCs.LinePlanneds
                     if (Data.Id == Guid.Empty)
                     {
                         row = LinePlanned.Create(Data.SimulationPlannedId);
-                       await Data.PlannedSKUDTOs.Create(row.Id, Repository, cache);
+                        await Data.PlannedSKUDTOs.Create(row.Id, Repository, cache);
 
                         await Repository.AddAsync(row);
                     }
@@ -144,7 +145,8 @@ namespace Simulator.Server.EndPoints.HCs.LinePlanneds
                 {
 
                     Func<IQueryable<LinePlanned>, IIncludableQueryable<LinePlanned, object>> includes = x => x
-                   .Include(y => y.Line);
+                   .Include(y => y.Line)
+                   .Include(x => x.HCSimulationPlanned); ;
                     Expression<Func<LinePlanned, bool>> Criteria = x => x.SimulationPlannedId == request.SimulationPlannedId;
                     string CacheKey = StaticClass.LinePlanneds.Cache.GetAll(request.SimulationPlannedId);
                     var rows = await Repository.GetAllAsync<LinePlanned>(Cache: CacheKey, Criteria: Criteria, Includes: includes);
@@ -177,7 +179,8 @@ namespace Simulator.Server.EndPoints.HCs.LinePlanneds
                 app.MapPost(StaticClass.LinePlanneds.EndPoint.GetById, async (GetLinePlannedByIdRequest request, IQueryRepository Repository) =>
                 {
                     Func<IQueryable<LinePlanned>, IIncludableQueryable<LinePlanned, object>> includes = x => x
-                   .Include(y => y.Line);
+                   .Include(y => y.Line)
+                   .Include(x => x.HCSimulationPlanned);
                     Expression<Func<LinePlanned, bool>> Criteria = x => x.Id == request.Id;
 
                     string CacheKey = StaticClass.LinePlanneds.Cache.GetById(request.Id);
@@ -200,6 +203,7 @@ namespace Simulator.Server.EndPoints.HCs.LinePlanneds
             //Se debe crear relacion to base equipment para mapear estos equipos
             return new LinePlannedDTO()
             {
+                MainProcesId = row.HCSimulationPlanned == null ? Guid.Empty : row.HCSimulationPlanned.MainProcessId,
                 Id = row.Id,
                 LineDTO = row.Line == null ? null! : row.Line.Map(),
                 WIPLevelValue = row.WIPLevelValue,
@@ -207,6 +211,7 @@ namespace Simulator.Server.EndPoints.HCs.LinePlanneds
                 ShiftType = row.ShiftType,
                 SimulationPlannedId = row.SimulationPlannedId,
                 Order = row.Order,
+                PreferedMixerDTOs = row.PreferedMixers == null || row.PreferedMixers.Count == 0 ? new() : row.PreferedMixers.Select(x => x.Map()).ToList(),
             };
         }
 

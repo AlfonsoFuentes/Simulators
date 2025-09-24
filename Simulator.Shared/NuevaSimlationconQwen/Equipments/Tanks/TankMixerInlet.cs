@@ -18,31 +18,20 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public TankInletIniateMixerState(ProcessWipTankForLine tank) : base(tank)
         {
 
-            StateLabel = $"{tank.Name} Initiate Tank for Mixers Inlet";
-            AddTransition<TankInletProductionOrderReceivedMixerState>(tank => tank.IsNewOrderReceivedToStartOrder());
+            StateLabel = $"Initiate Tank for Mixers Inlet";
+            AddTransition<TankInletWaitingForInletMixerState>(tank => tank.IsNewOrderReceivedToStartOrder());
         }
 
     }
-    public class TankInletProductionOrderReceivedMixerState : TankMixerInlet
-    {
-
-        public TankInletProductionOrderReceivedMixerState(ProcessWipTankForLine tank) : base(tank)
-        {
-
-            StateLabel = $"{tank.Name} Production Order received";
-            AddTransition<TankInletIniateMixerState>(tank => tank.IsMassDeliveredCompleted());
-            AddTransition<TankInletWaitingForInletMixerState>();
-
-        }
-
-    }
+    
     public class TankInletWaitingForInletMixerState : TankMixerInlet
     {
 
         public TankInletWaitingForInletMixerState(ProcessWipTankForLine tank) : base(tank)
         {
 
-            StateLabel = $"{tank.Name} Waiting for transfer from mixers";
+            StateLabel = $"Waiting for transfer from mixers";
+            AddTransition<TankInletIniateMixerState>(tank => tank.IsMassPendingToProduceCompleted());
             AddTransition<TankInletReceivingFromMixerState>(tank => tank.ReviewIfTransferCanInit());
             AddTransition<TankInletWaitingForInletMixerState>(tank => tank.IsMaterialNeeded());
         }
@@ -54,11 +43,12 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public TankInletReceivingFromMixerState(ProcessWipTankForLine tank) : base(tank)
         {
 
-            StateLabel = $"{tank.Name} Receiving product from mixer";
+            StateLabel = $"Receiving product from mixer";
             
             AddTransition<TankInletFinishReceivingFromMixerState>(tank => tank.IsTransferFinalized());
             AddTransition<TankInletFinishStarvedFromMixerState>(tank => tank.IsTankHigherThenHiLevelForMixer());
             AddTransition<TankInletReceivingFromMixerState>(tank => tank.IsMaterialNeeded());
+            
         }
         public override void Run(DateTime currentdate)
         {
@@ -72,10 +62,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public TankInletFinishReceivingFromMixerState(ProcessWipTankForLine tank) : base(tank)
         {
 
-            StateLabel = $"{tank.Name} Releasing current transfer";
-            AddTransition<TankInletProductionOrderReceivedMixerState>(tank => tank.IsReportFinishTransferToMixer());
+            StateLabel = $"Releasing current transfer";
+            AddTransition<TankInletWaitingForInletMixerState>(tank => tank.IsReportFinishTransferToMixer());
             AddTransition<TankInletFinishReceivingFromMixerState>(tank => tank.IsMaterialNeeded());
-
+           
         }
 
     }
@@ -85,7 +75,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public TankInletFinishStarvedFromMixerState(ProcessWipTankForLine tank) : base(tank)
         {
 
-            StateLabel = $"{tank.Name} Starved current transfer";
+            StateLabel = $"Starved current transfer";
           
             AddTransition<TankInletReceivingFromMixerState>(tank => tank.ReviewIfTransferCanReinit());
             AddTransition<TankInletFinishStarvedFromMixerState>(tank => tank.IsMaterialNeeded());
@@ -93,4 +83,5 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         }
 
     }
+    
 }

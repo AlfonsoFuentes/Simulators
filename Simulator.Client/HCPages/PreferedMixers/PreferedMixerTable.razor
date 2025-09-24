@@ -1,0 +1,32 @@
+﻿@using Simulator.Shared.Models.HCs.PreferedMixers
+<TableTemplate TValue="PreferedMixerDTO"
+               AddNew="AddNew"
+               
+               OnRowClicked="RowClicked"
+              
+               DeleteGroup="DeleteGroup"
+               Items="OrderedItems"
+               ShowSearch=false
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="PreferedMixers List">
+    <ColumnsTemplate>
+        <SelectColumn T="PreferedMixerDTO" />
+      
+        <PropertyColumn Property="x => x.MixerName" Title="Mixer" TProperty="string" T="PreferedMixerDTO" />
+        
+        <TemplateColumn CellClass="d-flex justify-end" T="PreferedMixerDTO">
+
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+@code {
+   
+}

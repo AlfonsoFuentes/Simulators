@@ -2,7 +2,10 @@
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
 {
-   
+    public interface IFeederStarved
+    {
+
+    }
     public abstract class FeederOutletState : OutletState<IManufactureFeeder>
     {
         protected IManufactureFeeder _feeder { get; set; }
@@ -25,7 +28,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
         }
 
     }
-    public class FeederPlannedDownTimeState : FeederOutletState
+    public class FeederPlannedDownTimeState : FeederOutletState, IFeederStarved
     {
 
         public FeederPlannedDownTimeState(IManufactureFeeder feeder) : base(feeder)
@@ -36,8 +39,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
         }
 
     }
-    
-    public class IsFeederStarvedByInletState : FeederOutletState
+
+    public class IsFeederStarvedByInletState : FeederOutletState, IFeederStarved
     {
 
         public IsFeederStarvedByInletState(ProcessPump feeder) : base(feeder)

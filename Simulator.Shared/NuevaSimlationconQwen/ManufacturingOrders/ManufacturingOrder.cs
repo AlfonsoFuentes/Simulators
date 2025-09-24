@@ -12,18 +12,17 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         List<MixerManufactureOrder> _ManufactureOrdersFromMixers = new List<MixerManufactureOrder>();
         public void AddMixerManufactureOrder(MixerManufactureOrder mixerManufactureOrder)
         {
+            MassProduced += mixerManufactureOrder.BatchSize;
             _ManufactureOrdersFromMixers.Add(mixerManufactureOrder);
         }
-        public void RemoveManufactureOrdersFromMixers(MixerManufactureOrder mixerManufactureOrder)
+        public void RemoveManufactureOrdersFromMixers1(MixerManufactureOrder mixerManufactureOrder)
         {
             if (_ManufactureOrdersFromMixers.Contains(mixerManufactureOrder))
             {
+               
                 _ManufactureOrdersFromMixers.Remove(mixerManufactureOrder);
             }
-            else
-            {
 
-            }
 
         }
         public MixerManufactureOrder LastInOrder => _ManufactureOrdersFromMixers.Count == 0 ? null! : _ManufactureOrdersFromMixers.OrderBy(x => x.Order).Last();
@@ -41,6 +40,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
             Line = line ?? throw new ArgumentNullException(nameof(line));
             WIP = wip;
             MassToDeliver = totalQuantity;
+            MassProduced += wip.CurrentLevel;
+            MassToProduce = totalQuantity  ;
         }
 
         // ✅ Propiedad calculada: nombre del material (para reportes)
@@ -53,9 +54,12 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
                MassUnits.KiloGram
            );
         public Amount TotalMassStoragedOrProducing => WIP.CurrentLevel + TotalMassProducingInMixer;
-        public Amount MassToDeliver { get; set; } = new Amount(0, MassUnits.KiloGram);
-        public Amount MassDelivered { get; set; } = new Amount(0, MassUnits.KiloGram);
-        public Amount MassPendingToProduce => MassToDeliver - MassDelivered - TotalMassStoragedOrProducing;
+        public Amount MassDelivered { get; private set; } = new Amount(0, MassUnits.KiloGram);
+        public Amount MassProduced { get; private set; } = new Amount(0, MassUnits.KiloGram);
+        public Amount MassToProduce { get; private set; } = new Amount(0, MassUnits.KiloGram);
+        public Amount MassToDeliver { get; private set; } = new Amount(0, MassUnits.KiloGram);
+        public Amount MassPendingToProduce => MassToProduce - MassProduced;
+        public Amount MassPendingToDeliver => MassToDeliver - MassDelivered;
         public Amount RunTime { get; private set; } = new Amount(0, TimeUnits.Second);
         public Amount AverageOutletFlow => RunTime.Value == 0 ? new Amount(0, MassFlowUnits.Kg_sg) :
             new Amount(MassDelivered.GetValue(MassUnits.KiloGram) / RunTime.GetValue(TimeUnits.Minute), MassFlowUnits.Kg_min);
@@ -67,6 +71,14 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public void AddRunTime()
         {
             RunTime += OneSecon;
+        }
+        public void AddMassDelivered(Amount mass)
+        {
+            MassDelivered += mass;
+        }
+        public void AddMassReceived(Amount mass)
+        {
+            MassProduced += mass;
         }
     }
 
@@ -99,11 +111,11 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
     public class FromWIPToMixerManufactureOrder
     {
         public Guid Id { get; } = Guid.NewGuid();
-        public IRecipedMaterial Material { get; private set; } = null!;
+        public IMaterial Material { get; private set; } = null!;
         public ProcessWipTankForLine WIPTank { get; private set; } = null!;
 
 
-        public FromWIPToMixerManufactureOrder(IRecipedMaterial material, ProcessWipTankForLine wip)
+        public FromWIPToMixerManufactureOrder(IMaterial material, ProcessWipTankForLine wip)
         {
             Material = material ?? throw new ArgumentNullException(nameof(material));
             WIPTank = wip ?? throw new ArgumentNullException(nameof(wip));

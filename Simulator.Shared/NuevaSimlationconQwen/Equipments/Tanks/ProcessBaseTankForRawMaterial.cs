@@ -41,7 +41,12 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
                 Value = $"{Math.Round(CurrentLevel.GetValue(MassUnits.KiloGram))} Kg",
                 Style = GetLevelStyle()
             },
-
+            new LiveReportItem
+            {
+                Label = "State",
+                Value = $"{OutletState?.StateLabel}"??"Unknown",
+                Style = GetLevelStyle()
+            },
             };
             foreach (var outlet in OutletPumps)
             {

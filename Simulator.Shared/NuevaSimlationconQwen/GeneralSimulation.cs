@@ -52,7 +52,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
         public bool IsSimulationRunning { get; set; } = false;
         public bool IsSimulationPaused { get; set; } = false;
         public bool StopSimulationRequested { get; set; } = false;
-
+        public bool OnLiveReport { get; set; } = true;
         public List<IEquipment> Equipments { get; set; } = new();
         public List<IMaterial> Materials { get; set; } = new();
         List<WashoutTime> WashoutTimes { get; set; } = new();
@@ -102,7 +102,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
                     Id = lineDto.Id,
                     Name = lineDto.Name,
                     EquipmentType = ProccesEquipmentType.Line,
-                    
+
 
 
                 };
@@ -206,7 +206,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
         void ReadPlannedLines(NewSimulationDTO simulationDto, SimulationPlannedDTO planned)
         {
             var lineFactory = new ProcessLineFactory(_messageService);
-            
+
             foreach (var linePlanned in planned.PlannedLines)
             {
                 // Validar duplicados
@@ -233,8 +233,18 @@ namespace Simulator.Shared.NuevaSimlationconQwen
                     continue;
                 }
                 lineFactory.CreateSKUs(existingLine, linePlanned, lineDto, skus, Materials);
+                foreach (var preferedmixer in linePlanned.PreferedMixerDTOs)
+                {
+                    var mixer = Equipments.OfType<ProcessMixer>().FirstOrDefault(x => x.Id == preferedmixer.MixerId);
+                    if (mixer != null)
+                    {
+                        existingLine.PreferredManufacturer.Add(mixer);
+                        mixer.PreferredLines.Add(existingLine);
+                    }
+                }
 
             }
+
         }
 
         private void ReadMaterials(List<MaterialDTO> materials)
@@ -307,7 +317,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             var AllPumps = Equipments.OfType<IManufactureFeeder>().ToList();
             EquipmentFeederToMixersManager = new ProcessFeederManager(AllPumps);
 
-           
+
             // ✅ Asignar CriticalDowntimeReportManager a TODOS los equipos
             Equipments.ForEach(x =>
             {
@@ -319,7 +329,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
 
 
         }
-        public Amount CurrenTime {  get; set; }=new Amount(0,TimeUnits.Second);
+        public Amount CurrenTime { get; set; } = new Amount(0, TimeUnits.Second);
         public async Task RunSimulationAsync()
         {
             Init(InitDate);
@@ -331,53 +341,43 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             TotalSimulacionTime = new Amount(totaltime.TotalSeconds, TimeUnits.Second);
             CurrenTime = new Amount(0, TimeUnits.Second);
 
-            Amount UpdateTime=new Amount(10, TimeUnits.Second);
+            Amount UpdateTime = new Amount(10, TimeUnits.Second);
             Amount CurrentUpdateTime = new Amount(0, TimeUnits.Second);
             var orderedEquipments = Equipments.OrderBy(e => e.TopologicalLevel).ToList();
-            try
+            do
             {
-                do
+                while (IsSimulationPaused && !StopSimulationRequested)
                 {
-                    while (IsSimulationPaused && !StopSimulationRequested)
+
+                    if (StopSimulationRequested) break;
+                }
+
+                // Verificar si se solicitó detener
+                if (StopSimulationRequested || !IsSimulationRunning)
+                {
+                    break;
+                }
+
+
+
+                foreach (var equipment in orderedEquipments)
+                {
+                    if (equipment.Name == "T.WIPSKID")
                     {
 
-                        if (StopSimulationRequested) break;
                     }
+                    equipment.Calculate(CurrentDate);
+                }
 
-                    // Verificar si se solicitó detener
-                    if (StopSimulationRequested || !IsSimulationRunning)
-                    {
-                        break;
-                    }
-
-
-
-                    foreach (var equipment in orderedEquipments)
-                    {
-                        if (equipment.Name == "T.WIPSKID")
-                        {
-
-                        }
-                        equipment.Calculate(CurrentDate);
-                    }
-
-                    CurrentDate = CurrentDate.AddSeconds(1);
-                    CurrenTime += OneSecond;
-                    CurrentUpdateTime += OneSecond;
+                CurrentDate = CurrentDate.AddSeconds(1);
+                CurrenTime += OneSecond;
+                CurrentUpdateTime += OneSecond;
+                if (OnLiveReport)
                     await UpdateModel();
 
-                }
-                while (CurrenTime < TotalSimulacionTime && IsSimulationRunning && !StopSimulationRequested);
             }
-            catch (Exception ex)
-            {
-                string message = ex.Message;
-            }
-            finally
-            {
-                IsSimulationRunning = false;
-                IsSimulationPaused = false;
-            }
+            while (CurrenTime < TotalSimulacionTime && IsSimulationRunning && !StopSimulationRequested);
+            if (!OnLiveReport) await UpdateModel();
         }
 
         private void CalculateTopologicalLevels()

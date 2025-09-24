@@ -27,7 +27,7 @@ namespace Simulator.Server.Interfaces.Database
         DbSet<LinePlanned> LinePlanneds { get; set; }
         DbSet<MixerPlanned> MixerPlanneds { get; set; }
         DbSet<PlannedSKU> PlannedSKUs { get; set; }
-
+        DbSet<PreferedMixer> PreferedMixer { get; set; }
 
         Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys);
         Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory);

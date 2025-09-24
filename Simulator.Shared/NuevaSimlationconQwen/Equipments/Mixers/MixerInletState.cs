@@ -272,7 +272,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         {
 
             StateLabel = $"Finishing Batch";
-            AddTransition<MixerInletWaitingForManufactureOrderState>(_mixer => _mixer.IsTransferFinished());
+            AddTransition<MixerInletWaitingForManufactureOrderState>(_mixer => _mixer.IsInletTransferFinished());
         }
 
 

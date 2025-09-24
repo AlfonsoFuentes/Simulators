@@ -44,7 +44,7 @@ namespace Simulator.Server.Implementations.Databases
         public DbSet<LinePlanned> LinePlanneds { get; set; }
         public DbSet<MixerPlanned> MixerPlanneds { get; set; }
         public DbSet<PlannedSKU> PlannedSKUs { get; set; }
-
+        public DbSet<PreferedMixer> PreferedMixer { get; set; }
         void ConfiguerQueryFilters(ModelBuilder builder)
         {
            
@@ -67,7 +67,7 @@ namespace Simulator.Server.Implementations.Databases
             builder.Entity<LinePlanned>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<MixerPlanned>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<PlannedSKU>().HasQueryFilter(p => p.IsDeleted == false);
-
+            builder.Entity<PreferedMixer>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<BaseEquipment>().UseTpcMappingStrategy();
 
         }

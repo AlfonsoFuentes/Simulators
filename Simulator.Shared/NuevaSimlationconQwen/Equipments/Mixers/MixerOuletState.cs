@@ -15,7 +15,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         public MixerOuletInitialState(ProcessMixer wip) : base(wip)
         {
             //Sirve para identificar en el constructor por cual via iniciara el calculo por tanques wips conectados a mixers o tanques wips conectados a SKID
-            StateLabel = $"{wip.Name} Initiating Calculation for Mixer outlet";
+            StateLabel = $"Initiating Calculation for Mixer outlet";
             AddTransition<MixerOuletWaitingState>();
         }
 
@@ -44,9 +44,13 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
         public MixerOuletTransferingToWIPState(ProcessMixer mixer) : base(mixer)
         {
-            StateLabel = $"Transfering to WIP";
+            if(mixer.CurrentTransferRequest!=null)
+            {
+                StateLabel = $"Transfering to {mixer.CurrentTransferRequest.DestinationWip.Name}";
+            }
+            
             AddTransition<MixerOuletTransferingToWIPStarvedState>(mixer => mixer.IsTransferStarved());
-            AddTransition<MixerOuletWaitingState>(mixer => mixer.IsTransferFinished());
+            AddTransition<MixerOuletWaitingState>(mixer => mixer.IsOutletTransferFinished());
 
            
         }

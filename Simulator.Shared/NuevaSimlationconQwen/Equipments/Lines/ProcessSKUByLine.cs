@@ -44,7 +44,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         private ProcessSKUByLine? _plannedSKU = null!;
         private readonly IRandomGenerator _randomGenerator;
         private Amount TimeToReviewAU => _plannedSKU?.TimeToReviewAU ?? new Amount(0, TimeUnits.Minute);
-        private Amount TotalCases => _plannedSKU?.TotalCases ?? new Amount(0, CaseUnits.Case);
+        public Amount TotalCases => _plannedSKU?.TotalCases ?? new Amount(0, CaseUnits.Case);
         private Amount Case_Shift => _plannedSKU?.Case_Shift ?? new Amount(0, CaseUnits.Case);
         private Amount EA_Case => _plannedSKU?.EA_Case ?? new Amount(0, EAUnits.EA);
         public Amount LineSpeed => _plannedSKU?.LineSpeed ?? new Amount(0, LineVelocityUnits.EA_min);

@@ -12,12 +12,12 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         public ManufacturingAnalysisResult AnalysisResult { get; set; } = new();
         public void ReceiveManufacturingOrderFromWIP(WIPManufacturingOrder order, ProcessWipTankForLine wip)
         {
-            var recipedmaterial = EquipmentMaterials.OfType<RecipedMaterial>().FirstOrDefault(x => x.Id == order.Material.Id);
-            CurrentOrder = new FromWIPToMixerManufactureOrder(recipedmaterial!, wip);
+            
+            CurrentOrder = new FromWIPToMixerManufactureOrder(order.Material, wip);
         }
         protected FromWIPToMixerManufactureOrder CurrentOrder { get; set; } = null!;
 
-        public IRecipedMaterial CurrentMaterial => CurrentOrder == null ? null! : CurrentOrder.Material;
+        public IMaterial CurrentMaterial => CurrentOrder == null ? null! : CurrentOrder.Material;
 
 
     }

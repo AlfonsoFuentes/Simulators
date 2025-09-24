@@ -3,7 +3,7 @@ using Simulator.Shared.Models.HCs.SimulationPlanneds;
 using Simulator.Shared.Simulations;
 namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 {
-    public static class GetProcessAndSimulationPlannedByIdEndPoint
+    public static class GetSimulationByIdEndPoint
     {
         public class EndPoint : IEndPoint
         {

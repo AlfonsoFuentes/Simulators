@@ -10,7 +10,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
 {
     public class ProcessContinuousSystem : ManufaturingEquipment, ILiveReportable
     {
-        
+
 
         public Amount ActualFlow { get; set; } = new Amount(0, MassFlowUnits.Kg_sg);
         public Amount Capacity { get; set; } = new Amount(0, MassFlowUnits.Kg_sg);
@@ -25,7 +25,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         public override void ValidateOutletInitialState(DateTime currentdate)
         {
             OutletState = new SKIDOutletWaitingStartCommandState(this);
-          
+
         }
         public override void ValidateInletInitialState(DateTime currentdate)
         {
@@ -43,8 +43,20 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
             },
             new LiveReportItem
             {
-                Label = "State",
+                Label = "Outlet State",
                 Value = OutletState?.StateLabel ?? "Unknown",
+                Style = GetStateStyle()
+            },
+            new LiveReportItem
+            {
+                Label = "Inlet State",
+                Value = InletState?.StateLabel ?? "Unknown",
+                Style = GetStateStyle()
+            },
+            new LiveReportItem
+            {
+                Label = "Flow",
+                Value = ActualFlow.ToString() ?? "Unknown",
                 Style = GetStateStyle()
             }
         };
@@ -65,6 +77,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         }
         public void Stop()
         {
+            ActualFlow = ZeroFlow;
             InletStartCommandReceived = false;
             OutletStartCommandReceived = false;
             InletStopCommandReceived = true;
@@ -108,16 +121,16 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         }
         public bool IsSkidStarved()
         {
-            if (InletState is not ISKIDProducerState)
+            if (InletState is ISKIDStarvedInletState)
             {
-
+                ActualFlow = ZeroFlow;
                 return true;
             }
             return false;
         }
         public bool IsSkidStarvedReleased()
         {
-            if (InletState is ISKIDProducerState)
+            if (InletState is not ISKIDStarvedInletState)
             {
 
                 return true;
@@ -126,14 +139,16 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         }
         public void SendProductToWIPS()
         {
-            if (InletState is ISKIDProducerState)
+            if (InletState is not ISKIDStarvedInletState)
             {
                 WIPForProducts.ForEach(x => x.ReceiveProductFromSKID(Capacity));
             }
         }
         public bool IsRawMaterialFeedersStarved()
         {
-            var feeders = InletFeeder.Where(x => x.OutletState is not FeederAvailableState).ToList();
+            var feeders = InletFeeder.Where(x => 
+            x.OutletState is IFeederStarved
+            ).ToList();
             if (feeders.Any())
             {
                 var feeder = feeders.First();
@@ -147,7 +162,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
 
         public bool IsRawMaterialFeedersReleaseStarved()
         {
-            var feedersAvailable = InletFeeder.All(x => x.OutletState is FeederAvailableState);
+            var feedersAvailable = InletFeeder.All(x =>
+            x.OutletState is not IFeederStarved );
             if (feedersAvailable)
             {
                 EndCriticalReport();
@@ -161,7 +177,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
 
         public bool IsRawMaterialFeederReleased()
         {
-            if(ProcessFeederManager.ReleaseEquipment(this))
+            if (ProcessFeederManager.ReleaseEquipment(this))
             {
                 return true;
             }
@@ -169,35 +185,41 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
             //Aqui es para liberar las bombas luego de usarlas
             return false;
         }
-       
+
         public bool IsFeederCatched()
         {
-            // Validación defensiva
-            if (CurrentMaterial?.RecipeSteps == null) return false;
-
-           
-
-            foreach (var step in CurrentMaterial.RecipeSteps)
+            if (CurrentOrder == null || CurrentOrder.Material == null) return false;
+            if (CurrentOrder.Material is IRecipedMaterial material)
             {
-                var feeder = ProcessFeederManager.TryAssignFeeder(step.RawMaterialId, this);
+                if (material?.RecipeSteps == null) return false;
 
-                if (feeder != null)
+                ActualFlow = Capacity;
+
+                foreach (var step in material.RecipeSteps)
                 {
-                   
-                    feeder.ActualFlow = Capacity * step.Percentage / 100;
+                    var feeder = ProcessFeederManager.TryAssignFeeder(step.RawMaterialId, this);
+
+                    if (feeder != null)
+                    {
+
+                        feeder.ActualFlow = Capacity * step.Percentage / 100;
+                    }
+                    else
+                    {
+
+
+                        ProcessFeederManager.ReleaseEquipment(this);
+                        return false;
+                    }
                 }
-                else
-                {
-                   
-                   
-                    ProcessFeederManager.ReleaseEquipment(this);
-                    return false;
-                }
+                return true;
             }
+            // Validación defensiva
 
-            
-       
-            return true;
+
+            return false;
+
+
         }
         bool CommandFromQueueThatFeederIsRealesed = false;
         public bool IsFeederReleasedFromQueue()

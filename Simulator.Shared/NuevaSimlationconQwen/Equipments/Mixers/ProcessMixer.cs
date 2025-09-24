@@ -1,4 +1,5 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Operators;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps;
 using Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders;
@@ -9,7 +10,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 {
     public class ProcessMixer : ManufaturingEquipment, ISetMaterialsAtOutlet, ILiveReportable
     {
-
+        public List<ProcessLine> PreferredLines { get; set; } = new List<ProcessLine>();  
         public Amount CurrentLevel { get; set; } = new Amount(0, MassUnits.KiloGram);
 
         public List<ProcessPump> InletPumps => InletEquipments.OfType<ProcessPump>().ToList();
@@ -175,13 +176,14 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             if (CurrentTransferRequest != null)
             {
                 CurrentManufactureOrder = null!;
-
+                CurrentLevel = ZeroMass;
                 CurrentTransferRequest = null;
-                FinalizedCurrentTransferReceived = true;
+                InletFinalizedCurrentTransferReceived = true;
+                OutletFinalizedCurrentTransferReceived = true;
             }
 
         }
-        bool FinalizedCurrentTransferReceived = false;
+      
 
         public void ReceiveReportOfMassDelivered(Amount massdelivered)
         {
@@ -199,20 +201,22 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
         public bool IsMustWashTank()
         {
+            if (CurrentOrder == null) return false;
+         
             if (LastMaterial == null)
             {
 
-                LastMaterial = Material;
+                LastMaterial = CurrentOrder.Material;
                 return false;
             }
-            if (Material == null) return false;
-            if (Material.Id == LastMaterial.Id) return false;
+            if (CurrentOrder.Material == null) return false;
+            if (CurrentOrder.Material.Id == LastMaterial.Id) return false;
 
             var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == Material?.ProductCategory &&
+                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentOrder.Material?.ProductCategory &&
                                    x.ProductCategoryNext == LastMaterial.ProductCategory);
 
-            LastMaterial = Material;
+            LastMaterial = CurrentOrder.Material;
             if (washDef != null)
             {
 
@@ -246,10 +250,11 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             if (LastMaterial != null)
             {
                 var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == Material?.ProductCategory &&
+                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentOrder.Material?.ProductCategory &&
                                    x.ProductCategoryNext == LastMaterial.ProductCategory);
                 if (washDef != null)
                 {
+                    LastMaterial = CurrentOrder.Material;
                     return washDef.MixerWashoutTime;
                 }
             }
@@ -351,7 +356,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         {
             if (CurrentManufactureOrder != null)
             {
-                CurrentManufactureOrder.Wip.ReleaseManufactureOrderFromMixer(CurrentManufactureOrder);
+                CurrentManufactureOrder.Wip.ReleaseManufactureOrderFromMixer1(CurrentManufactureOrder);
                 TransferFromMixertoWIPOrder newTransferOrder =
                     new TransferFromMixertoWIPOrder(this, CurrentManufactureOrder.Wip, CurrentManufactureOrder.BatchSize,
                     OutletPump?.Flow ?? new Amount(0, MassFlowUnits.Kg_min));
@@ -403,11 +408,22 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             }
             return false;
         }
-        public bool IsTransferFinished()
+        bool InletFinalizedCurrentTransferReceived = false;
+        bool OutletFinalizedCurrentTransferReceived = false;
+        public bool IsOutletTransferFinished()
         {
-            if (FinalizedCurrentTransferReceived)
+            if (OutletFinalizedCurrentTransferReceived)
             {
-                FinalizedCurrentTransferReceived = false;
+                OutletFinalizedCurrentTransferReceived = false;
+                return true;
+            }
+            return false;
+        }
+        public bool IsInletTransferFinished()
+        {
+            if (InletFinalizedCurrentTransferReceived)
+            {
+                InletFinalizedCurrentTransferReceived = false;
                 return true;
             }
             return false;

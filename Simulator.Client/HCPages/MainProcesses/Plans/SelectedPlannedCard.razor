@@ -1,0 +1,28 @@
+﻿@if (Model != null)
+{
+    <MudCard>
+        
+        
+        <MudCardContent>
+            <MudText Typo="Typo.body2"> @Model.Name</MudText>
+        </MudCardContent>
+        <MudCardActions>
+            <MudStack Row=true Justify="Justify.SpaceBetween">
+
+                <IconButton ToolTip="@($"Select {Model.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.CloudUpload" Variant=Variant.Outlined OnClick="@(() => LoadPlann())" />
+
+                <div>
+                    <IconButton ToolTip="@($"Edit {Model.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit())" />
+                    <IconButton ToolTip="@($"Delete {Model.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete())" />
+
+                </div>
+            </MudStack>
+
+        </MudCardActions>
+    </MudCard>
+
+}
+
+@code {
+
+}

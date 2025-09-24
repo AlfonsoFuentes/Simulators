@@ -57,14 +57,20 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
             },
             new LiveReportItem
             {
-                Label = "State",
+                Label = "Outlet State",
                 Value = OutletState?.StateLabel ?? "Unknown",
                 Style = GetStateStyle()
             }
-            
-            
+            ,
+            new LiveReportItem
+            {
+                Label = "Inlet State",
+                Value = InletState?.StateLabel ?? "Unknown",
+                Style = GetStateStyle()
+            }
+
         };
-            if(CurrentOrder != null )
+            if (CurrentOrder != null)
             {
                 items.Add(new LiveReportItem
                 {
@@ -84,32 +90,40 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
                     Value = CurrentOrder?.MassDelivered.ToString() ?? "Unknown",
                     Style = GetStateStyle()
                 });
-               
+                items.Add(new LiveReportItem
+                {
+                    Label = "Mass Pending to deliver",
+                    Value = CurrentOrder?.MassPendingToDeliver.ToString() ?? "Unknown",
+                    Style = GetStateStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Mass Pending to produce",
+                    Value = CurrentOrder?.MassPendingToProduce.ToString() ?? "Unknown",
+                    Style = GetStateStyle()
+                }); items.Add(new LiveReportItem
+                {
+                    Label = "Mass Produced",
+                    Value = CurrentOrder?.MassProduced.ToString() ?? "Unknown",
+                    Style = GetStateStyle()
+                });
                 items.Add(new LiveReportItem
                 {
                     Label = "Average Outlet flow",
                     Value = CurrentOrder?.AverageOutletFlow.ToString() ?? "Unknown",
                     Style = new ReportStyle()
                 });
-                
+
                 items.Add(new LiveReportItem
                 {
                     Label = "Time to empty Mass in process",
                     Value = CurrentOrder?.TimeToEmptyMassInProcess.ToString() ?? "Unknown",
                     Style = new ReportStyle()
                 });
-                foreach (var row in CurrentOrder!.ManufactureOrdersFromMixers)
-                {
-                    items.Add(new LiveReportItem
-                    {
-                        Label = row.Mixer.Name,
-                        Value = row.Mixer.InletState?.StateLabel ?? "Unknown",
-                        Style = new ReportStyle()
-                    });
-                }
+
             }
-            
-                
+
+
 
             return items;
         }
@@ -140,11 +154,11 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
             CurrentOrder.AddMixerManufactureOrder(order);
 
         }
-        public void ReleaseManufactureOrderFromMixer(MixerManufactureOrder order)
+        public void ReleaseManufactureOrderFromMixer1(MixerManufactureOrder order)
         {
             if (CurrentOrder == null) return;
-            CurrentOrder.RemoveManufactureOrdersFromMixers(order);
-            
+            CurrentOrder.RemoveManufactureOrdersFromMixers1(order);
+
         }
 
 
@@ -344,7 +358,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         //    return false;
         //}
 
-     
+
 
 
         public void SetCurrentMassTransfered()
@@ -372,13 +386,17 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         }
         public void ReceiveFromMixer()
         {
-            if (CurrentTransferFromMixer != null)
+            if (CurrentTransferFromMixer != null && CurrentOrder != null)
             {
                 var masstoreceive = CurrentTransferFromMixer.TransferFlow * OneSecond;
-                var massreceived = new Amount(Math.Min(CurrentTransferFromMixer.PendingToReceive.GetValue(MassUnits.KiloGram), masstoreceive.GetValue(MassUnits.KiloGram)), MassUnits.KiloGram);
-                CurrentLevel += massreceived;
-                CurrentTransferFromMixer.MassReceived += massreceived;
-                CurrentTransferFromMixer.SourceMixer.ReceiveReportOfMassDelivered(massreceived);
+                if (CurrentTransferFromMixer.PendingToReceive < masstoreceive)
+                {
+                    masstoreceive = CurrentTransferFromMixer.PendingToReceive;
+                }
+                CurrentLevel += masstoreceive;
+
+                CurrentTransferFromMixer.MassReceived += masstoreceive;
+                CurrentTransferFromMixer.SourceMixer.ReceiveReportOfMassDelivered(masstoreceive);
             }
         }
         public bool IsTransferFinalized()
@@ -419,7 +437,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
             if (CurrentTransferFromMixer != null)
             {
-                if (CurrentLevel < CurrentTransferFromMixer.PendingToReceive)
+                if (Capacity - CurrentLevel >= CurrentTransferFromMixer.PendingToReceive)
                 {
                     ReportReinitTransferToMixer();
                     return true;
@@ -436,18 +454,18 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
             CurrentLevel -= mass;
             if (CurrentOrder != null)
             {
-                CurrentOrder.MassDelivered += mass;
+                CurrentOrder.AddMassDelivered(mass);
                 CurrentOrder.AddRunTime();
 
             }
         }
-        
+
         public void ReceiveFromLineProductionOrder(FromLineToWipProductionOrder order)
         {
             if (ManufactureAttached.Any(y => y.EquipmentMaterials.Any(x => x.Material.Id == order.Material.Id)))
             {
                 CurrentOrder = new WIPManufacturingOrder(this, order.Line, order.Material, order.TotalQuantityToProduce);
-                CurrentOrder.MassToDeliver -= CurrentLevel;
+
 
                 OutletManufactureOrderIsReceived = true;
                 order.Line.ReceiveWipCanHandleMaterial(this);
@@ -460,11 +478,18 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
             if (OutletManufactureOrderIsReceived)
             {
+                IsInletStateSelected();
                 OutletManufactureOrderIsReceived = false;
                 return true;
             }
 
             return false;
+        }
+        public bool IsCurrentOrderRealesed()
+        {
+
+            CurrentOrder = null!;
+            return true;
         }
         public bool IsTankHigherThenHiLevelForMixer()
         {
@@ -529,7 +554,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
             var mass = flow * OneSecond;
             CurrentLevel += mass;
-
+            if (CurrentOrder != null)
+            {
+                CurrentOrder.AddMassReceived(mass);
+            }
         }
         public bool IsInletStateSelected()
         {
@@ -554,16 +582,29 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 
             return false;
         }
+        public bool IsMassPendingToProduceCompleted()
+        {
+            if (CurrentOrder != null)
+            {
+                if (TransfersOrdersFromMixers.Count > 0 || CurrentTransferFromMixer != null || CurrentOrder.ManufactureOrdersFromMixers.Count > 0)
+                {
+                    return false;
+                }
 
+                else if (CurrentOrder.MassPendingToProduce <= ZeroMass)
+                {
+
+                    return true;
+                }
+            }
+            return false;
+        }
         public bool IsMassDeliveredCompleted()
         {
             if (CurrentOrder != null)
             {
-                if (CurrentOrder.MassPendingToProduce <= ZeroMass)
+                if (CurrentOrder.MassPendingToDeliver <= ZeroMass)
                 {
-
-
-
                     return true;
                 }
             }
@@ -605,7 +646,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
             if (CurrentOrder is null) return false;
 
-
+            if (CurrentOrder.MassPendingToProduce <= ZeroMass) return false;
 
 
             var plan = GetTimeToProduceProduct(CurrentOrder.Material);
@@ -615,21 +656,22 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
             {
                 return TryToStartNewOrder(plan.SelectedMixer, plan.SelectedRecipe); ;
             }
-            if (CurrentOrder.TimeToEmptyMassInProcess.Value == 0)
+            var futurelevel = CurrentOrder.TotalMassStoragedOrProducing + plan.SelectedRecipe.BatchSize;
+            if (CurrentOrder.TimeToEmptyMassInProcess.Value > 0)
             {
-                var futurelevel = CurrentOrder.TotalMassStoragedOrProducing + plan.SelectedRecipe.BatchSize;
+                var massoutletduringBatch = plan.TotalBatchTime * CurrentOrder.AverageOutletFlow;
+                futurelevel -= massoutletduringBatch;
 
-                if (futurelevel <= Capacity)
-                {
-                    return TryToStartNewOrder(plan.SelectedMixer, plan.SelectedRecipe);
-                }
             }
-
-            if (CurrentOrder.TimeToEmptyMassInProcess.Value > 0 && CurrentOrder.TimeToEmptyMassInProcess <= plan.TotalBatchTime * 1.2)
+            if (CurrentTransferFromMixer != null)
+            {
+                futurelevel += CurrentTransferFromMixer.PendingToReceive;
+            }
+            if (futurelevel <= Capacity)
             {
                 return TryToStartNewOrder(plan.SelectedMixer, plan.SelectedRecipe);
-
             }
+
             return false;
 
         }
@@ -696,7 +738,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
             if (allMixersThatProduceMaterial.Count == 0) return (null!, null!);
 
             // 3. Si alguno está libre → devolver el primero
-            var freeMixer = allMixersThatProduceMaterial.FirstOrDefault(x => x.CurrentManufactureOrder == null);
+
+            var freeMixers = allMixersThatProduceMaterial.Where(x => x.CurrentManufactureOrder == null).ToList();
+            var freeMixer = freeMixers.RandomElement(); // ← ¡Así de simple!
             if (freeMixer != null)
             {
                 materialFromMixer = SelectMaterialFromMixer(freeMixer, material);
@@ -756,8 +800,76 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         }
 
 
+        public bool IsMustWashTank()
+        {
+            if (CurrentOrder == null) return false;
+
+            if (LastMaterial == null)
+            {
+
+                LastMaterial = CurrentOrder.Material;
+                return false;
+            }
+            if (CurrentOrder.Material == null) return false;
+            if (CurrentOrder.Material.Id == LastMaterial.Id) return false;
+
+            var washDef = WashoutTimes
+                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentOrder.Material?.ProductCategory &&
+                                   x.ProductCategoryNext == LastMaterial.ProductCategory);
 
 
+            if (washDef != null)
+            {
+
+                return true;
+            }
+
+            return false;
+        }
+        public bool IsWashoutPumpFree()
+        {
+            if (Feeder != null)
+            {
+                return true;
+            }
+            return false;
+        }
+        public bool IsWashoutPumpAvailable()
+        {
+            if (!ProcessFeederManager.AnyWashoutPumpAvailable())
+            {
+                // ❌ No hay bombas → encolar y retornar false
+                ProcessFeederManager.EnqueueWashoutRequest(this);
+                return false;
+            }
+
+            Feeder = ProcessFeederManager.AssignWashingPump(this);
+
+            if (Feeder != null)
+            {
+                // ✅ Asignación exitosa → retornar true
+                return true;
+            }
+            // ❌ Asignación falló → encolar y retornar false
+            ProcessFeederManager.EnqueueWashoutRequest(this);
+            return false;
+        }
+        public Amount GetWashoutTime()
+        {
+            if (LastMaterial != null)
+            {
+                var washDef = WashoutTimes
+                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentOrder.Material?.ProductCategory &&
+                                   x.ProductCategoryNext == LastMaterial.ProductCategory);
+                if (washDef != null)
+                {
+                    LastMaterial = CurrentOrder.Material;
+                    return washDef.LineWashoutTime;
+                }
+            }
+
+            return new Amount(0, TimeUnits.Second);
+        }
 
 
     }

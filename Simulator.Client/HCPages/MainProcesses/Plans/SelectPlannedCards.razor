@@ -1,0 +1,18 @@
+﻿
+<MudCard>
+    <MudStack>
+        <IconButton Size=@Size.Small ToolTip="Add new Proces" Icon="@Icons.Material.Filled.Add" Variant=Variant.Outlined OnClick="AddNew"></IconButton>
+
+        <MudGrid>
+            @foreach (var items in Items)
+            {
+                <MudItem xs="12" md="3">
+                    <SelectedPlannedCard Model="@items" GetAll="GetAll" PlannedChanged="PlannedChanged"></SelectedPlannedCard>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudStack>
+</MudCard>
+@code {
+
+}

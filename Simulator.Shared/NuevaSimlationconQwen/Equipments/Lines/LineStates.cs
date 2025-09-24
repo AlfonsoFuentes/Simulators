@@ -343,10 +343,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             StateLabel = $"{line.Name} Changing Format ({Math.Round(_totalTime.GetValue(TimeUnits.Minute))} min)";
             AddTransition<LineStateReviewProducingState>(line => IsTimeChangingSKUAchieved());
 
-
         }
-
-
 
         public override void Run(DateTime currentdate)
         {

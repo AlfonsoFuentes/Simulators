@@ -29,7 +29,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
         {
             return _assignments.ContainsKey(equipment);
         }
-      
+
         public IManufactureFeeder? TryAssignWash(Equipment equipment)
         {
             // ✅ Si YA tiene un recurso asignado, no hacer nada
@@ -136,7 +136,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
                 // Opcional: resetear flujos o estado de los feeders
                 foreach (var feeder in feeders)
                 {
-                    feeder.OcupiedByName=string.Empty;
+                    feeder.OcupiedByName = string.Empty;
                     feeder.ActualFlow = new Amount(0, MassFlowUnits.Kg_sg);
                 }
                 ProcessQueue(); // Procesar cola
@@ -153,7 +153,18 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
         {
             return _assignments.Values.Any(feederList => feederList.Contains(feeder));
         }
+        public bool IsFeederInUseByThisEquipment(IManufactureFeeder feeder, Equipment equipment)
+        {
+            if (_assignments.ContainsKey(equipment))
+            {
+                if (_assignments[equipment].Any(x => x == feeder))
+                {
+                    return true;
+                }
+            }
+            return false;
 
+        }
         private bool IsFeederInScheduledDowntime(IManufactureFeeder feeder)
         {
             return feeder.PlannedDownTimeState is ScheduledPlannedDownTimeState;

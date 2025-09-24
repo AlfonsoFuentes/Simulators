@@ -16,9 +16,9 @@
         <MudSpacer />
         <LoginDisplay CurrentUserId="@MainApp.UserId" />
     </MudAppBar>
-    @* <MudDrawer @bind-Open="@_drawerOpen">
+    <MudDrawer @bind-Open="@_drawerOpen">
         <NewMenu></NewMenu>
-    </MudDrawer> *@
+    </MudDrawer>
     <MudMainContent>
         <AuthorizeView>
             <NotAuthorized>

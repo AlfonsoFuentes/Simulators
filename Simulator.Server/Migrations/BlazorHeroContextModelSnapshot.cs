@@ -653,6 +653,48 @@ namespace Simulator.Server.Migrations
                     b.ToTable("PlannedSKUs");
                 });
 
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.PreferedMixer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LinePlannedId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MixerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinePlannedId");
+
+                    b.HasIndex("MixerId");
+
+                    b.ToTable("PreferedMixer");
+                });
+
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.ProcessFlowDiagram", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1059,6 +1101,11 @@ namespace Simulator.Server.Migrations
                 {
                     b.HasBaseType("Simulator.Server.Databases.Entities.HC.BaseEquipment");
 
+                    b.Property<Guid?>("LinePlannedId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasIndex("LinePlannedId");
+
                     b.ToTable("HCMixers");
                 });
 
@@ -1342,6 +1389,25 @@ namespace Simulator.Server.Migrations
                     b.Navigation("SKU");
                 });
 
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.PreferedMixer", b =>
+                {
+                    b.HasOne("Simulator.Server.Databases.Entities.HC.LinePlanned", "LinePlanned")
+                        .WithMany("PreferedMixers")
+                        .HasForeignKey("LinePlannedId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.HC.Mixer", "Mixer")
+                        .WithMany("PreferedMixers")
+                        .HasForeignKey("MixerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LinePlanned");
+
+                    b.Navigation("Mixer");
+                });
+
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.SKU", b =>
                 {
                     b.HasOne("Simulator.Server.Databases.Entities.HC.Material", "Material")
@@ -1383,6 +1449,15 @@ namespace Simulator.Server.Migrations
                     b.Navigation("MainProcess");
                 });
 
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Mixer", b =>
+                {
+                    b.HasOne("Simulator.Server.Databases.Entities.HC.LinePlanned", "LinePlanned")
+                        .WithMany()
+                        .HasForeignKey("LinePlannedId");
+
+                    b.Navigation("LinePlanned");
+                });
+
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.BackBoneStep", b =>
                 {
                     b.Navigation("MixerPlanneds");
@@ -1401,6 +1476,8 @@ namespace Simulator.Server.Migrations
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.LinePlanned", b =>
                 {
+                    b.Navigation("PreferedMixers");
+
                     b.Navigation("SKUPlanneds");
                 });
 
@@ -1448,6 +1525,8 @@ namespace Simulator.Server.Migrations
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Mixer", b =>
                 {
                     b.Navigation("MixerPlanneds");
+
+                    b.Navigation("PreferedMixers");
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Tank", b =>

@@ -1,0 +1,41 @@
+﻿@using Simulator.Client.HCPages.NewProcessSimulation
+@using Simulator.Shared.NuevaSimlationconQwen
+<MudTabs>
+    <MudTabPanel Text="PFD">
+        <NewProcessFlowDiagram Simulation="@Simulation" GetAll="GetAll" />
+    </MudTabPanel>
+    <MudTabPanel Text="Simulation">
+        <SimulationTabs Simulation="@Simulation"></SimulationTabs>
+    </MudTabPanel>
+    <MudTabPanel Text="Tanks">
+        <TankTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></TankTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Pumps">
+        <PumpTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></PumpTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Operators">
+        <OperatorTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></OperatorTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Mixers">
+        <MixerTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></MixerTable>
+    </MudTabPanel>
+    <MudTabPanel Text="SKIDs">
+        <ContinuousSystemTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></ContinuousSystemTable>
+    </MudTabPanel>
+    <MudTabPanel Text="Lines">
+        <LineTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></LineTable>
+    </MudTabPanel>
+  
+</MudTabs>
+
+@code {
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+
+
+    [Parameter]
+    public Guid MainProcessId { get; set; }
+
+    [Parameter]
+    public EventCallback GetAll { get; set; }
+}

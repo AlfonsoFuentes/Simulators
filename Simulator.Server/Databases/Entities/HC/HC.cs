@@ -220,6 +220,11 @@ namespace Simulator.Server.Databases.Entities.HC
         [ForeignKey("MixerId")]
         public List<MixerPlanned> MixerPlanneds { get; set; } = new();
 
+        public LinePlanned? LinePlanned { get; set; } = null!;
+        public Guid? LinePlannedId {  get; set; } = Guid.Empty;
+
+        [ForeignKey("MixerId")]
+        public List<PreferedMixer> PreferedMixers { get; set; } = new();
     }
     public class Operator : BaseEquipment
     {
@@ -332,9 +337,6 @@ namespace Simulator.Server.Databases.Entities.HC
     }
     
 
-   
-
-
     public class MixerPlanned : AuditableEntity<Guid>, ITenantCommon
     {
 
@@ -395,6 +397,9 @@ namespace Simulator.Server.Databases.Entities.HC
         public double WIPLevelValue { get; set; }
         public string WIPLevelUnit { get; set; } = string.Empty;
 
+        [ForeignKey("LinePlannedId")]
+        public List<PreferedMixer> PreferedMixers { get; private set; } = new List<PreferedMixer>();
+
     }
     public class SimulationPlanned : AuditableEntity<Guid>, ITenantCommon
     {
@@ -434,6 +439,18 @@ namespace Simulator.Server.Databases.Entities.HC
       
         public static PlannedSKU Create(Guid LinePlannedId) => 
             new() { Id = Guid.NewGuid(), LinePlannedId= LinePlannedId };
+
+        public LinePlanned LinePlanned { get; set; } = null!;
+        public Guid LinePlannedId { get; set; }
+    }
+    public class PreferedMixer : AuditableEntity<Guid>, ITenantCommon
+    {
+
+        public Guid MixerId { get; set; }
+        public Mixer Mixer { get; set; } = null!;
+
+        public static PreferedMixer Create(Guid LinePlannedId) =>
+            new() { Id = Guid.NewGuid(), LinePlannedId = LinePlannedId };
 
         public LinePlanned LinePlanned { get; set; } = null!;
         public Guid LinePlannedId { get; set; }

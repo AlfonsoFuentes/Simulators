@@ -1,23 +1,8 @@
-﻿@page "/HCPlant"
-@using Simulator.Client.HCPages.MainProcesses
-@using Simulator.Client.HCPages.SKUs
-@using Simulator.Client.HCPages.Washouts
+﻿@using Simulator.Client.HCPages.MainProcesses
 
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-1">
-    <MudTabPanel Text="Materials">
-        <MaterialTable></MaterialTable>
-    </MudTabPanel>
-    <MudTabPanel Text="SKUs">
-        <SKUTable></SKUTable>
-    </MudTabPanel>
-    <MudTabPanel Text="Washouts">
-        <WashoutTable></WashoutTable>
-    </MudTabPanel>
-    <MudTabPanel Text="Process">
-        <MainProcessTable></MainProcessTable>
-    </MudTabPanel>
-</MudTabs>
+ <MainProcessCards></MainProcessCards> 
 
+ @* <MainProcessTable></MainProcessTable>  *@
 @code {
     
 }

@@ -47,7 +47,7 @@ namespace Simulator.Server.Databases.Configurations.HC
                   .IsRequired()
                   .OnDelete(DeleteBehavior.Restrict);
 
-          
+
         }
     }
     internal class SKULineConfiguration : IEntityTypeConfiguration<SKULine>
@@ -151,7 +151,7 @@ namespace Simulator.Server.Databases.Configurations.HC
            .IsRequired()
            .OnDelete(DeleteBehavior.Cascade);
 
-           
+
 
         }
     }
@@ -189,6 +189,7 @@ namespace Simulator.Server.Databases.Configurations.HC
                      .OnDelete(DeleteBehavior.Restrict);
 
 
+
         }
     }
 
@@ -214,7 +215,7 @@ namespace Simulator.Server.Databases.Configurations.HC
             builder.HasOne(e => e.BackBoneStep)
                .WithMany(h => h.MixerPlanneds)
                .HasForeignKey(e => e.BackBoneStepId)
-              
+
                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(e => e.ProducingTo)
@@ -239,6 +240,25 @@ namespace Simulator.Server.Databases.Configurations.HC
 
             builder.HasOne(e => e.LinePlanned)
                .WithMany(e => e.SKUPlanneds)
+               .HasForeignKey(e => e.LinePlannedId)
+               .IsRequired()
+               .OnDelete(DeleteBehavior.Restrict);
+        }
+    }
+    internal class PreferedMixerConfiguration : IEntityTypeConfiguration<PreferedMixer>
+    {
+        public void Configure(EntityTypeBuilder<PreferedMixer> builder)
+        {
+            builder.HasKey(ci => ci.Id);
+
+            builder.HasOne(e => e.Mixer)
+                 .WithMany(e => e.PreferedMixers)
+                 .HasForeignKey(e => e.MixerId)
+                 .IsRequired()
+                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(e => e.LinePlanned)
+               .WithMany(e => e.PreferedMixers)
                .HasForeignKey(e => e.LinePlannedId)
                .IsRequired()
                .OnDelete(DeleteBehavior.Restrict);

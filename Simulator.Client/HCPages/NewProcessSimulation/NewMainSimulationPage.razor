@@ -1,5 +1,4 @@
-﻿
-@using Simulator.Client.HCPages.NewProcessSimulation.Cards
+﻿@using Simulator.Client.HCPages.NewProcessSimulation.Cards
 @using Simulator.Shared.NuevaSimlationconQwen
 @if (Simulation != null)
 {
@@ -8,39 +7,7 @@
         <MudStack Spacing="2">
 
 
-            <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
-                @if (!Simulation.IsSimulationRunning)
-                {
-                    <MudButton Variant=Variant.Filled Color=Color.Success OnClick="StartSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
-                        Start2
-                    </MudButton>
-                }
-                else if (Simulation.IsSimulationRunning && !Simulation.IsSimulationPaused)
-                {
-                    <MudButton Variant=Variant.Filled Color=Color.Warning OnClick="PauseSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Pause">
-                        Pause
-                    </MudButton>
-                    <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
-                        Stop
-                    </MudButton>
-                }
-                else if (Simulation.IsSimulationRunning && Simulation.IsSimulationPaused)
-                {
-                    <MudButton Variant=Variant.Filled Color=Color.Success OnClick="ResumeSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
-                        Resume
-                    </MudButton>
-                    <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
-                        Stop
-                    </MudButton>
-                }
 
-                @if (Simulation.IsSimulationRunning || Simulation.IsSimulationPaused)
-                {
-                    <MudButton Variant=Variant.Outlined Color=Color.Secondary OnClick="ResetSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.RestartAlt">
-                        Reset
-                    </MudButton>
-                }
-            </MudStack>
 
             <!-- INDICADOR OPCIONAL VA AQUÍ, DESPUÉS DE LOS BOTONES -->
             @if (Simulation.IsSimulationRunning)
@@ -61,7 +28,7 @@
                         <MudText Typo="Typo.body2">
                             <small>@Simulation.SimulationTime.ToString(@"hh\:mm\:ss")</small>
                         </MudText>
-                       
+
                     </div>
                 </MudPaper>
             }
@@ -72,6 +39,41 @@
             }
             else
             {
+                <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                    @if (!Simulation.IsSimulationRunning)
+                    {
+                        <MudButton Variant=Variant.Filled Color=Color.Success OnClick="StartSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
+                            Start
+                        </MudButton>
+                    }
+                    else if (Simulation.IsSimulationRunning && !Simulation.IsSimulationPaused)
+                    {
+                        <MudButton Variant=Variant.Filled Color=Color.Warning OnClick="PauseSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Pause">
+                            Pause
+                        </MudButton>
+                        <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
+                            Stop
+                        </MudButton>
+                    
+                    }
+                    else if (Simulation.IsSimulationRunning && Simulation.IsSimulationPaused)
+                    {
+                        <MudButton Variant=Variant.Filled Color=Color.Success OnClick="ResumeSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
+                            Resume
+                        </MudButton>
+                        <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
+                            Stop
+                        </MudButton>
+                    }
+
+                    @if (Simulation.IsSimulationRunning || Simulation.IsSimulationPaused)
+                    {
+                        <MudButton Variant=Variant.Outlined Color=Color.Secondary OnClick="ResetSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.RestartAlt">
+                            Reset
+                        </MudButton>
+                    }
+                    <MudSwitch @bind-Value=@Simulation.OnLiveReport></MudSwitch>
+                </MudStack>
                 <NewSimulationPageCards Simulation="@Simulation"></NewSimulationPageCards>
             }
 
@@ -109,5 +111,5 @@
         Simulation.ResetSimulation();
     }
 
-    
+
 }

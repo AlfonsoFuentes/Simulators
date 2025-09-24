@@ -14,7 +14,9 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
         public static async Task ReadPlannedLines(this SimulationPlannedDTO planned, IQueryRepository Repository)
         {
             Func<IQueryable<LinePlanned>, IIncludableQueryable<LinePlanned, object>> includes = x => x
-                  .Include(y => y.Line);
+                  .Include(x => x.HCSimulationPlanned)
+                  .Include(y => y.Line)
+                  .Include(x => x.PreferedMixers).ThenInclude(x => x.Mixer);
             Expression<Func<LinePlanned, bool>> Criteria = x => x.SimulationPlannedId == planned.Id;
             string CacheKey = StaticClass.LinePlanneds.Cache.GetAll(planned.Id);
             var rows = await Repository.GetAllAsync<LinePlanned>(Cache: CacheKey, Criteria: Criteria, Includes: includes);
@@ -29,6 +31,7 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
                         await row.ReadPlannedSKU(Repository);
                     }
                 }
+
             }
 
 

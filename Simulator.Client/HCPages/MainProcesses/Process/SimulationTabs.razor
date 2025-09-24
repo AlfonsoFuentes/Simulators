@@ -1,0 +1,36 @@
+﻿@using Simulator.Client.HCPages.NewProcessSimulation
+@using Simulator.Client.HCPages.NewProcessSimulation.Cards
+@using Simulator.Client.HCPages.NewProcessSimulation.NewReports
+@using Simulator.Shared.NuevaSimlationconQwen
+<MudStack>
+
+
+   
+    @if (Simulation.Planned == null)
+    {
+        <MudText Typo="Typo.h6">Must load production plan</MudText>
+
+    }
+    else
+    {
+       
+        <MudTabs>
+
+            <MudTabPanel Text="Live">
+                <LiveReportView Simulation="@Simulation"></LiveReportView>
+            </MudTabPanel>
+            <MudTabPanel Text="Stoppages">
+                <StoppageReports Simulation="@Simulation"></StoppageReports>
+            </MudTabPanel>
+            <MudTabPanel Text="Capacity">
+                <NewProductionCapacityReport Simulation=@Simulation />
+            </MudTabPanel>
+        </MudTabs>
+    }
+    
+</MudStack>
+@code {
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+    
+}

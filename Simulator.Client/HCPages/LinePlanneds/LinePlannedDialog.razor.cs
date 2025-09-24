@@ -1,6 +1,10 @@
 using Simulator.Shared.Models.HCs.LinePlanneds;
 using Simulator.Shared.Models.HCs.Lines;
+using Simulator.Shared.Models.HCs.PlannedSKUs;
+using Simulator.Shared.Models.HCs.PreferedMixers;
 using Simulator.Shared.Models.HCs.SKULines;
+using static MudBlazor.CategoryTypes;
+using static Simulator.Shared.StaticClasses.StaticClass;
 
 namespace Simulator.Client.HCPages.LinePlanneds;
 public partial class LinePlannedDialog
@@ -17,8 +21,46 @@ public partial class LinePlannedDialog
     {
         await GetAllLines();
         await getById();
+        await GetAllPlannedSKUS();
+        await GetAllPreferedMixers();
+
+    }
+    async Task GetAllPreferedMixers()
+    {
+        if (Model.Id != Guid.Empty)
+        {
+            var result = await GenericService.GetAll<PreferedMixerResponseList, PreferedMixerGetAll>(new PreferedMixerGetAll()
+            {
+                LinePlannedId = Model.Id,
 
 
+            });
+            if (result.Succeeded)
+            {
+                Model.PreferedMixerDTOs = result.Data.Items;
+        
+            }
+
+        }
+
+    }
+    async Task GetAllPlannedSKUS()
+    {
+        if (Model.Id != Guid.Empty)
+        {
+            var result = await GenericService.GetAll<PlannedSKUResponseList, PlannedSKUGetAll>(new PlannedSKUGetAll()
+            {
+                LinePlannedId = Model.Id,
+
+
+            });
+            if (result.Succeeded)
+            {
+                Model.PlannedSKUDTOs = result.Data.Items;
+
+            }
+
+        }
 
     }
     LineResponseList LineResponseList = new();
@@ -35,7 +77,7 @@ public partial class LinePlannedDialog
             LineResponseList = result.Data;
         }
     }
-    
+
     FluentValidationValidator _fluentValidationValidator = null!;
 
     private async Task Submit()
@@ -78,7 +120,7 @@ public partial class LinePlannedDialog
         if (result.Succeeded)
         {
             Model = result.Data;
-            
+
         }
     }
 
@@ -91,6 +133,6 @@ public partial class LinePlannedDialog
              LineResponseList.Items.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }
-  
+
 
 }

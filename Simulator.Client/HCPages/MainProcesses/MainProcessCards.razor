@@ -1,0 +1,47 @@
+﻿@using Simulator.Client.HCPages.MainProcesses.Plans
+@using Simulator.Client.HCPages.MainProcesses.Process
+
+<MudStack>
+    <MudCard>
+        <MudStack>
+            <IconButton Size=@Size.Small ToolTip="Add new Proces" Icon="@Icons.Material.Filled.Add" Variant=Variant.Outlined OnClick="AddNew"></IconButton>
+            <div>
+                <MudGrid>
+                    @foreach (var items in Items)
+                    {
+                        <MudItem xs="12" md="3">
+                            <MainProcessCard Model="@items" GetAll="GetAll" SelectProcess="SelectProcessAndPlannedByID"></MainProcessCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </div>
+        </MudStack>
+    </MudCard>
+    <MudCard>
+
+        @if (SimulationPlannedResponseList != null)
+        {
+            <SelectPlannedCards Items="@SimulationPlannedResponseList.Items" MainProcessId="MainProcessId"
+                                GetAll="SelectAllPlan" PlannedChanged="SelectPlan"></SelectPlannedCards>
+        }
+    </MudCard>
+    <MudCard>
+
+        @if (SimulationLoading)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Filled">
+                Loading Process, please wait....
+            </MudAlert>
+        }
+        else if (Simulation != null)
+        {
+            <SelectedProcessTabs Simulation="@Simulation" GetAll="SelectAllProcess" MainProcessId="@MainProcessId"></SelectedProcessTabs>
+        }
+
+
+    </MudCard>
+</MudStack>
+
+@code {
+
+}

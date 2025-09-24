@@ -2,6 +2,7 @@
 using Simulator.Shared.Models.HCs.LinePlanneds;
 using Simulator.Shared.Models.HCs.MainProcesss;
 using Simulator.Shared.Models.HCs.MixerPlanneds;
+using Simulator.Shared.Models.HCs.PreferedMixers;
 using Simulator.Shared.Models.HCs.Tanks;
 using System.Globalization;
 using static Simulator.Shared.StaticClasses.StaticClass;
@@ -52,7 +53,7 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
                 EndDate = InitDate!.Value.AddHours(PlannedHours);
             }
         }
-        CultureInfo ci=new CultureInfo("en-US");
+        CultureInfo ci = new CultureInfo("en-US");
         public string InitDateString => InitDate == null ? string.Empty : InitDate.Value.ToString("f", ci);
         public string EndDateString => EndDate == null ? string.Empty : EndDate.Value.ToString("f", ci);
         public DateTime? EndDate { get; private set; }
@@ -70,13 +71,11 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
             }
         }
 
-       
 
-    
         public List<LinePlannedDTO> PlannedLines { get; set; } = new();
         public List<LinePlannedDTO> OrderedPlannedLines => PlannedLines.OrderBy(x => x.PackageType).ThenBy(x => x.LineName).ToList();
         public List<MixerPlannedDTO> PlannedMixers { get; set; } = new();
-
+        public List<PreferedMixerDTO> PreferedMixers => PlannedLines.SelectMany(x => x.PreferedMixerDTOs).ToList();
         public List<MixerPlannedDTO> OrderedPlannedMixers => PlannedMixers.OrderBy(x => x.MixerName).ToList();
         public CurrentShift CurrentShift => CheckShift();
         CurrentShift CheckShift() =>
@@ -116,7 +115,7 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
 
             _ => false
         };
-        
+
 
     }
     public class DeleteSimulationPlannedRequest : DeleteMessageResponse, IRequest
@@ -139,8 +138,8 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
     }
     public class GetProcessByIdRequest : GetByIdMessageResponse, IGetById
     {
-        public Guid Id { get; set; }    
-       
+        public Guid Id { get; set; }
+
         public Guid MainProcessId { get; set; }
         public string EndPointName => StaticClass.SimulationPlanneds.EndPoint.GetProcess;
         public override string ClassName => StaticClass.SimulationPlanneds.ClassName;

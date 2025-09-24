@@ -21,58 +21,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public IMaterial? LastMaterial { get; set; } = null!;
        
        
-        public bool IsMustWashTank()
-        {
-            if (LastMaterial == null)
-            {
-
-                LastMaterial = Material;
-                return false;
-            }
-            if (Material == null) return false;
-            if (Material.Id == LastMaterial.Id) return false;
-
-            var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == Material?.ProductCategory &&
-                                   x.ProductCategoryNext == LastMaterial.ProductCategory);
-
-            LastMaterial = Material;
-            if (washDef != null)
-            {
-
-                return true;
-            }
-
-            return false;
-        }
-        public bool IsWashoutPumpFree()
-        {
-            if (Feeder != null)
-            {
-                return true;
-            }
-            return false;
-        }
-        public bool IsWashoutPumpAvailable()
-        {
-            if (!ProcessFeederManager.AnyWashoutPumpAvailable())
-            {
-                // ❌ No hay bombas → encolar y retornar false
-                ProcessFeederManager.EnqueueWashoutRequest(this);
-                return false;
-            }
-
-            Feeder = ProcessFeederManager.AssignWashingPump(this);
-
-            if (Feeder != null)
-            {
-                // ✅ Asignación exitosa → retornar true
-                return true;
-            }
-            // ❌ Asignación falló → encolar y retornar false
-            ProcessFeederManager.EnqueueWashoutRequest(this);
-            return false;
-        }
+        
         public bool IsTankInLoLevel()
         {
             if (CurrentLevel < LoLolevel)
@@ -82,21 +31,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 
             return false;
         }
-        public Amount GetWashoutTime()
-        {
-            if (LastMaterial != null)
-            {
-                var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == Material?.ProductCategory &&
-                                   x.ProductCategoryNext == LastMaterial.ProductCategory);
-                if (washDef != null)
-                {
-                    return washDef.LineWashoutTime;
-                }
-            }
-
-            return new Amount(0, TimeUnits.Second);
-        }
+        
         public virtual void CalculateOutletLevel()
         {
             var mass = OutletFlows * OneSecond;

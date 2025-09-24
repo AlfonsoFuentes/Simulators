@@ -1,6 +1,7 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Lines;
 using Simulator.Shared.Models.HCs.PlannedSKUs;
+using Simulator.Shared.Models.HCs.PreferedMixers;
 using System.Text.Json.Serialization;
 
 namespace Simulator.Shared.Models.HCs.LinePlanneds
@@ -24,6 +25,7 @@ namespace Simulator.Shared.Models.HCs.LinePlanneds
         public Guid LineId => LineDTO == null ? Guid.Empty : LineDTO.Id;
         public string LineName => LineDTO == null ? string.Empty : LineDTO.Name;
         public List<PlannedSKUDTO> PlannedSKUDTOs { get; set; } = new();
+        public List<PreferedMixerDTO> PreferedMixerDTOs { get; set; } = new();
         public ShiftType ShiftType { get; set; }
 
         public PlannedSKUDTO LastPlannedSKU(PlannedSKUDTO plannedSKUDTO)

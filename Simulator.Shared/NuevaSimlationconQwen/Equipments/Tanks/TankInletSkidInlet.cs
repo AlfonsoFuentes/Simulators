@@ -67,7 +67,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"{tank.Name} Producing By SKID";
-            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsMassDeliveredCompleted());
+            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsMassPendingToProduceCompleted());
             AddTransition<TankInletHighLevelSKIDState>(tank => tank.IsTankHigherThenHiLevel());
            
         }
@@ -84,7 +84,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"{tank.Name} Waiting for SKID";
-            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsMassDeliveredCompleted());
+            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsMassPendingToProduceCompleted());
             AddTransition<TankInletProducingBySKIDState>(tank => tank.IsTankIsLowerThanLowLevel());
         }
 

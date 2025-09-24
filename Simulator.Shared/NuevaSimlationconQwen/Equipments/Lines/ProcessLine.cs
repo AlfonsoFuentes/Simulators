@@ -197,50 +197,66 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
                 Value = CurrentSKU?.SkuName ?? "None",
                 Style = new ReportStyle()
             }
-            ,
-            new LiveReportItem
-            {
-                Label = "BackBone",
-                Value = CurrentSKU?.Material.CommonName ?? "None",
-                Style = new ReportStyle()
-            },
-            new LiveReportItem
-            {
-                Label = "Produced Cases",
-                Value = ProductionSKURun?.ProducedCases.ToString() ?? "None",
-                Style = new ReportStyle()
-            }
-            ,
-            new LiveReportItem
-            {
-                Label = "Remaning Cases",
-                Value = ProductionSKURun?.RemainingCases.ToString() ?? "None",
-                Style = new ReportStyle()
-            }
-            ,
-            new LiveReportItem
-            {
-                Label = "Current Flow",
-                Value = ProductionSKURun?.CurrentFlow.ToString() ?? "None",
-                Style = new ReportStyle()
-            }
-            ,
-            new LiveReportItem
-            {
-                Label = "Average Flow",
-                Value = $"{Math.Round(ProductionSKURun?.AverageMassFlow.GetValue(MassFlowUnits.Kg_min)??0,2)}, Kg/min" ?? "None",
-                Style = new ReportStyle()
-            },
-            new LiveReportItem
-            {
-                Label = "Mass packed",
-                Value = $"{Math.Round(ProductionSKURun?.ProducedMass.GetValue(MassUnits.KiloGram)??0,1)}, Kg" ?? "None",
-                Style = new ReportStyle()
-            }
+            
 
         };
-            if(ProductionOrder!=null)
+            if (ProductionOrder != null && ProductionSKURun != null)
             {
+                items.Add(new LiveReportItem
+                {
+                    Label = "BackBone",
+                    Value = CurrentSKU?.Material.CommonName ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Planned Cases",
+                    Value = ProductionSKURun?.TotalCases.ToString() ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Produced Cases",
+                    Value = ProductionSKURun?.ProducedCases.ToString() ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Pending Cases",
+                    Value = ProductionSKURun?.RemainingCases.ToString() ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Current Flow",
+                    Value = ProductionSKURun?.CurrentFlow.ToString() ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Average Flow",
+                    Value = $"{Math.Round(ProductionSKURun?.AverageMassFlow.GetValue(MassFlowUnits.Kg_min) ?? 0, 2)}, Kg/min" ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Planned mass",
+                    Value = ProductionSKURun?.TotalPlannedMass.ToString() ?? "None",
+                    Style = new ReportStyle()
+                });
+                items.Add(new LiveReportItem
+                {
+                    Label = "Mass packed",
+                    Value = $"{Math.Round(ProductionSKURun?.ProducedMass.GetValue(MassUnits.KiloGram) ?? 0, 1)}, Kg" ?? "None",
+                    Style = new ReportStyle()
+                });
+              
+                items.Add(new LiveReportItem
+                {
+                    Label = "Pending Mass",
+                    Value = ProductionSKURun?.RemainingMass.ToString() ?? "None",
+                    Style = new ReportStyle()
+                });
                 var wipNames = string.Join(", ", ProductionOrder.WIPs.Select(w => w.Name));
                 items.Add(new LiveReportItem
                 {
@@ -248,10 +264,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
                     Value = wipNames,
                     Style = new ReportStyle()
                 });
-                
+
             }
             // ✅ Indicar qué tanques WIP alimentan esta línea
-            
+
 
             return items;
         }
@@ -292,11 +308,25 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         void SendToWipProductionOrder(FromLineToWipProductionOrder order)
         {
-            
+
             foreach (var wip in WIPTanksAttached)
             {
                 wip.ReceiveFromLineProductionOrder(order);
             }
+        }
+        bool RealesedOrderFromWIP = false;
+        public void ReceivedWIPCurrentOrderRealsed()
+        {
+            RealesedOrderFromWIP = true;
+        }
+        public bool IsOrderFromWIPRealsed()
+        {
+            if (RealesedOrderFromWIP)
+            {
+                RealesedOrderFromWIP = false;
+                return true;
+            }
+            return false;
         }
         public void ReceiveWipCanHandleMaterial(ProcessWipTankForLine wip)
         {
@@ -304,7 +334,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             if (ProductionOrder != null)
             {
                 ProductionOrder.WIPs.Add(wip);
-               
+
             }
         }
 
@@ -312,7 +342,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         {
             if (ProductionOrder != null)
             {
-                if(!ProductionOrder.WIPs.Any())
+                if (!ProductionOrder.WIPs.Any())
                 {
                     StartCriticalReport(this, $"No Manufaturer found for {ProductionOrder.MaterialName}", $"Line {Name} stopped due to low level in WIP tank(s).");
                     return true;
@@ -337,7 +367,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         {
             if (ProductionOrder != null)
             {
-                var wipstarved = ProductionOrder.WIPs.All(x => x.OutletState is  ITankOuletStarved);
+                var wipstarved = ProductionOrder.WIPs.All(x => x.OutletState is ITankOuletStarved);
                 if (wipstarved)
                 {
                     ProductionOrder.WIPs.ForEach(x => x.CurrentLevel = ZeroMass);
@@ -400,12 +430,12 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         public void RunByAu()
         {
             ProductionSKURun?.ProcessDuringAU();
-            
+
         }
         public void RunByProducing()
         {
             ProductionSKURun?.Produce();
-          
+
         }
 
         List<ProcessPump> CurrentPumps => ProductionOrder == null ? new List<ProcessPump>() : ProductionOrder.WIPs.SelectMany(x => x.OutletPumps).ToList();

@@ -1,0 +1,29 @@
+﻿<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            <MudStack>
+                <Autocomplete Label="Selected Mixer"
+                              @bind-Value=@Model.Mixer
+                              For="() => Model.Mixer"
+                              ValidateAsync="ValidateAsync"
+                             
+                              ToStringFunc="@(e => e == null ? null : $"{e.Name} ")"
+                              SearchFunc="SearchMixer"></Autocomplete>
+              
+
+            </MudStack>
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+
+@code {
+
+}
