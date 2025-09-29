@@ -30,24 +30,13 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         {
 
             StateLabel = $"Initial to State";
-            AddTransition<LineReviewAtInitStateInitialState>();
-        }
-
-
-    }
-    public class LineReviewAtInitStateInitialState : LineOutletState
-    {
-
-        public LineReviewAtInitStateInitialState(ProcessLine line) : base(line)
-        {
-
-
-            StateLabel = $"Review Initial to State";
             AddTransition<LineStateNotScheduledState>(line => !line.IsLineScheduled);
-            AddTransition<LineStateReviewProducingState>(line => line.SelectProductionRun());
-
+            AddTransition<LineStateReviewProducingState>(line => line.InitSelectProductionRun());
         }
+
+
     }
+    
     public class LineStateNotScheduledState : LineOutletState
     {
         public LineStateNotScheduledState(ProcessLine equipment) : base(equipment)
@@ -178,8 +167,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             AddTransition<LineStateProducingToEmptyWIPsState>(line => line.MustEmptyWipTanks());
 
             AddTransition<LineStateChangeFormatState>(line => line.MustChangeFormat());
-            AddTransition<LineStateNotScheduledState>(line => line.IfCanStopLineCompletely());
-            AddTransition<LineStateReviewProducingState>(line => line.SelectProductionRun());
+            AddTransition<LineStateReviewNextSKUState>();
 
         }
 
@@ -247,8 +235,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
 
             StateLabel = $"{line.Name} Starved by Low Level WIP";
             
-            AddTransition<LineStateChangeFormatAfterEmptyTankState>(line => line.MustChangeFormat());
-            AddTransition<LineStateReviewProducingState>(line => line.SelectProductionRun());
+            AddTransition<LineStateChangeFormatState>(line => line.MustChangeFormat());
+            AddTransition<LineStateReviewNextSKUState>();
+          
         }
 
 
@@ -284,8 +273,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
 
             StateLabel = $"{line.Name} Review Next SKU";
             AddTransition<LineStateNotScheduledState>(line => line.IfCanStopLineCompletely());
-            AddTransition<LineStateReviewProducingState>(line => line.SelectProductionRun());
-
+            AddTransition<LineStateReviewProducingState>(line => line.SelectNextProductionOrder());
+         
 
         }
 
@@ -302,7 +291,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         Amount PendingTime => _totalTime - _currentTime;
         public LineStateChangeFormatState(ProcessLine line) : base(line)
         {
-            _totalTime = line.TimeToChangeFormat; // ← Tiempo de cambio de formato desde la línea
+            _totalTime = line.CurrentProductionOrder.SKU.TimeToChangeFormat; // ← Tiempo de cambio de formato desde la línea
             _line.SetPumpsFlowToZero();
           
             StateLabel = $"{line.Name} Changing Format ({Math.Round(_totalTime.GetValue(TimeUnits.Minute))} min)";
@@ -328,39 +317,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             return false;
         }
     }
-    public class LineStateChangeFormatAfterEmptyTankState : LineOutletState
-    {
 
-        Amount _currentTime = new Amount(0, TimeUnits.Second);
-
-        readonly Amount _totalTime = new Amount(0, TimeUnits.Second);
-        Amount PendingTime => _totalTime - _currentTime;
-        public LineStateChangeFormatAfterEmptyTankState(ProcessLine line) : base(line)
-        {
-            _totalTime = line.TimeToChangeFormat; // ← Tiempo de cambio de formato desde la línea
-            _line.SetPumpsFlowToZero();
-            _line.SelectProductionRun();
-            StateLabel = $"{line.Name} Changing Format ({Math.Round(_totalTime.GetValue(TimeUnits.Minute))} min)";
-            AddTransition<LineStateReviewProducingState>(line => IsTimeChangingSKUAchieved());
-
-        }
-
-        public override void Run(DateTime currentdate)
-        {
-            // ✅ Acumula tiempo de cambio de formato
-            _currentTime += Context.OneSecond;
-        }
-        bool IsTimeChangingSKUAchieved()
-        {
-            StateLabel = $"{_line.Name} Changing Format ({Math.Round(PendingTime.GetValue(TimeUnits.Minute))} min)";
-            if (PendingTime <= _line.ZeroTime)
-
-            {
-                return true;
-            }
-            return false;
-        }
-    }
 
 
 

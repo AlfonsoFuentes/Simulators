@@ -27,9 +27,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen
 
     public class GeneralSimulation
     {
-        public ProcessFeederManager EquipmentFeederToMixersManager { get; set; } = null!;
+      
         public CriticalDowntimeReportManager CriticalDowntimeReportManager { get; private set; } = null!;
-        public ProcessFeederManager ProcessFeederManager { get; private set; } = null!;
+
         public ManufacturingSystemAnalizer ManufacturingSystemAnalizer { get; set; } = null!;
         public GeneralSimulation()
         {
@@ -312,16 +312,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             var orderedEquipments = Equipments.OrderByDescending(e => e.TopologicalLevel).ToList();
             CriticalDowntimeReportManager = new CriticalDowntimeReportManager(this);
 
-
-
-            var AllPumps = Equipments.OfType<IManufactureFeeder>().ToList();
-            EquipmentFeederToMixersManager = new ProcessFeederManager(AllPumps);
-
-
             // ✅ Asignar CriticalDowntimeReportManager a TODOS los equipos
             Equipments.ForEach(x =>
             {
-                x.ProcessFeederManager = EquipmentFeederToMixersManager;
+               
                 x.ReportManager = CriticalDowntimeReportManager;
                 x.Init(currendate);
             });

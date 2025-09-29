@@ -1,0 +1,167 @@
+﻿@using System
+@using System.Linq
+@using Simulator.Shared.NuevaSimlationconQwen
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
+
+<MudStack>
+    @if (Simulation.IsSimulationRunning)
+    {
+        <MudPaper Elevation="2" Class="pa-2 mb-2" Style="@(Simulation.IsSimulationPaused ? "background-color: #fff3e0;" : "background-color: #e8f5e9;")">
+            <div class="d-flex align-items-center">
+                @if (Simulation.IsSimulationPaused)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Pause" Color="Color.Warning" Class="mr-2" />
+                    <MudText Typo="Typo.body2" Color="Color.Warning"><strong>PAUSED</strong></MudText>
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" Class="mr-2" />
+                    <MudText Typo="Typo.body2" Color="Color.Success"><strong>RUNNING</strong></MudText>
+                }
+                <MudSpacer />
+                <MudText Typo="Typo.body2">
+                    <small>@Simulation.SimulationTime.ToString(@"hh\:mm\:ss")</small>
+                </MudText>
+            </div>
+        </MudPaper>
+    }
+    <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+        @if (!Simulation.IsSimulationRunning)
+        {
+            <MudButton Variant=Variant.Filled Color=Color.Success OnClick="StartSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
+                Start
+            </MudButton>
+        }
+        else if (Simulation.IsSimulationRunning && !Simulation.IsSimulationPaused)
+        {
+            <MudButton Variant=Variant.Filled Color=Color.Warning OnClick="PauseSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Pause">
+                Pause
+            </MudButton>
+            <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
+                Stop
+            </MudButton>
+        }
+        else if (Simulation.IsSimulationRunning && Simulation.IsSimulationPaused)
+        {
+            <MudButton Variant=Variant.Filled Color=Color.Success OnClick="ResumeSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
+                Resume
+            </MudButton>
+            <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
+                Stop
+            </MudButton>
+        }
+
+        @if (Simulation.IsSimulationRunning || Simulation.IsSimulationPaused)
+        {
+            <MudButton Variant=Variant.Outlined Color=Color.Secondary OnClick="ResetSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.RestartAlt">
+                Reset
+            </MudButton>
+        }
+    </MudStack>
+    <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+        <MudText Typo=Typo.button Color="Color.Dark">@($"Init time: {Simulation.InitDate.ToString()}")</MudText>
+        <MudText Typo=Typo.button>@($"End time: {Simulation.EndDate.ToString()}")</MudText>
+    </MudStack>
+
+    <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+        <MudText Typo=Typo.button>@($"Date: {Simulation.CurrentDate.ToShortDateString()}")</MudText>
+        <MudText Typo=Typo.button>@($"Current Shift: {Simulation.CurrentShift}")</MudText>
+        <MudText Typo=Typo.button>@($"Hour: {Simulation.CurrentDate.Hour}")</MudText>
+        <MudText Typo=Typo.button>@($"Minute: {Simulation.CurrentDate.Minute}")</MudText>
+        <MudText Typo=Typo.button>@($"Second: {Simulation.CurrentDate.Second}")</MudText>
+        <MudText Typo=Typo.button>@($"Run Time: {Simulation.CurrenTime.ToString()}")</MudText>
+    </MudStack>
+    <MudSlider @bind-Value="@velocity" Min="1" Max="500" Color="Color.Info">Simulation Speed: @velocity.ToString()</MudSlider>
+</MudStack>
+
+<!-- Layout de reporte (FUERA del MudStack para evitar problemas de flex) -->
+<div class="live-report-v2">
+    <!-- Columna 1: Operarios y Tanques MP (25%) -->
+    <div class="col-1 report-col">
+        <h3 class="report-title">Manufacture Feeder</h3>
+        @foreach (var item in Column1Items)
+        {
+            <div class="report-card" @key="@($"col1-{item.Id}")">
+                @foreach (var field in item.Items)
+                {
+                    <div style="color: @field.Style.Color; font-weight: @field.Style.FontEmphasis;">
+                        <strong>@field.Label:</strong> @field.Value
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Columna 2: SKIDs y Mezcladores (25%) -->
+    <div class="col-2 report-col">
+        <h3 class="report-title">Manufacturers</h3>
+        @foreach (var item in Column2Items)
+        {
+            <div class="report-card" @key="@($"col2-{item.Id}")">
+                @foreach (var field in item.Items)
+                {
+                    <div style="color: @field.Style.Color; font-weight: @field.Style.FontEmphasis;">
+                        <strong>@field.Label:</strong> @field.Value
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Columna 3: WIP + Líneas (50%) -->
+    <!-- Columna 3: WIP + Líneas (50%) -->
+    <div class="col-3">
+        <!-- Columna 3: WIP + Líneas (50%) -->
+        <div class="col-3 report-col">
+            <h3 class="report-title">WIP tanks & Lines</h3>
+            @for (int i = 0; i < FlatRows.Count; i++)
+            {
+                var row = FlatRows[i];
+                <div class="wip-line-row" @key="@($"row-{i}")">
+                    <!-- WIP -->
+                    @if (row.Wip != null)
+                    {
+                        <div class="wip-cell">
+                            <div class="report-card" @key="@($"wip-{row.Wip.Id}")">
+                                @foreach (var field in row.Wip.Items)
+                                {
+                                    <div style="color: @field.Style.Color; font-weight: @field.Style.FontEmphasis;">
+                                        <strong>@field.Label:</strong> @field.Value
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="wip-cell empty"></div>
+                    }
+
+                    <!-- Línea -->
+                    @if (row.Line != null)
+                    {
+                        <div class="line-cell">
+                            <div class="report-card" @key="@($"line-{row.Line.Id}")">
+                                @foreach (var field in row.Line.Items)
+                                {
+                                    <div style="color: @field.Style.Color; font-weight: @field.Style.FontEmphasis;">
+                                        <strong>@field.Label:</strong> @field.Value
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="line-cell empty"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

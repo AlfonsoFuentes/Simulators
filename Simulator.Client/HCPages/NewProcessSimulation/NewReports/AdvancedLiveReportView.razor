@@ -3,7 +3,7 @@
 @using Simulator.Shared.NuevaSimlationconQwen.Reports
 
 
-<div class="advanced-live-report">
+@* <div class="advanced-live-report">
     @for (int col = 0; col < 4; col++)
     {
         var column = (ReportColumn)col;
@@ -33,29 +33,29 @@
             </div>
         </div>
     }
-</div>
+</div> *@
 
 @code {
-    private List<ReportLayoutItem> Layout { get; set; } = new();
-    [Parameter]
-    public GeneralSimulation Simulation { get; set; } = null!;
-    ReportLayoutService LayoutService = null!;
-    protected override void OnInitialized()
-    {
-        LayoutService = new(Simulation);
-        Layout = LayoutService.GetLayout();
-    }
+    // private List<ReportLayoutItem> Layout { get; set; } = new();
+    // [Parameter]
+    // public GeneralSimulation Simulation { get; set; } = null!;
+    // ReportLayoutService LayoutService = null!;
+    // protected override void OnInitialized()
+    // {
+    //     LayoutService = new(Simulation);
+    //     Layout = LayoutService.GetLayout();
+    // }
 
-    private string GetColumnTitle(ReportColumn column) => column switch
-    {
-        ReportColumn.Column1_OperatorsAndRawMaterialTanks => "Operarios y Tanques MP",
-        ReportColumn.Column2_SkidsAndMixers => "SKIDs y Fabricantes",
-        ReportColumn.Column3_WipTanks => "Tanques WIP",
-        ReportColumn.Column4_Lines => "Líneas",
-        _ => "Desconocido"
-    };
+    // private string GetColumnTitle(ReportColumn column) => column switch
+    // {
+    //     ReportColumn.Column1_OperatorsAndRawMaterialTanks => "Operarios y Tanques MP",
+    //     ReportColumn.Column2_SkidsAndMixers => "SKIDs y Fabricantes",
+    //     ReportColumn.Column3_WipTanks => "Tanques WIP",
+    //     ReportColumn.Column4_Lines => "Líneas",
+    //     _ => "Desconocido"
+    // };
 
-    private string GetItemStyle() => "padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px;";
+    // private string GetItemStyle() => "padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px;";
 
-    private string GetFieldStyle(LiveReportItem field) => $"color: {field.Style.Color}; font-weight: {field.Style.FontEmphasis};";
+    // private string GetFieldStyle(LiveReportItem field) => $"color: {field.Style.Color}; font-weight: {field.Style.FontEmphasis};";
 }

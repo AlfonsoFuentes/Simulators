@@ -1,9 +1,5 @@
-﻿using Simulator.Shared.Enums.HCEnums.Enums;
-using Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps;
-using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
+﻿using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
 using Simulator.Shared.NuevaSimlationconQwen.States.BaseClass;
-using System.Reflection.Metadata.Ecma335;
-using static Simulator.Shared.StaticClasses.StaticClass;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 {
@@ -60,7 +56,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
             StateLabel = $"{mixer.Name} review any washing pump available";
             AddTransition<MixerInletWashingTankState>(mixer => mixer.IsWashoutPumpAvailable());
-            AddTransition<MixerInletStarvedWashingTankState>(mixer => !mixer.IsWashoutPumpAvailable());
+            AddTransition<MixerInletStarvedWashingTankState>(mixer => mixer.IsFeederStartved);
         }
 
     }
@@ -100,7 +96,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         {
 
             StateLabel = $"{mixer.Name} releasing Washout pump";
-            AddTransition<MixerInletSelectNextStepState>(mixer => mixer.ReleaseWashingPump());
+            AddTransition<MixerInletSelectNextStepState>(mixer => mixer.ReleaseWashoutPump());
 
         }
         public override void Run(DateTime currentdate)
@@ -119,7 +115,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         {
 
             StateLabel = $"{mixer.Name} Washing Starved";
-            AddTransition<MixerInletWashingTankState>(mixer => mixer.IsWashoutPumpFree());
+            AddTransition<MixerInletWashingTankState>(mixer => mixer.IsFeederStarvedRealesed());
         }
 
     }

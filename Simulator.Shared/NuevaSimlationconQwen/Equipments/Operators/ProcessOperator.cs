@@ -4,62 +4,26 @@ using Simulator.Shared.NuevaSimlationconQwen.Reports;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Operators
 {
-    public class ProcessOperator : Equipment, ILiveReportable, IManufactureFeeder
+    public class ProcessOperator : ManufactureFeeder, ILiveReportable
     {
-        public List<ProcessMixer> OutletMixers => OutletEquipments.OfType<ProcessMixer>().ToList();
+        // Propiedades específicas
+        public List<ProcessMixer> OutletMixers =>OutletEquipments.OfType<ProcessMixer>().ToList();
+
         public ReportColumn ReportColumn => ReportColumn.Column1_OperatorsAndRawMaterialTanks;
         public ReportPriorityInColumn ReportPriority => ReportPriorityInColumn.High;
 
-        public bool IsForWashout { get; set; }=false;
-        public Amount Flow { get; set; } = new Amount(0, MassFlowUnits.Kg_sg);
-        public Amount ActualFlow { get; set; } = new Amount(0, MassFlowUnits.Kg_sg);
-        public string OcuppiedBy {  get; set; }=string.Empty;
+        // 👇 Define si es para lavado o no
+        public override bool IsForWashout { get; set; } = false;
+
         public override void ValidateOutletInitialState(DateTime currentdate)
         {
             OutletState = new FeederAvailableState(this);
         }
-        public List<LiveReportItem> GetLiveReportItems()
-        {
-            return new List<LiveReportItem>
-        {
-            new LiveReportItem
-            {
-                Label = "Operator",
-                Value = Name,
-                Style = new ReportStyle()
-            },
-            new LiveReportItem
-            {
-                Label = "State",
-                Value = OutletState?.StateLabel ?? "Unknown",
-                Style = GetStateStyle()
-            }
-        };
-        }
 
-        private ReportStyle GetStateStyle()
+        public override bool IsAnyTankInletStarved()
         {
-            return new ReportStyle
-            {
-                Color = OutletState?.StateLabel.Contains("Starved") == true ? "Red" : "Black",
-                FontEmphasis = OutletState?.StateLabel.Contains("Starved") == true ? "Bold" : "Normal"
-            };
-        }
-        public bool IsAnyTankInletStarved()
-        {
-            
-            return false;
-        }
-
-        public bool IsInUse()
-        {
-            if (ProcessFeederManager.IsFeederInUse(this))
-            {
-                return true;
-            }
+            // ProcessOperator no tiene tanques de entrada que lo starven
             return false;
         }
     }
-
-
 }

@@ -8,11 +8,11 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
     }
     public abstract class ProcessWipOutletState : OutletState<ProcessWipTankForLine>
     {
-        protected ProcessWipTankForLine _tank { get; set; }
+        
 
         public ProcessWipOutletState(ProcessWipTankForLine tank) : base(tank)
         {
-            _tank = tank;
+    
         }
     }
     public class ProcessWipTankOutletInitializeTankState : ProcessWipOutletState, ITankOuletStarved
@@ -27,7 +27,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         }
 
     }
-    
+
     public class ProcessWipTankOutletReviewInitInletStateTankState : ProcessWipOutletState, ITankOuletStarved
     {
         public ProcessWipTankOutletReviewInitInletStateTankState(ProcessWipTankForLine tank) : base(tank)
@@ -47,14 +47,16 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"Available to deliver mass to line";
+            AddTransition<ProcessWipTankOutletAvailableState>(tank => tank.IsNextMaterialNeeded());
             AddTransition<ProcessWipTankOutletPlannedDownTimeState>(tank => tank.IsEquipmentInPlannedDownTimeState());
             AddTransition<ProcessWipTankOutletAvailableToEmptyTankState>(tank => tank.IsMassDeliveredCompleted());
+
             AddTransition<ProcessWipTankOutletNotAvailableState>(tank => tank.IsTankInLoLevel());
 
         }
         public override void Run(DateTime currentdate)
         {
-            _tank.CalculateOutletLevel();
+            Context.CalculateOutletLevel();
 
 
 
@@ -68,13 +70,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"Emptying vessel";
-            AddTransition<ProcessWipTankOutletPlannedDownTimeState>(tank => tank.IsEquipmentInPlannedDownTimeState());           
+            AddTransition<ProcessWipTankOutletAvailableToEmptyTankState>(tank => tank.IsNextMaterialNeeded());
+            AddTransition<ProcessWipTankOutletPlannedDownTimeState>(tank => tank.IsEquipmentInPlannedDownTimeState());
+
             AddTransition<ProcessWipReleaseCurrentOrderTankState>(tank => tank.IsTankInLoLevel());
 
         }
         public override void Run(DateTime currentdate)
         {
-            _tank.CalculateOutletLevel();
+            Context.CalculateOutletLevel();
 
 
         }
@@ -86,19 +90,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public ProcessWipReleaseCurrentOrderTankState(ProcessWipTankForLine tank) : base(tank)
         {
 
-            StateLabel = $"Available";
-           
+            StateLabel = $"Realising current order";
+
             AddTransition<ProcessWipTankOutletInitializeTankState>(tank => tank.IsCurrentOrderRealesed());
 
         }
-        public override void Run(DateTime currentdate)
-        {
-            _tank.CalculateOutletLevel();
-
-
-        }
+      
 
     }
+  
     public class ProcessWipTankOutletNotAvailableState : ProcessWipOutletState, ITankOuletStarved
     {
 
@@ -143,29 +143,20 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
     public class ProcessWipTankOutletWashingTankState : ProcessWipOutletState, ITankOuletStarved
     {
 
-        Amount WashingTime = new Amount(0, TimeUnits.Second);
-        Amount CurrentTime = new Amount(0, TimeUnits.Second);
-        Amount PendingTime => WashingTime - CurrentTime;
+
         public ProcessWipTankOutletWashingTankState(ProcessWipTankForLine tank) : base(tank)
         {
-            WashingTime = tank.GetWashoutTime();
-
+            tank.WashingTime = tank.GetWashoutTime();
+            tank.CurrentWashingTime = tank.ZeroTime;
             StateLabel = $"Washing Tank";
-            AddTransition<ProcessWipTankOutletReleaseWashingPumpTankState>(tank => IsWashingTimeCompleted());
+            AddTransition<ProcessWipTankOutletReleaseWashingPumpTankState>(tank => tank.IsWashingTimeCompleted());
         }
         public override void Run(DateTime currentdate)
         {
-            StateLabel = $"Washing Tank {Math.Round(PendingTime.GetValue(TimeUnits.Minute), 1)}, min";
-            CurrentTime += _tank.OneSecond;
+            StateLabel = $"Washing Tank {Math.Round(Context.PendingWashingTime.GetValue(TimeUnits.Minute), 1)}, min";
+            Context.CurrentWashingTime += Context.OneSecond;
         }
-        bool IsWashingTimeCompleted()
-        {
-            if (PendingTime <= _tank.ZeroTime)
-            {
-                return true;
-            }
-            return false;
-        }
+        
     }
     public class ProcessWipTankOutletReleaseWashingPumpTankState : ProcessWipOutletState, ITankOuletStarved
     {
@@ -176,7 +167,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"Releasing Washout pump";
-            AddTransition<ProcessWipTankOutletNotAvailableState>(tank => tank.ReleaseWashingPump());
+            AddTransition<ProcessWipTankOutletAvailableState>(tank => tank.ReleaseWashoutPump());
 
         }
 
@@ -190,7 +181,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"Washing Starved";
-            AddTransition<ProcessWipTankOutletWashingTankState>(tank => tank.IsWashoutPumpFree());
+            AddTransition<ProcessWipTankOutletWashingTankState>(tank => tank.IsFeederStarvedRealesed());
         }
 
     }

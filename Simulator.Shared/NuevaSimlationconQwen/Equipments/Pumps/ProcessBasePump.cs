@@ -6,54 +6,35 @@ using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
 {
 
-    public class ProcessPump : Equipment, IManufactureFeeder
+    public class ProcessPump : ManufactureFeeder
     {
-        public Amount Flow { get; set; } = new Amount(0, MassFlowUnits.Kg_sg);
-        public Amount ActualFlow { get; set; } = new Amount(0, MassFlowUnits.Kg_sg);
-        public List<ProcessBaseTankForRawMaterial> RawMaterialInletTanks => InletEquipments.OfType<ProcessBaseTankForRawMaterial>().ToList();
-        public ProcessBaseTankForRawMaterial? InletTank => RawMaterialInletTanks.FirstOrDefault();
+        // Propiedades específicas de ProcessPump
+        public List<ProcessBaseTankForRawMaterial> RawMaterialInletTanks =>
+            InletEquipments.OfType<ProcessBaseTankForRawMaterial>().ToList();
 
-        public List<ManufaturingEquipment> InletMixers => InletEquipments.OfType<ManufaturingEquipment>().ToList();
-        public ManufaturingEquipment? Mixer => InletMixers.FirstOrDefault();
+        public ProcessBaseTankForRawMaterial? InletTank => RawMaterialInletTanks.FirstOrDefault();
+        public List<ManufaturingEquipment> InletManufacturingEquipments => InletEquipments.OfType<ManufaturingEquipment>().ToList();
         public List<ProcessWipTankForLine> InletWipTanks => InletEquipments.OfType<ProcessWipTankForLine>().ToList();
         public ProcessWipTankForLine? WipTank => InletWipTanks.FirstOrDefault();
-        public string OcuppiedBy { get; set; } = string.Empty;
-
-
         public List<ProcessRecipedRawMaterialTank> RecipedRawMaterialTank => OutletEquipments.OfType<ProcessRecipedRawMaterialTank>().ToList();
         public List<ProcessWipTankForLine> WIPTanksForLines => OutletEquipments.OfType<ProcessWipTankForLine>().ToList();
-
         public List<ProcessLine> Lines => OutletEquipments.OfType<ProcessLine>().ToList();
         public ProcessLine? Line => Lines.FirstOrDefault();
-
         public List<ProcessContinuousSystem> Skids => OutletEquipments.OfType<ProcessContinuousSystem>().ToList();
         public ProcessContinuousSystem? Skid => Skids.FirstOrDefault();
-
         public List<ProcessBaseTank> InletTanks => InletEquipments.OfType<ProcessBaseTank>().ToList();
-        public bool IsForWashout { get; set; } = false;
+
+        // 👇 Define si es para lavado o no (ajusta según tu lógica)
+        public override bool IsForWashout { get; set; } = false;
 
         public override void ValidateOutletInitialState(DateTime currentdate)
         {
             OutletState = new FeederAvailableState(this);
         }
 
-        public bool IsAnyTankInletStarved()
+        public override bool IsAnyTankInletStarved()
         {
-            if (InletTanks.Any(x => x.OutletState is ITankOuletStarved))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public bool IsInUse()
-        {
-            if (ProcessFeederManager.IsFeederInUse(this))
-            {
-                return true;
-            }
-            return false;
+            return InletTanks.Any(x => x.OutletState is ITankOuletStarved);
         }
     }
-
 }

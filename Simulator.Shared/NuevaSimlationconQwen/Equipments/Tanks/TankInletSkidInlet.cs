@@ -1,9 +1,4 @@
 ﻿using Simulator.Shared.NuevaSimlationconQwen.States.BaseClass;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 {
@@ -11,13 +6,32 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
     {
 
     }
-    public abstract class TankSKIDInlet : InletState<ProcessWipTankForLine>
+    public abstract class WipTankInlet : InletState<ProcessWipTankForLine>
     {
-        protected ProcessWipTankForLine _tank { get; set; }
+        public WipTankInlet(ProcessWipTankForLine tank) : base(tank)
+        {
+
+        }
+    }
+    public class WipTankInletInitiateState : WipTankInlet
+    {
+
+        public WipTankInletInitiateState(ProcessWipTankForLine tank) : base(tank)
+        {
+
+            StateLabel = $"{tank.Name} waiting new State at inlet";
+           
+
+        }
+
+    }
+    public abstract class TankSKIDInlet : WipTankInlet
+    {
+        
 
         public TankSKIDInlet(ProcessWipTankForLine tank) : base(tank)
         {
-            _tank = tank;
+            
         }
     }
     public class TankInletIniateSKIDState : TankSKIDInlet
@@ -27,8 +41,22 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"{tank.Name} Initiate Tank for SKID at Inlet";
-            AddTransition<TankInletManufacturingOrderReceivedSKIDState>(tank => tank.IsNewOrderReceivedToStartOrder());
-            
+            AddTransition<TankInletOutletStateAvalidableSKIDState>(tank => tank.IsNewOrderReceivedToStartOrder());
+
+        }
+
+    }
+    public class TankInletOutletStateAvalidableSKIDState : TankSKIDInlet
+    {
+
+        public TankInletOutletStateAvalidableSKIDState(ProcessWipTankForLine tank) : base(tank)
+        {
+
+            StateLabel = $"{tank.Name} Manufacturing Order Recived";
+
+            AddTransition<TankInletManufacturingOrderReceivedSKIDState>(tank => tank.IsOuletAvailable());
+
+
         }
 
     }
@@ -53,7 +81,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"{tank.Name} Manufacturing Order Finalized";
-            AddTransition<TankInletIniateSKIDState>(tank => tank.IsInletSKIDFinalizedOrder());
+            AddTransition<WipTankInletInitiateState>(tank => tank.IsInletSKIDFinalizedOrder());
            
         }
 
@@ -67,7 +95,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"{tank.Name} Producing By SKID";
-            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsMassPendingToProduceCompleted());
+            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsSKIDWIPProducedCompleted());
             AddTransition<TankInletHighLevelSKIDState>(tank => tank.IsTankHigherThenHiLevel());
            
         }
@@ -84,7 +112,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"{tank.Name} Waiting for SKID";
-            AddTransition<TankInletFinishinOrderReceivedSKIDState>(tank => tank.IsMassPendingToProduceCompleted());
+          
             AddTransition<TankInletProducingBySKIDState>(tank => tank.IsTankIsLowerThanLowLevel());
         }
 

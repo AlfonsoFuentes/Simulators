@@ -1,0 +1,63 @@
+﻿/* Asegura box-sizing global */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.live-report-v2 {
+    display: flex;
+    gap: 16px;
+    padding: 10px;
+    width: 100%;
+    /* flex-wrap: wrap; ← Solo si quieres permitir saltos en pantallas muy pequeñas */
+}
+
+/* Columnas principales */
+.col-1, .col-2 {
+    flex: 1 1 0; /* 1 parte del espacio */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.col-3 {
+    flex: 2 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wip-line-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.wip-cell, .line-cell {
+    flex: 1 1 50%;
+}
+
+    .wip-cell.empty, .line-cell.empty {
+        min-height: 60px;
+    }
+
+/* Estilos de título y tarjetas */
+.report-title {
+    font-size: 1.1em;
+    margin: 0 0 8px 0;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #007bff;
+    color: #333;
+}
+
+.report-card {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fafafa;
+    font-size: 0.9em;
+}
+
+    .report-card.empty {
+        background: transparent;
+        border: none;
+    }

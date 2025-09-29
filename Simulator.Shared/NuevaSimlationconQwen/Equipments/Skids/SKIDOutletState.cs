@@ -1,4 +1,6 @@
-﻿using Simulator.Shared.NuevaSimlationconQwen.States.BaseClass;
+﻿using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers;
+using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
+using Simulator.Shared.NuevaSimlationconQwen.States.BaseClass;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
 {
@@ -15,6 +17,30 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
             _skid = skid;
         }
     }
+    public class SKIDOutletWaitingNewOrderState : SKIDOutletState
+    {
+
+        public SKIDOutletWaitingNewOrderState(ProcessContinuousSystem skid) : base(skid)
+        {
+
+            StateLabel = $"Waiting new SKID Order";
+            AddTransition<SKIDOutletStartInletStateSKIDState>(skid => skid.IsOutletNewOrderReceived());
+        }
+
+    }
+    public class SKIDOutletStartInletStateSKIDState : SKIDOutletState
+    {
+
+        public SKIDOutletStartInletStateSKIDState(ProcessContinuousSystem skid) : base(skid)
+        {
+
+            StateLabel = $"Start inlet state SKID";
+            AddTransition<SKIDOutletWaitingStartCommandState>(mixer => mixer.IsInitInletStateInit());
+
+        }
+
+    }
+   
     public class SKIDOutletWaitingStartCommandState : SKIDOutletState
     {
 
@@ -32,7 +58,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         public SKIDOutletProducingState(ProcessContinuousSystem skid) : base(skid)
         {
 
-            StateLabel = $"Skid producing";
+            StateLabel = $"Skid Delivering to WIP";
+            AddTransition<SKIDOutletWaitingNewOrderState>(skid => skid.IsOutletSkidTotalStopReceived());
             AddTransition<SKIDOutletWaitingStartCommandState>(skid => skid.IsOutletStopCommandReceived());
             AddTransition<SKIDOutletStarvedbyInletState>(skid => skid.IsSkidStarved());
         }
@@ -62,19 +89,30 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
             _skid = skid;
         }
     }
-    public class SKIDInletStateWaitingStartCommandState : SKIDInletState, ISKIDStarvedInletState
+    public class SKIDInletStateWaitingNewOrderState : SKIDInletState
+    {
+
+        public SKIDInletStateWaitingNewOrderState(ProcessContinuousSystem skid) : base(skid)
+        {
+
+            StateLabel = $"Waiting for new Order";
+            AddTransition<SKIDInletStateWaitingStartCommandState>(skid => skid.IsInletNewOrderReceived());
+        }
+
+    }
+    public class SKIDInletStateWaitingStartCommandState : SKIDInletState
     {
 
         public SKIDInletStateWaitingStartCommandState(ProcessContinuousSystem skid) : base(skid)
         {
 
-            StateLabel = $"Waiting Start command";
+            StateLabel = $"Waiting for Start command";
             AddTransition<SKIDInletReviewPumpsAvailableState>(skid => skid.IsInletStartCommandReceived());
         }
 
     }
     
-    public class SKIDInletReviewPumpsAvailableState : SKIDInletState, ISKIDStarvedInletState
+    public class SKIDInletReviewPumpsAvailableState : SKIDInletState
     {
 
         public SKIDInletReviewPumpsAvailableState(ProcessContinuousSystem skid) : base(skid)
@@ -88,25 +126,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         }
 
     }
-    public class SKIDTotalInletCommandStopReceivedState : SKIDInletState, ISKIDStarvedInletState
-    {
-
-        public SKIDTotalInletCommandStopReceivedState(ProcessContinuousSystem skid) : base(skid)
-        {
-
-            StateLabel = $"Total command stop received";
-            AddTransition<SKIDInletStateWaitingStartCommandState>(skid => skid.IsRawMaterialFeederReleased());
-        }
-
-    }
+    
     public class SKIDInletManufacturingState : SKIDInletState
     {
 
         public SKIDInletManufacturingState(ProcessContinuousSystem skid) : base(skid)
         {
 
-            StateLabel = $"Manufacturing";
-            AddTransition<SKIDTotalInletCommandStopReceivedState>(skid => skid.IsSkidTotalStopReceived());
+            StateLabel = $"Skid Inlet producing";
+            AddTransition<SKIDInletTotalCommandStopReceivedState>(skid => skid.IsInletSkidTotalStopReceived());
             AddTransition<SKIDInletManufacturingStarvedByFeederState>(skid => skid.IsRawMaterialFeedersStarved());
             AddTransition<SKIDInletCommandStopReceivedState>(skid => skid.IsInletStopCommandReceived());
         }
@@ -124,17 +152,28 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
 
     }
     
-    public class SKIDInletCommandStopReceivedState : SKIDInletState, ISKIDStarvedInletState
+    public class SKIDInletCommandStopReceivedState : SKIDInletState
     {
 
         public SKIDInletCommandStopReceivedState(ProcessContinuousSystem skid) : base(skid)
         {
 
             StateLabel = $"Stop command received";
-            AddTransition<SKIDTotalInletCommandStopReceivedState>(skid => skid.IsSkidTotalStopReceived());
+          
             AddTransition<SKIDInletStateWaitingStartCommandState>(skid => skid.IsRawMaterialFeederReleased());
         }
 
     }
-  
+    public class SKIDInletTotalCommandStopReceivedState : SKIDInletState
+    {
+
+        public SKIDInletTotalCommandStopReceivedState(ProcessContinuousSystem skid) : base(skid)
+        {
+
+            StateLabel = $"Stop total command received";
+
+            AddTransition<SKIDInletStateWaitingNewOrderState>(skid => skid.IsRawMaterialFeederCurrentOrderReleased());
+        }
+
+    }
 }

@@ -37,13 +37,14 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments
         void AddInletEquipment(IEquipment equipment);
         void AddOutletEquipment(IEquipment equipment);
         void AddMaterial(IMaterial material);
-        void GetReleaseFromManager(IManufactureFeeder feeder);
+
 
         bool IsEquipmentInPlannedDownTimeState();
         void StartCriticalReport(IEquipment source, string reason, string description);
         void EndCriticalReport();
+        void OnFeederMayBeAvailable(IManufactureFeeder feeder);
 
-        ProcessFeederManager ProcessFeederManager { get; set; }
+      
         CriticalDowntimeReportManager ReportManager { get; set; }
         Guid? ActiveDowntimeReportId { get; set; }
 
@@ -58,7 +59,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments
         public IEquipmentState? OutletState { get; set; } = null!;
         public Guid? ActiveDowntimeReportId { get; set; }
         public CriticalDowntimeReportManager ReportManager { get; set; } = null!;
-        public ProcessFeederManager ProcessFeederManager { get; set; } = null!;
+        //public WashoutPumpManager WashoutPumpManager { get; set; } = null!;
+        //public MaterialFeederManager MaterialFeederManager { get; set; } = null!;
         public List<WashoutTime> WashoutTimes { get; set; } = new();
         public List<PlannedDownTime> PlannedDownTimes { get; set; } = new();
         public override string ToString() => $"{Name}";
@@ -155,25 +157,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments
 
         }
         public virtual void Report(DateTime currentdate) { }
-        public virtual void TransitionToOutletState(OutletState newState)
-        {
 
-            OutletState = newState;
+        public IManufactureFeeder? Feeder { get; set; } = null!;
 
-
-        }
-        public virtual void TransitionToInletState(InletState newState)
-        {
-
-            InletState = newState;
-
-        }
-        public IManufactureFeeder Feeder { get; set; } = null!;
-        public virtual void GetReleaseFromManager(IManufactureFeeder feeder)
-        {
-            Feeder = feeder;
-
-        }
         public void StartCriticalReport(IEquipment source, string reason, string description)
         {
             ReportManager.StartReport(
@@ -201,6 +187,166 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments
             }
             return false;
         }
+        public bool IsFeederStartved { get; set; } = false;
+        public void OnFeederMayBeAvailable(IManufactureFeeder feeder)
+        {
+            if (feeder.IsAvailableForAssignment())
+            {
+                EndCriticalReport();
+                feeder.OcuppiedBy = Name;
+                feeder.OutletState = new FeederIsInUseByAnotherEquipmentState(feeder);
+                Feeder = feeder;
+                IsFeederStartved = false;
+            }
+        }
+        public bool IsFeederStarvedRealesed()
+        {
+            if (!IsFeederStartved)
+            {
+
+                return true;
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// 1. ¿Hay un feeder de materia prima DISPONIBLE para este material en mis entradas?
+        /// </summary>
+        public virtual bool IsMaterialFeederAvailable(Guid materialId)
+        {
+            return InletEquipments
+                .OfType<ManufactureFeeder>()
+
+                .Any(f => f.EquipmentMaterials.Any(m => m.Material.Id == materialId)
+                       && f.IsAvailableForAssignment());
+        }
+
+
+        
+        public virtual bool IsWashoutPumpAvailable()
+        {
+
+            var washoutpumps = InletEquipments.OfType<ManufactureFeeder>().Where(f => f.IsForWashout).ToList();
+
+            if (washoutpumps.Any())
+            {
+                var firstpump= washoutpumps.FirstOrDefault(f=>f.IsAvailableForAssignment());
+                if (firstpump != null)
+                {
+                    Feeder = AssignWashoutPump();
+                    return true;
+                }
+                else
+                {
+                    EnqueueForWashoutPump();
+                }
+
+            }
+         
+            return false;
+        }
+        /// <summary>
+        /// 2. Asigna un feeder de materia prima (debe llamarse SOLO si IsMaterialFeederAvailable es true).
+        /// </summary>
+        public virtual IManufactureFeeder? AssignMaterialFeeder(Guid materialId)
+        {
+            var feeder = InletEquipments
+                .OfType<ManufactureFeeder>()
+                .FirstOrDefault(f => f.EquipmentMaterials.Any(m => m.Material.Id == materialId)
+                                  && f.IsAvailableForAssignment());
+
+            if (feeder != null)
+            {
+                feeder.OcuppiedBy = Name;
+                feeder.OutletState = new FeederIsInUseByAnotherEquipmentState(feeder);
+                Feeder = feeder;
+            }
+            return feeder;
+        }
+
+        /// <summary>
+        /// 2. Asigna una bomba de lavado (debe llamarse SOLO si IsWashoutPumpAvailable es true).
+        /// </summary>
+        public virtual IManufactureFeeder? AssignWashoutPump()
+        {
+            var feeder = InletEquipments
+                .OfType<ManufactureFeeder>()
+                .FirstOrDefault(f => f.IsForWashout && f.IsAvailableForAssignment());
+
+            if (feeder != null)
+            {
+                feeder.OcuppiedBy = Name;
+                feeder.ActualFlow = feeder.Flow;
+                feeder.OutletState = new FeederIsInUseByAnotherEquipmentState(feeder);
+                Feeder = feeder;
+            }
+            return feeder;
+        }
+
+        /// <summary>
+        /// 3. Si NO hay feeder de materia prima disponible, encolarse en el de menor cola.
+        /// </summary>
+        public virtual void EnqueueForMaterialFeeder(Guid materialId)
+        {
+            var candidates = InletEquipments
+                .OfType<ManufactureFeeder>()
+                .Where(f => !f.IsForWashout)
+                .Where(f => f.EquipmentMaterials.Any(m => m.Material.Id == materialId))
+                .ToList();
+
+            if (candidates.Any())
+            {
+                IsFeederStartved = true;
+                var best = candidates.OrderBy(f => f.GetWaitingQueueLength()).First();
+                best.EnqueueWaitingEquipment(this);
+            }
+        }
+
+        /// <summary>
+        /// 3. Si NO hay bomba de lavado disponible, encolarse en la de menor cola.
+        /// </summary>
+        public virtual void EnqueueForWashoutPump()
+        {
+            var candidates = InletEquipments
+                .OfType<ManufactureFeeder>()
+                .Where(f => f.IsForWashout)
+                .ToList();
+
+            if (candidates.Any())
+            {
+                IsFeederStartved = true;
+                var best = candidates.OrderBy(f => f.GetWaitingQueueLength()).First();
+                best.EnqueueWaitingEquipment(this);
+            }
+        }
+        public virtual void ReleaseFeeder(IManufactureFeeder _feeder)
+        {
+            if (_feeder != null)
+            {
+                // 1. Liberar nombre
+                _feeder.OcuppiedBy = string.Empty;
+
+                // 2. Cambiar estado a disponible
+                _feeder.OutletState = new FeederAvailableState(_feeder);
+                _feeder.ActualFlow = ZeroFlow;
+                // 3. Notificar al siguiente en la cola
+                _feeder.NotifyNextWaitingEquipment();
+
+                // Limpiar referencia local
+                _feeder = null!;
+            }
+        }
+        public virtual bool ReleaseWashoutPump()
+        {
+            if (Feeder != null)
+            {
+                ReleaseFeeder(Feeder);
+                return true;
+            }
+            return false;
+        }
+
 
     }
 

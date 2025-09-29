@@ -3,13 +3,13 @@ using Simulator.Shared.NuevaSimlationconQwen.States.BaseClass;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 {
-    public abstract class TankMixerInlet : InletState<ProcessWipTankForLine>
+    public abstract class TankMixerInlet : WipTankInlet
     {
-        protected ProcessWipTankForLine _tank { get; set; }
+       
 
         public TankMixerInlet(ProcessWipTankForLine tank) : base(tank)
         {
-            _tank = tank;
+      
         }
     }
     public class TankInletIniateMixerState : TankMixerInlet
@@ -19,11 +19,24 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"Initiate Tank for Mixers Inlet";
-            AddTransition<TankInletWaitingForInletMixerState>(tank => tank.IsNewOrderReceivedToStartOrder());
+            AddTransition<TankInletManufacturingOrderReceivedMixerState>(tank => tank.IsNewOrderReceivedToStartOrder());
         }
 
     }
-    
+    public class TankInletManufacturingOrderReceivedMixerState : TankMixerInlet
+    {
+
+        public TankInletManufacturingOrderReceivedMixerState(ProcessWipTankForLine tank) : base(tank)
+        {
+
+            StateLabel = $"{tank.Name} Manufacturing Order Recived";
+
+            AddTransition<TankInletWaitingForInletMixerState>(tank => tank.IsOuletAvailable());
+
+
+        }
+
+    }
     public class TankInletWaitingForInletMixerState : TankMixerInlet
     {
 
@@ -31,7 +44,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         {
 
             StateLabel = $"Waiting for transfer from mixers";
-            AddTransition<TankInletIniateMixerState>(tank => tank.IsMassPendingToProduceCompleted());
+            AddTransition<WipTankInletInitiateState>(tank => tank.IsMixerWipToProducedCompleted());
             AddTransition<TankInletReceivingFromMixerState>(tank => tank.ReviewIfTransferCanInit());
             AddTransition<TankInletWaitingForInletMixerState>(tank => tank.IsMaterialNeeded());
         }
@@ -83,5 +96,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         }
 
     }
-    
+
 }
+
+

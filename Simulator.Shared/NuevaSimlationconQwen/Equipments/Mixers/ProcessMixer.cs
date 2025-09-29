@@ -10,8 +10,11 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 {
     public class ProcessMixer : ManufaturingEquipment, ISetMaterialsAtOutlet, ILiveReportable
     {
-        public List<ProcessLine> PreferredLines { get; set; } = new List<ProcessLine>();  
-        public Amount CurrentLevel { get; set; } = new Amount(0, MassUnits.KiloGram);
+        public ReportColumn ReportColumn => ReportColumn.Column2_SkidsAndMixers;
+        public ReportPriorityInColumn ReportPriority => ReportPriorityInColumn.Low;
+
+        public List<ProcessLine> PreferredLines { get; set; } = new List<ProcessLine>();
+        public override Amount CurrentLevel { get; set; } = new Amount(0, MassUnits.KiloGram);
 
         public List<ProcessPump> InletPumps => InletEquipments.OfType<ProcessPump>().ToList();
         public List<ProcessOperator> InletOperators => InletEquipments.OfType<ProcessOperator>().ToList();
@@ -29,124 +32,18 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         public override void OnInit(DateTime currentdate)
         {
             base.OnInit(currentdate);
-            //OutletState = new MixerOuletInitialState(this);
+
             InletState = new MixerInletWaitingForManufactureOrderState(this);
             OutletState = new MixerOuletInitialState(this);
         }
-        public ReportColumn ReportColumn => ReportColumn.Column2_SkidsAndMixers;
-        public ReportPriorityInColumn ReportPriority => ReportPriorityInColumn.Low;
-        private ReportStyle GetStateStyle() => new ReportStyle();
-        public List<LiveReportItem> GetLiveReportItems()
+        public override void ReceiveManufactureOrderFromWIP(IVesselManufactureOrder order)
         {
-            var items = new List<LiveReportItem>
-        {
-            new LiveReportItem
-            {
-                Label = "Mixer",
-                Value = Name,
-                Style = new ReportStyle()
-            },
-
-        };
-            items.Add(new LiveReportItem
-            {
-                Label = "Current Level",
-                Value = $"{CurrentLevel.ToString()}",
-                Style = new ReportStyle()
-            });
-
-            if (CurrentTransferRequest != null && CurrentManufactureOrder != null)
-            {
-
-                items.Add(new LiveReportItem
-                {
-                    Label = "Transfering to",
-                    Value = $"{CurrentTransferRequest.DestinationWip.Name}",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Material",
-                    Value = $"{CurrentManufactureOrder.Material.CommonName}",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "State",
-                    Value = $"{OutletState?.StateLabel}",
-                    Style = new ReportStyle()
-                });
-
-            }
-            else if (CurrentManufactureOrder != null)
-            {
-                items.Add(new LiveReportItem
-                {
-                    Label = "Batch Size",
-                    Value = $"{CurrentManufactureOrder.BatchSize.ToString()}",
-                    Style = new ReportStyle()
-                });
-
-                items.Add(new LiveReportItem
-                {
-                    Label = "Material",
-                    Value = $"{CurrentManufactureOrder.Material.CommonName}",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Producing To",
-                    Value = $"{CurrentManufactureOrder.Wip.Name}",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Step",
-                    Value = $"{InletState?.StateLabel}",
-                    Style = new ReportStyle()
-                });
-                if (InletState is IShortLabelInletStateMixer label && !string.IsNullOrEmpty(label.ShortLabel))
-                {
-                    items.Add(new LiveReportItem
-                    {
-                        Label = "Step State",
-                        Value = $"{label.ShortLabel}",
-                        Style = new ReportStyle()
-                    });
-                }
-                items.Add(new LiveReportItem
-                {
-                    Label = "Current Batch Time",
-                    Value = $"{CurrentManufactureOrder.CurrentBatchTime.ToString()}",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Starved Time",
-                    Value = $"{CurrentManufactureOrder.CurrentStarvedTime.ToString()}",
-                    Style = new ReportStyle
-                    {
-                        Color = "Orange",
-                        FontEmphasis = "Bold"
-                    }
-                });
-            }
-            return items;
-        }
-        //Lo que estamos produciendo ahora mismo
-        public MixerManufactureOrder CurrentManufactureOrder { get; set; } = null!;
-        public Queue<MixerManufactureOrder> ManufacturingOrders { get; set; } = new();
-
-        public void ReceiveManufactureOrderFromWIP(FromWIPToMixerManufactureOrder order)
-        {
-            //Recibe informacion de que hay que producir y lo mete en la cola del mixer seleccionado por el WIP
-
-            MixerManufactureOrder newOrderMixer = new MixerManufactureOrder(this, order.WIPTank, order.Material);
+            MixerManufactureOrder newOrderMixer = new MixerManufactureOrder(this, order);
             ManufacturingOrders.Enqueue(newOrderMixer);
-            order.WIPTank.ReceiveManufactureOrderFromMixer(newOrderMixer);
+            order.AddMixerManufactureOrder(newOrderMixer);
+
         }
-
-
+        
         public bool InitBatchFromQueue()
         {
             if (CurrentManufactureOrder == null && CurrentTransferRequest == null && ManufacturingOrders.Count > 0)
@@ -175,6 +72,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             //Recibe esta informacion la procesa el manejador de estados
             if (CurrentTransferRequest != null)
             {
+
                 CurrentManufactureOrder = null!;
                 CurrentLevel = ZeroMass;
                 CurrentTransferRequest = null;
@@ -183,7 +81,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             }
 
         }
-      
+
 
         public void ReceiveReportOfMassDelivered(Amount massdelivered)
         {
@@ -194,29 +92,28 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             }
 
         }
-        public bool IsCurrentBatchFinalized => CurrentManufactureOrder?.IsBatchFinished ?? false;
 
-        public IMaterial? LastMaterial { get; set; } = null!;
 
 
         public bool IsMustWashTank()
         {
-            if (CurrentOrder == null) return false;
-         
+            if (CurrentManufactureOrder == null) return false;
+
+
             if (LastMaterial == null)
             {
 
-                LastMaterial = CurrentOrder.Material;
+                LastMaterial = CurrentManufactureOrder.Material;
                 return false;
             }
-            if (CurrentOrder.Material == null) return false;
-            if (CurrentOrder.Material.Id == LastMaterial.Id) return false;
+            if (CurrentManufactureOrder.Material == null) return false;
+            if (CurrentManufactureOrder.Material.Id == LastMaterial.Id) return false;
 
             var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentOrder.Material?.ProductCategory &&
+                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentManufactureOrder.Material?.ProductCategory &&
                                    x.ProductCategoryNext == LastMaterial.ProductCategory);
 
-            LastMaterial = CurrentOrder.Material;
+
             if (washDef != null)
             {
 
@@ -225,60 +122,25 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
             return false;
         }
-        public bool IsWashoutPumpAvailable()
-        {
-            if (!ProcessFeederManager.AnyWashoutPumpAvailable())
-            {
-                // ❌ No hay bombas → encolar y retornar false
-                ProcessFeederManager.EnqueueWashoutRequest(this);
-                return false;
-            }
-
-            Feeder = ProcessFeederManager.AssignWashingPump(this);
-
-            if (Feeder != null)
-            {
-                // ✅ Asignación exitosa → retornar true
-                return true;
-            }
-            // ❌ Asignación falló → encolar y retornar false
-            ProcessFeederManager.EnqueueWashoutRequest(this);
-            return false;
-        }
+        
         public Amount GetWashoutTime()
         {
             if (LastMaterial != null)
             {
                 var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentOrder.Material?.ProductCategory &&
+                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentManufactureOrder.Material?.ProductCategory &&
                                    x.ProductCategoryNext == LastMaterial.ProductCategory);
                 if (washDef != null)
                 {
-                    LastMaterial = CurrentOrder.Material;
+                    LastMaterial = CurrentManufactureOrder.Material;
                     return washDef.MixerWashoutTime;
                 }
             }
 
             return new Amount(0, TimeUnits.Second);
         }
-        public bool ReleaseWashingPump()
-        {
-            if (ProcessFeederManager.ReleaseEquipment(this))
-            {
-
-                Feeder = null!;
-                return true;
-            }
-            return false;
-        }
-        public bool IsWashoutPumpFree()
-        {
-            if (Feeder != null)
-            {
-                return true;
-            }
-            return false;
-        }
+        
+       
 
         public bool IsManufacturingRecipeFinished()
         {
@@ -315,52 +177,36 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         }
         public bool IsCurrentStepFeederAvailable()
         {
-            if (CurrentManufactureOrder == null || CurrentManufactureOrder.CurrentStep == null) return false;
-
-            var step = ProcessFeederManager.TryAssignFeeder(CurrentManufactureOrder.CurrentStep.RawMaterialId, this);
-
-            if (step == null)
+            if (CurrentManufactureOrder == null || CurrentManufactureOrder.CurrentStep == null|| !CurrentManufactureOrder.CurrentStep.RawMaterialId.HasValue) return false;
+            if(IsMaterialFeederAvailable(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value))
             {
-                IsFeederStartved = true;
-                return false;
+                Feeder = AssignMaterialFeeder(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value);
+                if (Feeder != null)
+                {
+                    CalculateMassSteRequirements(); 
+                    return true;
+                }
+               
             }
-            Feeder = step;
-            step.ActualFlow = step.Flow;
-            CalculateMassSteRequirements();
-            return true;
-        }
-        public bool IsFeederStartved = false;
+            EnqueueForMaterialFeeder(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value);
+          
 
-        public bool IsFeederStarvedRealesed()
-        {
-            if (!IsFeederStartved) return true;
             return false;
         }
-        public override void GetReleaseFromManager(IManufactureFeeder feeder)
-        {
-            Feeder = feeder;
-            Feeder.ActualFlow = Feeder.Flow;
-            CalculateMassSteRequirements();
-            IsFeederStartved = false;
-        }
-        public void ReleseCurrentMassStep()
-        {
-            if (Feeder != null)
-            {
-                Feeder.ActualFlow = ZeroFlow;
-                Feeder = null!;
-                ProcessFeederManager.ReleaseEquipment(this);
-            }
-        }
+        
+        
+       
+       
         public bool IsTransferOrderSent()
         {
             if (CurrentManufactureOrder != null)
             {
-                CurrentManufactureOrder.Wip.ReleaseManufactureOrderFromMixer1(CurrentManufactureOrder);
+                CurrentManufactureOrder.WIPOrder.RemoveManufactureOrdersFromMixers(CurrentManufactureOrder);
+
                 TransferFromMixertoWIPOrder newTransferOrder =
-                    new TransferFromMixertoWIPOrder(this, CurrentManufactureOrder.Wip, CurrentManufactureOrder.BatchSize,
+                    new TransferFromMixertoWIPOrder(this, CurrentManufactureOrder.WIPOrder.WIP, CurrentManufactureOrder.BatchSize,
                     OutletPump?.Flow ?? new Amount(0, MassFlowUnits.Kg_min));
-                CurrentManufactureOrder.Wip.ReceiveTransferRequestFromMixer(newTransferOrder);
+                CurrentManufactureOrder.WIPOrder.WIP.ReceiveTransferRequestFromMixer(newTransferOrder);
 
 
             }
@@ -414,6 +260,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         {
             if (OutletFinalizedCurrentTransferReceived)
             {
+
                 OutletFinalizedCurrentTransferReceived = false;
                 return true;
             }
@@ -435,7 +282,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             var step = CurrentManufactureOrder.CurrentStep;
             var batchsize = CurrentManufactureOrder.BatchSize;
             RequiredMass = step.Percentage / 100 * batchsize;
-            StepMass = Feeder.Flow * OneSecond;
+            StepMass = Feeder?.Flow * OneSecond;
             PendingMass += RequiredMass;
 
 
@@ -478,6 +325,16 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             CurrentManufactureOrder.CurrentBatchTime += OneSecond;
         }
 
+        public void ReleseCurrentMassStep()
+        {
+            if (Feeder != null)
+            {
+               
+                ReleaseFeeder(Feeder);
+            
+
+            }
+        }
     }
 
 

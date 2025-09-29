@@ -18,7 +18,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
         public Amount OutletFlows => new Amount(OutletPumps.Sum(x => x.ActualFlow.GetValue(MassFlowUnits.Kg_sg)), MassFlowUnits.Kg_sg);
         public string MaterialName => Material?.CommonName ?? "No Material";
 
-        public IMaterial? LastMaterial { get; set; } = null!;
+        public IMaterial LastMaterial { get; set; } = null!;
        
        
         
@@ -40,16 +40,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
             
         }
 
-        public bool ReleaseWashingPump()
-        {
-            if (ProcessFeederManager.ReleaseEquipment(this))
-            {
-              
-                Feeder = null!;
-                return true;
-            }
-            return false;
-        }
+       
         
     }
 

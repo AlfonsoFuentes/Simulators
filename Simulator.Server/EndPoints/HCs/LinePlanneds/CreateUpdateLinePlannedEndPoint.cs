@@ -146,7 +146,8 @@ namespace Simulator.Server.EndPoints.HCs.LinePlanneds
 
                     Func<IQueryable<LinePlanned>, IIncludableQueryable<LinePlanned, object>> includes = x => x
                    .Include(y => y.Line)
-                   .Include(x => x.HCSimulationPlanned); ;
+                   .Include(x => x.HCSimulationPlanned)
+                   .Include(x => x.PreferedMixers).ThenInclude(x => x.Mixer);  
                     Expression<Func<LinePlanned, bool>> Criteria = x => x.SimulationPlannedId == request.SimulationPlannedId;
                     string CacheKey = StaticClass.LinePlanneds.Cache.GetAll(request.SimulationPlannedId);
                     var rows = await Repository.GetAllAsync<LinePlanned>(Cache: CacheKey, Criteria: Criteria, Includes: includes);

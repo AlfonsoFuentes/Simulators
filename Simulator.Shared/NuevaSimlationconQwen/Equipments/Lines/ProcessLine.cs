@@ -10,28 +10,17 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
     public class ProcessLine : Equipment, ILiveReportable
     {
 
+
+        public List<ProcessWipTankForLine> WIPTanksAttached => _wipTanks ??= InletPumps.SelectMany(x => x.InletWipTanks).ToList();
         public List<ProcessMixer> PreferredManufacturer { get; set; } = new();
-
-        public Amount CurrentSKUPlannedMass => CurrentSKU?.TotalPlannedMass ?? new(0, MassUnits.KiloGram);
-        public Amount NextSKUPlannedMass => NextSKU?.TotalPlannedMass ?? new(0, MassUnits.KiloGram);
-        public Amount PlannedMass => IsNextMaterialSame ? CurrentSKUPlannedMass + NextSKUPlannedMass : CurrentSKUPlannedMass;
-        bool IsNextMaterialSame => CurrentSKU == null || NextSKU == null ? false : CurrentSKU?.Material.Id == NextSKU?.Material.Id;
-
-        public Amount TimeToChangeFormat => CurrentSKU == null ? new Amount(0, TimeUnits.Second) : CurrentSKU.TimeToChangeFormat;
-
-
-        private ProductionSKURun? ProductionSKURun { get; set; } = null!;
-        ProcessSKUByLine? CurrentSKU { get; set; }
-        ProcessSKUByLine? NextSKU { get; set; }
-
 
         private List<ProcessPump>? _inletPumps;
         private List<ProcessWipTankForLine>? _wipTanks;
 
         public List<ProcessPump> InletPumps => _inletPumps ??= InletEquipments.OfType<ProcessPump>().ToList();
-        public List<ProcessWipTankForLine> WIPTanksAttached => _wipTanks ??= InletPumps.SelectMany(x => x.InletWipTanks).ToList();
+
         //Aqui hay que poner el miezclador de corrientes
-        Queue<ProcessSKUByLine> QueueSKUs { get; set; } = new();
+
         public ShiftType ShiftType { get; set; } = ShiftType.Shift_1_2_3;
         public CurrentShift ActualShift { get; set; }
         public override void ValidateOutletInitialState(DateTime currentdate)
@@ -40,9 +29,6 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             ActualShift = GetCurrentShift(currentdate);
             OutletState = new LineStateInitialState(this);
             SetPumpsFlowToZeroAtInit();
-
-
-
 
         }
 
@@ -118,25 +104,11 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             return nextStart - now;
         }
 
-        public void PrepareNextSKU()
-        {
-            // Si la cola está vacía, limpiamos referencias
-            if (QueueSKUs.Count == 0)
-            {
-                CurrentSKU = null;
-                NextSKU = null;
-                return;
-            }
-
-            // Extraer el primer SKU (Dequeue)
-            CurrentSKU = QueueSKUs.Dequeue();
-            ProductionSKURun = new ProductionSKURun(CurrentSKU);
-            NextSKU = QueueSKUs.Count > 0 ? QueueSKUs.Peek() : null;
-        }
+        public bool IsLineScheduled => ProductionOrders.Any();
         public void QueueSKU(ProcessSKUByLine sku)
         {
-            QueueSKUs.Enqueue(sku);
-            FromLineToWipProductionOrder orderforwips = new(this, sku.Material, sku.TotalPlannedMass);
+
+            FromLineToWipProductionOrder orderforwips = new(this, sku);
 
             ProductionOrders.Enqueue(orderforwips);
         }
@@ -172,133 +144,18 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         };
 
 
-        public ReportColumn ReportColumn => ReportColumn.Column4_Lines;
-        public ReportPriorityInColumn ReportPriority => ReportPriorityInColumn.Low;
-
-        public List<LiveReportItem> GetLiveReportItems()
-        {
-            var items = new List<LiveReportItem>
-        {
-            new LiveReportItem
-            {
-                Label = "Line",
-                Value = Name,
-                Style = new ReportStyle()
-            },
-            new LiveReportItem
-            {
-                Label = "State",
-                Value = OutletState?.StateLabel ?? "Unknown",
-                Style = GetStateStyle()
-            },
-            new LiveReportItem
-            {
-                Label = "SKU",
-                Value = CurrentSKU?.SkuName ?? "None",
-                Style = new ReportStyle()
-            }
-            
-
-        };
-            if (ProductionOrder != null && ProductionSKURun != null)
-            {
-                items.Add(new LiveReportItem
-                {
-                    Label = "BackBone",
-                    Value = CurrentSKU?.Material.CommonName ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Planned Cases",
-                    Value = ProductionSKURun?.TotalCases.ToString() ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Produced Cases",
-                    Value = ProductionSKURun?.ProducedCases.ToString() ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Pending Cases",
-                    Value = ProductionSKURun?.RemainingCases.ToString() ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Current Flow",
-                    Value = ProductionSKURun?.CurrentFlow.ToString() ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Average Flow",
-                    Value = $"{Math.Round(ProductionSKURun?.AverageMassFlow.GetValue(MassFlowUnits.Kg_min) ?? 0, 2)}, Kg/min" ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Planned mass",
-                    Value = ProductionSKURun?.TotalPlannedMass.ToString() ?? "None",
-                    Style = new ReportStyle()
-                });
-                items.Add(new LiveReportItem
-                {
-                    Label = "Mass packed",
-                    Value = $"{Math.Round(ProductionSKURun?.ProducedMass.GetValue(MassUnits.KiloGram) ?? 0, 1)}, Kg" ?? "None",
-                    Style = new ReportStyle()
-                });
-              
-                items.Add(new LiveReportItem
-                {
-                    Label = "Pending Mass",
-                    Value = ProductionSKURun?.RemainingMass.ToString() ?? "None",
-                    Style = new ReportStyle()
-                });
-                var wipNames = string.Join(", ", ProductionOrder.WIPs.Select(w => w.Name));
-                items.Add(new LiveReportItem
-                {
-                    Label = "Receiving from: ",
-                    Value = wipNames,
-                    Style = new ReportStyle()
-                });
-
-            }
-            // ✅ Indicar qué tanques WIP alimentan esta línea
-
-
-            return items;
-        }
-
-        private ReportStyle GetStateStyle()
-        {
-            return OutletState switch
-            {
-                IStarvedLine => new ReportStyle { Color = "Red", FontEmphasis = "Bold" },
-                IProducerAUState => new ReportStyle { Color = "Orange", FontEmphasis = "Bold" },
-                IProducerState => new ReportStyle { Color = "Green" },
-                _ => new ReportStyle { Color = "Gray" }
-            };
-        }
-
-
-        public bool IsLineScheduled => QueueSKUs.Any();
-
         Queue<FromLineToWipProductionOrder> ProductionOrders { get; set; } = new Queue<FromLineToWipProductionOrder>();
-        FromLineToWipProductionOrder ProductionOrder { get; set; } = null!;
-
-        public bool SelectProductionRun()
+        public FromLineToWipProductionOrder InformNextProductionOrder => ProductionOrders.Any() ? ProductionOrders.Peek() : null!;
+        public FromLineToWipProductionOrder CurrentProductionOrder { get; set; } = null!;
+        public FromLineToWipProductionOrder NextProductionOrder { get; set; } = null!;
+        public bool InitSelectProductionRun()
         {
-            if (QueueSKUs.Any())
+            if (ProductionOrders.Any())
             {
-                CurrentSKU = QueueSKUs.Dequeue();
-                ProductionOrder = ProductionOrders.Dequeue();
-                ProductionSKURun = new ProductionSKURun(CurrentSKU);
-                NextSKU = QueueSKUs.Count > 0 ? QueueSKUs.Peek() : null;
 
-                SendToWipProductionOrder(ProductionOrder);
+                CurrentProductionOrder = ProductionOrders.Dequeue();
+
+                SendToWipProductionOrder(CurrentProductionOrder);
 
                 return true;
             }
@@ -306,48 +163,54 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
             return false;
 
         }
+        public bool SelectNextProductionOrder()
+        {
+            if (NextProductionOrder != null)
+            {
+
+                CurrentProductionOrder = NextProductionOrder;
+
+                NextProductionOrder = null!;
+                return true;
+            }
+
+            return false;
+
+        }
+
         void SendToWipProductionOrder(FromLineToWipProductionOrder order)
         {
 
             foreach (var wip in WIPTanksAttached)
             {
-                wip.ReceiveFromLineProductionOrder(order);
+                wip.ReceiveInitFromLineProductionOrder(order);
             }
         }
-        bool RealesedOrderFromWIP = false;
-        public void ReceivedWIPCurrentOrderRealsed()
-        {
-            RealesedOrderFromWIP = true;
-        }
-        public bool IsOrderFromWIPRealsed()
-        {
-            if (RealesedOrderFromWIP)
-            {
-                RealesedOrderFromWIP = false;
-                return true;
-            }
-            return false;
-        }
-        public void ReceiveWipCanHandleMaterial(ProcessWipTankForLine wip)
-        {
 
-            if (ProductionOrder != null)
+        public void ReceivedWIPCurrentOrderRealesed(FromLineToWipProductionOrder productionorder)
+        {
+            if (ProductionOrders.Any())
             {
-                ProductionOrder.WIPs.Add(wip);
 
+                NextProductionOrder = ProductionOrders.Dequeue();
+
+                SendToWipProductionOrder(NextProductionOrder);
             }
+
         }
+
+
 
         public bool IsLineStarvedByLowLevelWips()
         {
-            if (ProductionOrder != null)
+            if (CurrentProductionOrder != null)
             {
-                if (!ProductionOrder.WIPs.Any())
+                if (!CurrentProductionOrder.WIPs.Any())
                 {
-                    StartCriticalReport(this, $"No Manufaturer found for {ProductionOrder.MaterialName}", $"Line {Name} stopped due to low level in WIP tank(s).");
+                    StartCriticalReport(this, $"No Manufaturer found for {CurrentProductionOrder.MaterialName}", $"Line {Name} stopped due to low level in WIP tank(s).");
                     return true;
                 }
-                var wipstarved = ProductionOrder.WIPs.FirstOrDefault(x => x.OutletState is ITankOuletStarved);
+                var wipstarved = CurrentProductionOrder.WIPs.FirstOrDefault(x => x.OutletState is ITankOuletStarved);
                 if (wipstarved != null)
                 {
                     StartCriticalReport(wipstarved, "Starved by Low Level WIP", $"Line {Name} stopped due to low level in WIP tank(s).");
@@ -365,12 +228,12 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool IsLineStarvedByLowLevelWipsWhenEmptyTankToChangeMaterial()
         {
-            if (ProductionOrder != null)
+            if (CurrentProductionOrder != null)
             {
-                var wipstarved = ProductionOrder.WIPs.All(x => x.OutletState is ITankOuletStarved);
+                var wipstarved = CurrentProductionOrder.WIPs.All(x => x.OutletState is ITankOuletStarved);
                 if (wipstarved)
                 {
-                    ProductionOrder.WIPs.ForEach(x => x.CurrentLevel = ZeroMass);
+                    CurrentProductionOrder.WIPs.ForEach(x => x.CurrentLevel = ZeroMass);
 
                     return true;
                 }
@@ -383,9 +246,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
 
         public bool MustRunByAu()
         {
-            if (ProductionSKURun == null) return true;
-            if (ProductionSKURun.IsRunningAU) return false;
-            if (ProductionSKURun!.Pending_Time_Producing <= ZeroTime)
+            if (CurrentProductionOrder.ProductionSKURun == null) return true;
+            if (CurrentProductionOrder.ProductionSKURun.IsRunningAU) return false;
+            if (CurrentProductionOrder.ProductionSKURun!.Pending_Time_Producing <= ZeroTime)
             {
                 return true;
             }
@@ -402,9 +265,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool MustRunProducing()
         {
-            if (ProductionSKURun == null) return true;
-            if (!ProductionSKURun.IsRunningAU) return false;
-            if (ProductionSKURun!.Pending_Time_StarvedByAU <= ZeroTime)
+            if (CurrentProductionOrder.ProductionSKURun == null) return true;
+            if (!CurrentProductionOrder.ProductionSKURun.IsRunningAU) return false;
+            if (CurrentProductionOrder.ProductionSKURun!.Pending_Time_StarvedByAU <= ZeroTime)
             {
                 return true;
             }
@@ -413,9 +276,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool IsLineAvailableAfterStarved()
         {
-            if (ProductionOrder != null)
+            if (CurrentProductionOrder != null)
             {
-                if (ProductionOrder.WIPs.All(x => x.OutletState is not ITankOuletStarved))
+                if (CurrentProductionOrder.WIPs.All(x => x.OutletState is not ITankOuletStarved))
                 {
                     EndCriticalReport();
                     return true;
@@ -429,29 +292,29 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public void RunByAu()
         {
-            ProductionSKURun?.ProcessDuringAU();
+            CurrentProductionOrder.ProductionSKURun?.ProcessDuringAU();
 
         }
         public void RunByProducing()
         {
-            ProductionSKURun?.Produce();
+            CurrentProductionOrder.ProductionSKURun?.Produce();
 
         }
 
-        List<ProcessPump> CurrentPumps => ProductionOrder == null ? new List<ProcessPump>() : ProductionOrder.WIPs.SelectMany(x => x.OutletPumps).ToList();
+        List<ProcessPump> CurrentPumps => CurrentProductionOrder == null ? new List<ProcessPump>() : CurrentProductionOrder.WIPs.SelectMany(x => x.OutletPumps).ToList();
         public void SetPumpsFlowToZero()
         {
-            if (ProductionSKURun != null)
+            if (CurrentProductionOrder.ProductionSKURun != null)
                 CurrentPumps.ForEach(x => x.ActualFlow = ZeroFlow);
         }
         public void SetPumpsFlowToProduce()
         {
-            if (ProductionSKURun != null)
-                CurrentPumps.ForEach(x => x.ActualFlow = ProductionSKURun.MaxMassFlow);
+            if (CurrentProductionOrder.ProductionSKURun != null)
+                CurrentPumps.ForEach(x => x.ActualFlow = CurrentProductionOrder.ProductionSKURun.MaxMassFlow);
         }
         public bool IsCurrentProductionFinished()
         {
-            if (ProductionSKURun?.IsCompleted ?? false)
+            if (CurrentProductionOrder.ProductionSKURun?.IsCompleted ?? false)
             {
                 return true;
             }
@@ -459,24 +322,25 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool IfCanStopLineCompletely()
         {
-            if (NextSKU == null)
+            if (NextProductionOrder == null && !ProductionOrders.Any())
             {
+                CurrentProductionOrder = null!;
                 return true;
             }
             return false;
         }
         public bool MustEmptyWipTanks()
         {
-            if (ProductionOrder != null)
+            if (CurrentProductionOrder != null)
             {
-                if (NextSKU == null)
+                if (NextProductionOrder == null)
                 {
                     return true;
                 }
-                if (NextSKU.Material.Id != CurrentSKU!.Material.Id)
+                if (CurrentProductionOrder.Material.Id != NextProductionOrder!.Material.Id)
                 {
-
-                    return true;
+                    if (CurrentProductionOrder.WIPs.Any(x => x.CurrentLevel.Value > 0))
+                        return true;
                 }
 
 
@@ -485,10 +349,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool MustChangeFormat()
         {
-            if (NextSKU == null) return false;
-            if (ProductionOrder != null)
+            FromLineToWipProductionOrder _nextproductionorder = 
+                NextProductionOrder != null? NextProductionOrder: ProductionOrders.Any() ? ProductionOrders.Peek() : null!;
+            if (_nextproductionorder == null)
             {
-                if (CurrentSKU?.Size != NextSKU.Size)
+                return false;
+            }
+            if (CurrentProductionOrder != null)
+            {
+                if (CurrentProductionOrder.Size != _nextproductionorder.Size)
                 {
                     return true;
                 }
@@ -498,15 +367,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool ReviewIfWipTanksIsLoLevel()
         {
-            if (ProductionOrder != null)
+            if (CurrentProductionOrder != null)
             {
-                return ProductionOrder.WIPs.All(x => x.CurrentLevel <= x.LoLevel);
+                return CurrentProductionOrder.WIPs.All(x => x.CurrentLevel <= x.LoLevel);
             }
             return false;
         }
         public void CalculateAU()
         {
-            ProductionSKURun?.CalculateTimeStarvedAU();
+            CurrentProductionOrder.ProductionSKURun?.CalculateTimeStarvedAU();
 
         }
     }
