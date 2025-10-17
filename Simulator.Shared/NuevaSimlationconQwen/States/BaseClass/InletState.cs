@@ -2,13 +2,13 @@
 
 namespace Simulator.Shared.NuevaSimlationconQwen.States.BaseClass
 {
-    public abstract class InletState : InletState<Equipment>
-    {
+    //public abstract class InletState : InletState<Equipment>
+    //{
 
-        public InletState(Equipment equipment) : base(equipment)
-        {
+    //    public InletState(Equipment equipment) : base(equipment)
+    //    {
 
-        }
+    //    }
 
-    }
+    //}
 }

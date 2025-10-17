@@ -83,7 +83,7 @@ namespace Simulator.Server.EndPoints.HCs.MainProcesss
 
             row.Name = request.Name;
 
-
+            row.FocusFactory = request.FocusFactory;
 
             return row;
         }
@@ -218,7 +218,7 @@ namespace Simulator.Server.EndPoints.HCs.MainProcesss
                 Id = row.Id,
 
                 Name = row.Name,
-
+                FocusFactory = row.FocusFactory,
                 Order = row.Order,
             };
         }

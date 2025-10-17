@@ -15,7 +15,7 @@ public partial class SKUDialog
 
     protected override async Task OnInitializedAsync()
     {
-        await GetAllMaterials();
+      
         await getById();
 
     }
@@ -56,6 +56,7 @@ public partial class SKUDialog
         if (result.Succeeded)
         {
             Model = result.Data;
+            await GetAllMaterials();
             StateHasChanged();
         }
     }
@@ -97,7 +98,10 @@ public partial class SKUDialog
     MaterialResponseList ProductBackBones { get; set; } = new();
     async Task GetAllMaterials()
     {
-        var result = await GenericService.GetAll<MaterialResponseList, ProductBackBoneGetAll>(new ProductBackBoneGetAll());
+        var result = await GenericService.GetAll<MaterialResponseList, ProductBackBoneGetAll>(new ProductBackBoneGetAll()
+        {
+            FocusFactory= Model.FocusFactory,   
+        });
         if (result.Succeeded)
         {
             ProductBackBones = result.Data;

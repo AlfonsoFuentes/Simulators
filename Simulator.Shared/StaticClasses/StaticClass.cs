@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using System.Reflection;
 
 namespace Simulator.Shared.StaticClasses
 {
-    public static class StaticClass
+    public static partial class StaticClass
     {
         public static class Actions
         {
@@ -109,8 +110,8 @@ namespace Simulator.Shared.StaticClasses
             }
             public static class Cache
             {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
+                public static string[] Key(Guid Id,FocusFactory FocusFactory) => new[] { GetAll(FocusFactory), GetById(Id) };
+                public static string GetAll(FocusFactory FocusFactory) => $"GetAll-{ClassName}-{FocusFactory}";
                 public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
             }
             public static class PageName
@@ -123,711 +124,7 @@ namespace Simulator.Shared.StaticClasses
 
 
         }
-        public static class Backbones
-        {
-            public static string ClassLegend = "BackBones";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class OCConnectors
-        {
-            public static string ClassLegend = "OCConnectors";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid PlanId) => new[] { GetAll(PlanId), GetById(Id) };
-                public static string GetAll(Guid PlanId) => $"GetAll-{ClassName}-{PlanId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class CleaningRestrictions
-        {
-            public static string ClassLegend = "BackBones";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class CleaningProductRestrictions
-        {
-            public static string ClassLegend = "CleaningProductRestrictions";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class FormatChangeLineRestrictions
-        {
-            public static string ClassLegend = "FormatChangeLineRestrictions";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class BIGWIPTanks
-        {
-            public static string ClassLegend = "BIGWIPTanks";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class InitialLevelBigWips
-        {
-            public static string ClassLegend = "InitialLevelBigWips";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid ProductionPlanId) => new[] { GetAll(ProductionPlanId), GetById(Id) };
-                public static string GetAll(Guid ProductionPlanId) => $"GetAll-{ClassName}-{ProductionPlanId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class InitialLevelWips
-        {
-            public static string ClassLegend = "InitialLevelWips";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid ProductionLineAssignmentId) => new[] { GetAll(ProductionLineAssignmentId), GetById(Id) };
-                public static string GetAll(Guid ProductionLineAssignmentId) => $"GetAll-{ClassName}-{ProductionLineAssignmentId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class LineProductionSchedules
-        {
-            public static string ClassLegend = "LineProductionSchedules";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class LineSpeeds
-        {
-            public static string ClassLegend = "LineSpeeds";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid LineId) => new[] { GetAll(LineId), GetById(Id) };
-                public static string GetAll(Guid LineId) => $"GetAll-{ClassName}-{LineId}";
-
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class MixerBackbones
-        {
-            public static string ClassLegend = "MixerBackbones";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class MixerAssignmentBackbones
-        {
-            public static string ClassLegend = "MixerAssignmentBackbones";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid MixerAssigmentId) => new[] { GetAll(MixerAssigmentId), GetById(Id) };
-                public static string GetAll(Guid MixerAssigmentId) => $"GetAll-{ClassName}-{MixerAssigmentId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class OCMixers
-        {
-            public static string ClassLegend = "Mixers";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}-";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class WIPTankLines
-        {
-            public static string ClassLegend = "WIPTankLines";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid LineId) => new[] { GetAll(LineId), GetById(Id) };
-                public static string GetAll(Guid LineId) => $"GetAll-{ClassName}-{LineId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class ProductComponents
-        {
-            public static string ClassLegend = "ProductComponents";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class Products
-        {
-            public static string ClassLegend = "Product";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class ProductionScheduleItems
-        {
-            public static string ClassLegend = "ProductionScheduleItems";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid ProductionLineAssignmentId) => new[] { GetAll(ProductionLineAssignmentId), GetById(Id) };
-                public static string GetAll(Guid ProductionLineAssignmentId) => $"GetAll-{ClassName}-{ProductionLineAssignmentId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class ProductionPlans
-        {
-            public static string ClassLegend = "ProductionPlans";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class ProductionPlanSimulations
-        {
-            public static string ClassLegend = "ProductionPlansSimulation";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class ProductionLines
-        {
-            public static string ClassLegend = "ProductionLines";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
-                public static string GetAll => $"GetAll-{ClassName}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class ProductionLineAssignments
-        {
-            public static string ClassLegend = "ProductionLineAssignments";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid ProductionPlanId) => new[] { GetAll(ProductionPlanId), GetById(Id) };
-                public static string GetAll(Guid ProductionPlanId) => $"GetAll-{ClassName}-{ProductionPlanId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
-        public static class MixerAssignments
-        {
-            public static string ClassLegend = "MixerAssignments";
-            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
-            public static class EndPoint
-            {
-                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
-                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
-                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
-                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
-                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
-                public static string GetById = $"{ClassName}/{Actions.GetById}";
-                public static string Delete = $"{ClassName}/{Actions.Delete}";
-                public static string Export = $"{ClassName}/{Actions.Export}";
-                public static string Validate = $"{ClassName}/{Actions.Validate}";
-            }
-            public static class Cache
-            {
-                public static string[] Key(Guid Id, Guid ProductionPlanId) => new[] { GetAll(ProductionPlanId), GetById(Id) };
-                public static string GetAll(Guid ProductionPlanId) => $"GetAll-{ClassName}-{ProductionPlanId}";
-                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
-            }
-            public static class PageName
-            {
-                public static string Create = $"Create{ClassName}";
-                public static string Update = $"Update{ClassName}";
-                public static string GetAll = $"GetAll{ClassName}";
-
-            }
-
-
-        }
+        
 
         public static class Materials
         {
@@ -840,6 +137,7 @@ namespace Simulator.Shared.StaticClasses
                 public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
                 public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
                 public static string GetAllMaterial = $"{ClassName}/{Actions.GetAll}Material";
+                public static string GetAllMaterialByFocus = $"{ClassName}/{Actions.GetAll}MaterialByFocus";
                 public static string GetAllRawMaterial = $"{ClassName}/{Actions.GetAll}RawMaterial";
                 public static string GetAllRawMaterialSimple = $"{ClassName}/{Actions.GetAll}RawMaterialSimple";
                 public static string GetAllProductBackBone = $"{ClassName}/{Actions.GetAll}ProductBackBone";
@@ -854,10 +152,19 @@ namespace Simulator.Shared.StaticClasses
             }
             public static class Cache
             {
-                public static string[] Key(Guid Id) => new[] { GetAll, GetById(Id) };
+                public static string[] Key(Guid Id,FocusFactory Focusfactory) => new[] { 
+                    GetAll(Focusfactory), GetById(Id), GetAllBackBone(Focusfactory), GetAllRawMaterialBackBone(Focusfactory),
+                    GetAllRawMaterialSimple(Focusfactory),       GetAllMaterialByFocus(Focusfactory), 
+                GetAllRawMaterial(Focusfactory),GetAllProductBackBone(Focusfactory),GetAllMaterial};
 
-                public static string GetAll => $"GetAll-{ClassName}";
-
+                public static string GetAllBackBone(FocusFactory Focusfactory) => $"GetAllBackBone-{ClassName}-{Focusfactory}";
+                public static string GetAllRawMaterialBackBone(FocusFactory Focusfactory) => $"GetAllRawMaterialBackBone-{ClassName}-{Focusfactory}";
+                public static string GetAllRawMaterialSimple(FocusFactory Focusfactory) => $"GetAllRawMaterialSimple-{ClassName}-{Focusfactory}";
+                public static string GetAllRawMaterial(FocusFactory Focusfactory) => $"GetAllRawMaterial-{ClassName}-{Focusfactory}";
+                public static string GetAllProductBackBone(FocusFactory Focusfactory) => $"GetAllProductBackBone-{ClassName}-{Focusfactory}";
+                public static string GetAllMaterial => $"GetAllMaterial-{ClassName}";
+                public static string GetAllMaterialByFocus(FocusFactory Focusfactory) => $"GetAllMaterial-{ClassName}-{Focusfactory}";
+                public static string GetAll(FocusFactory Focusfactory) => $"GetAll-{ClassName}-{Focusfactory}";
                 public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
             }
             public static class PageName
@@ -1014,7 +321,7 @@ namespace Simulator.Shared.StaticClasses
                 public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
                 public static string GetAllOutlets = $"{ClassName}/{Actions.GetAll}Outlets";
                 public static string GetAllInlets = $"{ClassName}/{Actions.GetAll}Inlets";
-              
+
                 public static string GetInletById = $"{ClassName}/{Actions.GetById}Inlet";
                 public static string GetOutletById = $"{ClassName}/{Actions.GetById}Oulet";
                 public static string Delete = $"{ClassName}/{Actions.Delete}";
@@ -1203,6 +510,38 @@ namespace Simulator.Shared.StaticClasses
 
 
         }
+        public static class StreamJoiners
+        {
+            public static string ClassLegend = "StreamJoiners";
+            public static string ClassName => MethodBase.GetCurrentMethod()!.DeclaringType!.Name;
+            public static class EndPoint
+            {
+                public static string DeleteGroup = $"{ClassName}/{Actions.DeleteGroup}";
+                public static string CreateUpdate = $"{ClassName}/{Actions.CreateUpdate}";
+                public static string UpdateUp = $"{ClassName}/{Actions.Update}Up";
+                public static string UpdateDown = $"{ClassName}/{Actions.Update}Down";
+                public static string GetAll = $"{ClassName}/{Actions.GetAll}";
+                public static string GetById = $"{ClassName}/{Actions.GetById}";
+                public static string Delete = $"{ClassName}/{Actions.Delete}";
+                public static string Export = $"{ClassName}/{Actions.Export}";
+                public static string Validate = $"{ClassName}/{Actions.Validate}";
+            }
+            public static class Cache
+            {
+                public static string[] Key(Guid Id, Guid MainProcessId) => new[] { GetAll(MainProcessId), BaseEquipments.Cache.GetAll(MainProcessId), GetById(Id) };
+                public static string GetAll(Guid MainProcessId) => $"GetAll-{ClassName}-{MainProcessId}";
+                public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
+            }
+            public static class PageName
+            {
+                public static string Create = $"Create{ClassName}";
+                public static string Update = $"Update{ClassName}";
+                public static string GetAll = $"GetAll{ClassName}";
+
+            }
+
+
+        }
         public static class Operators
         {
             public static string ClassLegend = "Operator";
@@ -1285,8 +624,8 @@ namespace Simulator.Shared.StaticClasses
             }
             public static class Cache
             {
-                public static string[] Key(Guid Id, Guid EquipmentId, Guid MainProcessId) => new[] {GetAllByMaterial(EquipmentId), GetAll(MainProcessId), GetById(Id) };
-                public static string GetAllByMaterial(Guid EquipmentId) =>  $"GetAll-{ClassName}-{EquipmentId}" ;
+                public static string[] Key(Guid Id, Guid EquipmentId, Guid MainProcessId) => new[] { GetAllByMaterial(EquipmentId), GetAll(MainProcessId), GetById(Id) };
+                public static string GetAllByMaterial(Guid EquipmentId) => $"GetAll-{ClassName}-{EquipmentId}";
                 public static string GetAll(Guid MainProcessId) => $"GetAll-{ClassName}-{MainProcessId}";
                 public static string GetById(Guid Id) => $"GetById-{ClassName}-{Id}";
             }

@@ -5,6 +5,7 @@ using Simulator.Shared.Models.HCs.MixerPlanneds;
 using Simulator.Shared.Models.HCs.PreferedMixers;
 using Simulator.Shared.Models.HCs.Tanks;
 using System.Globalization;
+using System.Text.Json.Serialization;
 using static Simulator.Shared.StaticClasses.StaticClass;
 
 namespace Simulator.Shared.Models.HCs.SimulationPlanneds
@@ -71,7 +72,38 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
             }
         }
 
+        public bool OperatorHasNotRestrictionToInitBatch { get; set; } = true;
 
+        public string MaxRestrictionTimeUnit { get; set; } = string.Empty;
+        double _MaxRestrictionTimeValue;
+        string _MaxRestrictionTimeValueUnitName = TimeUnits.Minute.Name;
+        [JsonIgnore]
+        public Amount MaxRestrictionTime { get; set; } = new(TimeUnits.Minute);
+        public void ChangeMaxRestrictionTime()
+        {
+            _MaxRestrictionTimeValue = MaxRestrictionTime.GetValue(MaxRestrictionTime.Unit);
+            _MaxRestrictionTimeValueUnitName = MaxRestrictionTime.UnitName;
+        }
+        public double MaxRestrictionTimeValue
+        {
+            get => _MaxRestrictionTimeValue;
+            set
+            {
+                _MaxRestrictionTimeValue = value;
+                if (MaxRestrictionTime != null)
+                    MaxRestrictionTime = new Amount(_MaxRestrictionTimeValue, _MaxRestrictionTimeValueUnitName);
+            }
+        }
+        public string MaxRestrictionTimeValueUnitName
+        {
+            get => _MaxRestrictionTimeValueUnitName;
+            set
+            {
+                _MaxRestrictionTimeValueUnitName = value;
+                if (MaxRestrictionTime != null)
+                    MaxRestrictionTime = new Amount(_MaxRestrictionTimeValue, _MaxRestrictionTimeValueUnitName);
+            }
+        }
         public List<LinePlannedDTO> PlannedLines { get; set; } = new();
         public List<LinePlannedDTO> OrderedPlannedLines => PlannedLines.OrderBy(x => x.PackageType).ThenBy(x => x.LineName).ToList();
         public List<MixerPlannedDTO> PlannedMixers { get; set; } = new();
@@ -143,6 +175,7 @@ namespace Simulator.Shared.Models.HCs.SimulationPlanneds
         public Guid MainProcessId { get; set; }
         public string EndPointName => StaticClass.SimulationPlanneds.EndPoint.GetProcess;
         public override string ClassName => StaticClass.SimulationPlanneds.ClassName;
+        public FocusFactory FocusFactory { get; set; }=FocusFactory.None;
     }
     public class GetPlannedByIdRequest : GetByIdMessageResponse, IGetById
     {

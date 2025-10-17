@@ -19,196 +19,52 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
 
 
         public List<ProcessWipTankForLine> WIPForProducts => OutletEquipments.OfType<ProcessWipTankForLine>().ToList();
-        public List<ProcessRecipedRawMaterialTank> WIPForRawMaterialProducts => OutletEquipments.OfType<ProcessRecipedRawMaterialTank>().ToList();
+        public List<ProcessRecipedTank> WIPForRawMaterialProducts => OutletEquipments.OfType<ProcessRecipedTank>().ToList();
 
 
         public override Amount CurrentLevel { get; set; } = new Amount(0, MassUnits.KiloGram);
-        public override void ReceiveManufactureOrderFromWIP(IVesselManufactureOrder order)
+        public override void ReceiveManufactureOrderFromWIP(ITankManufactureOrder order)
         {
             CurrentManufactureOrder = new SKIDManufactureOrder(this, order);
             OutletState = new SKIDOutletWaitingNewOrderState(this);
-            OutletNewOrderReceived = true;
-        }
-
-
-        bool OutletNewOrderReceived = false;
-        bool InletNewOrderReceived = false;
-        public bool IsOutletNewOrderReceived()
-        {
-            if (OutletNewOrderReceived)
-            {
-                OutletNewOrderReceived = false;
-                return true;
-            }
-            return false;
-        }
-        public bool IsInitInletStateInit()
-        {
             InletState = new SKIDInletStateWaitingNewOrderState(this);
-            InletNewOrderReceived = true;
-            return true;
         }
-        public bool IsInletNewOrderReceived()
-        {
-            if (InletNewOrderReceived)
-            {
-                InletNewOrderReceived = false;
-                return true;
-            }
-            return false;
-        }
-        public bool IsMustWashTank()
-        {
-            if (CurrentManufactureOrder == null) return false;
 
 
-            if (LastMaterial == null)
-            {
-
-                LastMaterial = CurrentManufactureOrder.Material;
-                return false;
-            }
-            if (CurrentManufactureOrder.Material == null) return false;
-            if (CurrentManufactureOrder.Material.Id == LastMaterial.Id) return false;
-
-            var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentManufactureOrder.Material?.ProductCategory &&
-                                   x.ProductCategoryNext == LastMaterial.ProductCategory);
-
-
-            if (washDef != null)
-            {
-
-                return true;
-            }
-
-            return false;
-        }
-        
-        public Amount GetWashoutTime()
-        {
-            if (LastMaterial != null)
-            {
-                var washDef = WashoutTimes
-                .FirstOrDefault(x => x.ProductCategoryCurrent == CurrentManufactureOrder.Material?.ProductCategory &&
-                                   x.ProductCategoryNext == LastMaterial.ProductCategory);
-                if (washDef != null)
-                {
-                    LastMaterial = CurrentManufactureOrder.Material;
-                    return washDef.MixerWashoutTime;
-                }
-            }
-
-            return new Amount(0, TimeUnits.Second);
-        }
-        
-
-
-
-        bool InletStartCommandReceived = false;
-        bool OutletStartCommandReceived = false;
-        bool InletStopCommandReceived = false;
-        bool OutletStopCommandReceived = false;
         public void Produce()
         {
-            InletStartCommandReceived = true;
-
-            InletStopCommandReceived = false;
-
+            InletState = new SKIDInletReviewPumpsAvailableState(this);
+           
         }
         public void Stop()
         {
             ActualFlow = ZeroFlow;
-            InletStartCommandReceived = false;
+            foreach (var feed in FeedersCatched)
+            {
+                ReleaseFeeder(feed);
+            }
+            FeedersCatched.Clear();
+            InletState = new SKIDInletStopState(this);
+            OutletState = new SKIDOutletStopState(this);
+        }
 
-            InletStopCommandReceived = true;
-
-        }
-        public bool IsOutletStartCommandReceived()
-        {
-            if (OutletStartCommandReceived)
-            {
-                OutletStartCommandReceived = false;
-                return true;
-            }
-            return false;
-        }
-        public bool IsInletStartCommandReceived()
-        {
-            if (InletStartCommandReceived)
-            {
-                InletStartCommandReceived = false;
-                return true;
-            }
-            return false;
-        }
-        public bool IsOutletStopCommandReceived()
-        {
-            if (OutletStopCommandReceived)
-            {
-                ActualFlow = ZeroFlow;
-                OutletStopCommandReceived = false;
-                return true;
-            }
-            return false;
-        }
-        public bool IsInletStopCommandReceived()
-        {
-            if (InletStopCommandReceived)
-            {
-                InletStopCommandReceived = false;
-                return true;
-            }
-            return false;
-        }
-        public bool IsSkidStarved()
-        {
-            if (InletState is ISKIDStarvedInletState)
-            {
-                ActualFlow = ZeroFlow;
-                return true;
-            }
-            return false;
-        }
-        public bool IsSkidStarvedReleased()
-        {
-            if (InletState is not ISKIDStarvedInletState)
-            {
-
-                return true;
-            }
-            return false;
-        }
+        
+        
         public void SendProductToWIPS()
         {
-            if (InletState is not ISKIDStarvedInletState)
-            {
-                WIPForProducts.ForEach(x => x.ReceiveProductFromSKID(Capacity));
-            }
+            WIPForProducts.ForEach(x => x.ReceiveProductFromSKID(Capacity));
         }
         public bool IsRawMaterialFeedersStarved()
         {
-            var feeders = InletFeeder.Where(x =>
-            x.OutletState is IFeederStarved
-            ).ToList();
-            if (feeders.Any())
+            var feeder = InletFeeder.FirstOrDefault(x =>
+            x.OutletState is FeederStarvedByInletState || x.OutletState is FeederPlannedDownTimeState
+            );
+            if (feeder != null)
             {
-                var feeder = feeders.First();
+
                 StartCriticalReport(feeder, "No available", feeder.OutletState?.StateLabel ?? "UnKnown");
-                return true;
-            }
-
-
-            return false;
-        }
-
-        public bool IsRawMaterialFeedersReleaseStarved()
-        {
-            var feedersAvailable = InletFeeder.All(x =>
-            x.OutletState is not IFeederStarved);
-            if (feedersAvailable)
-            {
-                EndCriticalReport();
+                OutletState = new SKIDOutletStarvedbyInletState(this);
+                EnqueueForMaterialFeeder(feeder.Material!.Id);
                 return true;
             }
 
@@ -217,30 +73,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
         }
 
 
-        public bool IsRawMaterialFeederReleased()
-        {
-            foreach (var feed in FeedersCatched)
-            {
-                ReleaseFeeder(feed);
-            }
-            OutletStartCommandReceived = false;
-            OutletStopCommandReceived = true;
-            return true;
-        }
-        public bool IsRawMaterialFeederCurrentOrderReleased()
-        {
-            foreach (var feed in FeedersCatched)
-            {
-                ReleaseFeeder(feed);
-            }
-            OutletStartCommandReceived = false;
-            OutletStopCommandReceived = true;
-            OutletTotalStopReceived = true;
-            CurrentManufactureOrder = null!;
-            return true;
 
-          
-        }
+
+
+
         List<IManufactureFeeder> FeedersCatched = new List<IManufactureFeeder>();
         public bool IsFeederCatched()
         {
@@ -249,80 +85,59 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids
             {
                 if (material?.RecipeSteps == null) return false;
 
-                ActualFlow = Capacity;
-
                 foreach (var step in material.RecipeSteps)
                 {
-                    var feeder = AssignMaterialFeeder(step.RawMaterialId!.Value);
-
-
-                    if (feeder != null)
+                    if (IsMaterialFeederAvailable(step.RawMaterialId!.Value))                    
                     {
-                        FeedersCatched.Add(feeder);
+                        var feeder = AssignMaterialFeeder(step.RawMaterialId.Value);
+                        if (feeder != null)
+                        {
+                            FeedersCatched.Add(feeder);
 
-                        feeder.ActualFlow = Capacity * step.Percentage / 100;
+                            feeder.ActualFlow = Capacity * step.Percentage / 100;
+
+                        }
+                        else
+                        {
+                            ActualFlow = ZeroFlow;
+                            
+                            
+                        }
                     }
                     else
                     {
-                        foreach(var feed in FeedersCatched)
+                        foreach (var feed in FeedersCatched)
                         {
                             ReleaseFeeder(feed);
                         }
-
-                       
+                        EnqueueForMaterialFeeder(step.RawMaterialId.Value);
+                        OutletState = new SKIDOutletStarvedbyInletState(this);
                         return false;
                     }
                 }
-                OutletStartCommandReceived = true;
-                OutletStopCommandReceived = false;
-
+                ActualFlow = Capacity;
+                OutletState = new SKIDOutletProducingState(this);
                 return true;
             }
-            // Validación defensiva
-
 
             return false;
 
 
         }
-        bool CommandFromQueueThatFeederIsRealesed = false;
-        public bool IsFeederReleasedFromQueue()
-        {
-            if (CommandFromQueueThatFeederIsRealesed)
-            {
-                CommandFromQueueThatFeederIsRealesed = false;
-                return true;
-            }
-            return false;
-        }
+        
 
         public void ReceiveTotalStop()
         {
-            InletTotalStopReceived = true;
-
-
-        }
-        bool InletTotalStopReceived = false;
-        bool OutletTotalStopReceived = false;
-        public bool IsInletSkidTotalStopReceived()
-        {
-            if (InletTotalStopReceived)
+            foreach (var feed in FeedersCatched)
             {
-                InletTotalStopReceived = false;
+                ReleaseFeeder(feed);
+            }
+            InletState = new SKIDInletStateWaitingNewOrderState(this);
+            OutletState = new SKIDOutletWaitingNewOrderState(this);
+            CurrentManufactureOrder = null!;
+        }
 
-                return true;
-            }
-            return false;
-        }
-        public bool IsOutletSkidTotalStopReceived()
-        {
-            if (OutletTotalStopReceived)
-            {
-                OutletTotalStopReceived = false;
-                return true;
-            }
-            return false;
-        }
+
 
 
     }

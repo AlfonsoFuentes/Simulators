@@ -60,6 +60,7 @@ public partial class BackBoneStepTable
         var parameters = new DialogParameters<BackBoneStepDialog>
         {
              { x => x.Model, response },
+             { y => y.FocusFactory, Material.FocusFactory },
         };
 
         var options = new DialogOptions() { MaxWidth = MaxWidth.Small };
@@ -91,6 +92,7 @@ public partial class BackBoneStepTable
         {
 
              { x => x.Model, response },
+             { y => y.FocusFactory, Material.FocusFactory },
         };
         var options = new DialogOptions() { MaxWidth = MaxWidth.Small };
 

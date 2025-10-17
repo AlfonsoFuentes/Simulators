@@ -15,10 +15,12 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
                 {
 
                     NewSimulationDTO response = new NewSimulationDTO();
+                    response.FocusFactory=request.FocusFactory;
                     await response.ReadSimulationMaterials(Repository);
                     await response.ReadSkuSimulation(Repository);
                     await response.ReadWashoutTime(Repository);
                     await response.ReadLines(request.MainProcessId, Repository);
+                    await response.ReadStreamJoiners(request.MainProcessId, Repository);
                     await response.ReadTanks(request.MainProcessId, Repository);
                     await response.ReadMixers(request.MainProcessId, Repository);
                     await response.ReadPumps(request.MainProcessId, Repository);

@@ -22,7 +22,7 @@ namespace Simulator.Client.Infrastructure.Validators.HCValidators.BackBones
             RuleFor(x => x.Time).NotEqual(new UnitSystem.Amount(0, TimeUnits.Minute)).When(x => x.BackBoneStepType == Shared.Enums.HCEnums.Enums.BackBoneStepType.Analisys).WithMessage("Time must be defined!");
 
 
-            RuleFor(x => x.Time).NotEqual(new UnitSystem.Amount(0, TimeUnits.Minute)).When(x => x.BackBoneStepType == Shared.Enums.HCEnums.Enums.BackBoneStepType.pH_Adjust).WithMessage("Time must be defined!");
+            RuleFor(x => x.Time).NotEqual(new UnitSystem.Amount(0, TimeUnits.Minute)).When(x => x.BackBoneStepType == Shared.Enums.HCEnums.Enums.BackBoneStepType.Adjust).WithMessage("Time must be defined!");
 
 
             RuleFor(x => x.Time).NotEqual(new UnitSystem.Amount(0, TimeUnits.Minute)).When(x => x.BackBoneStepType == Shared.Enums.HCEnums.Enums.BackBoneStepType.Connect_Mixer_WIP).WithMessage("Time must be defined!");

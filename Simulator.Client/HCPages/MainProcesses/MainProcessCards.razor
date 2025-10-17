@@ -7,10 +7,10 @@
             <IconButton Size=@Size.Small ToolTip="Add new Proces" Icon="@Icons.Material.Filled.Add" Variant=Variant.Outlined OnClick="AddNew"></IconButton>
             <div>
                 <MudGrid>
-                    @foreach (var items in Items)
+                    @foreach (var item in Items)
                     {
                         <MudItem xs="12" md="3">
-                            <MainProcessCard Model="@items" GetAll="GetAll" SelectProcess="SelectProcessAndPlannedByID"></MainProcessCard>
+                            <MainProcessCard Model="@item" GetAll="GetAll" SelectProcess="SelectProcessAndPlannedByID"></MainProcessCard>
                         </MudItem>
                     }
                 </MudGrid>
@@ -35,7 +35,7 @@
         }
         else if (Simulation != null)
         {
-            <SelectedProcessTabs Simulation="@Simulation" GetAll="SelectAllProcess" MainProcessId="@MainProcessId"></SelectedProcessTabs>
+            <SelectedProcessTabs FocusFactory=@FocusFactory Simulation="@Simulation" GetAll="SelectAllProcess" MainProcessId="@MainProcessId"></SelectedProcessTabs>
         }
 
 

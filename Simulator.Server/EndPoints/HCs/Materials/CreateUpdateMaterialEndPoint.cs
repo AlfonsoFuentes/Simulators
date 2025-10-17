@@ -1,4 +1,5 @@
-﻿using Simulator.Server.Databases.Entities.HC;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Simulator.Server.Databases.Entities.HC;
 using Simulator.Server.EndPoints.HCs.BackBoneSteps;
 using Simulator.Server.EndPoints.HCs.Materials;
 using Simulator.Shared.Enums.HCEnums.Enums;
@@ -38,7 +39,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
 
 
                     Data.Map(row);
-                    List<string> cache = [.. StaticClass.Materials.Cache.Key(row.Id)];
+                    List<string> cache = [.. StaticClass.Materials.Cache.Key(row.Id, row.FocusFactory)];
 
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
 
@@ -64,6 +65,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
             row.ProductCategory = request.ProductCategory;
             row.CommonName = request.CommonName;
             row.MaterialType = request.MaterialType;
+            row.FocusFactory = request.FocusFactory;
             return row;
         }
 
@@ -80,7 +82,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                     if (row == null) { return Result.Fail(Data.NotFound); }
                     await Repository.RemoveAsync(row);
 
-                    List<string> cache = [.. StaticClass.Materials.Cache.Key(row.Id)];
+                    List<string> cache = [.. StaticClass.Materials.Cache.Key(row.Id, row.FocusFactory)];
 
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
                     return Result.EndPointResult(result,
@@ -103,19 +105,23 @@ namespace Simulator.Server.EndPoints.HCs.Materials
             {
                 app.MapPost(StaticClass.Materials.EndPoint.DeleteGroup, async (DeleteGroupMaterialRequest Data, IRepository Repository) =>
                 {
+                    Guid Id = Guid.NewGuid();
+                    FocusFactory FocusFactory = FocusFactory.None;
                     foreach (var rowItem in Data.SelecteItems)
                     {
                         var row = await Repository.GetByIdAsync<Material>(rowItem.Id);
                         if (row != null)
                         {
                             await Repository.RemoveAsync(row);
+                            FocusFactory = row.FocusFactory;
+                            Id = row.Id;
                         }
                     }
 
 
-                    var cache = StaticClass.Materials.Cache.GetAll;
+                    List<string> cache = [.. StaticClass.Materials.Cache.Key(Id, FocusFactory)];
 
-                    var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache);
+                    var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
                     return Result.EndPointResult(result,
                         Data.Succesfully,
                         Data.Fail);
@@ -125,6 +131,42 @@ namespace Simulator.Server.EndPoints.HCs.Materials
         }
 
 
+
+
+    }
+    public static class GetAllMaterialByFocusEndPoint
+    {
+        public class EndPoint : IEndPoint
+        {
+            public void MapEndPoint(IEndpointRouteBuilder app)
+            {
+                app.MapPost(StaticClass.Materials.EndPoint.GetAllMaterialByFocus, async (MaterialGetAllByFocusFactory request, IQueryRepository Repository) =>
+                {
+
+                    Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
+                   .Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
+                    string CacheKey = StaticClass.Materials.Cache.GetAllMaterialByFocus(request.FocusFactory);
+                    Expression<Func<Material, bool>> Criteria = x => x.FocusFactory == request.FocusFactory;
+                    var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Includes: includes, Criteria: Criteria);
+
+                    if (rows == null)
+                    {
+                        return Result<MaterialResponseList>.Fail(
+                        StaticClass.ResponseMessages.ReponseNotFound(StaticClass.Materials.ClassLegend));
+                    }
+                    if (request.MaterialType != MaterialType.None) rows = rows.Where(x => x.MaterialType == request.MaterialType).ToList();
+                    var maps = rows.OrderBy(x => x.MaterialType).ThenBy(x => x.CommonName).Select(x => x.MapMaterial()).ToList();
+
+
+                    MaterialResponseList response = new MaterialResponseList()
+                    {
+                        Items = maps
+                    };
+                    return Result<MaterialResponseList>.Success(response);
+
+                });
+            }
+        }
 
 
     }
@@ -139,7 +181,8 @@ namespace Simulator.Server.EndPoints.HCs.Materials
 
                     Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
                    .Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
+                    string CacheKey = StaticClass.Materials.Cache.GetAllMaterial;
+
                     var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Includes: includes);
 
                     if (rows == null)
@@ -174,8 +217,10 @@ namespace Simulator.Server.EndPoints.HCs.Materials
 
                     //     Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
                     //.Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
-                    var rows = await Repository.GetAllAsync<Material>(CacheKey);
+
+                    string CacheKey = StaticClass.Materials.Cache.GetAllProductBackBone(request.FocusFactory);
+                    Expression<Func<Material, bool>> Criteria = request.FocusFactory == FocusFactory.None ? null! : x => x.FocusFactory == request.FocusFactory;
+                    var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Criteria: Criteria);
 
                     if (rows == null)
                     {
@@ -207,8 +252,11 @@ namespace Simulator.Server.EndPoints.HCs.Materials
 
                     //     Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
                     //.Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
-                    var rows = await Repository.GetAllAsync<Material>(CacheKey);
+                    string CacheKey = StaticClass.Materials.Cache.GetAllRawMaterial(request.FocusFactory);
+
+                    Expression<Func<Material, bool>> Criteria = request.FocusFactory == FocusFactory.None ? null! : x => x.FocusFactory == request.FocusFactory;
+
+                    var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Criteria: Criteria);
 
                     if (rows == null)
                     {
@@ -240,9 +288,11 @@ namespace Simulator.Server.EndPoints.HCs.Materials
 
                     //Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
                     //    .Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
-                    var rows = await Repository.GetAllAsync<Material>(CacheKey);
+                    string CacheKey = StaticClass.Materials.Cache.GetAllRawMaterialSimple(request.FocusFactory);
+                    Expression<Func<Material, bool>> Criteria = request.FocusFactory == FocusFactory.None ? null! : x => x.FocusFactory == request.FocusFactory;
 
+
+                    var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Criteria: Criteria);
                     if (rows == null)
                     {
                         return Result<MaterialResponseList>.Fail(
@@ -272,8 +322,13 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                 {
                     //Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
                     //   .Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
-                    var rows = await Repository.GetAllAsync<Material>(CacheKey);
+
+                    string CacheKey = StaticClass.Materials.Cache.GetAllRawMaterialBackBone(request.FocusFactory);
+                    Expression<Func<Material, bool>> Criteria = request.FocusFactory == FocusFactory.None ? null! : x => x.FocusFactory == request.FocusFactory;
+
+
+                    var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Criteria: Criteria);
+
 
                     if (rows == null)
                     {
@@ -307,8 +362,12 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                 {
                     //Func<IQueryable<Material>, IIncludableQueryable<Material, object>> includes = x => x
                     //   .Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
-                    var rows = await Repository.GetAllAsync<Material>(CacheKey);
+
+                    string CacheKey = StaticClass.Materials.Cache.GetAllBackBone(request.FocusFactory);
+                    Expression<Func<Material, bool>> Criteria = request.FocusFactory == FocusFactory.None ? null! : x => x.FocusFactory == request.FocusFactory;
+
+
+                    var rows = await Repository.GetAllAsync<Material>(Cache: CacheKey, Criteria: Criteria);
 
                     if (rows == null)
                     {
@@ -364,7 +423,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
             return new()
             {
                 Id = row.Id,
-
+                FocusFactory = row.FocusFactory,
                 M_Number = row.M_Number,
                 SAPName = row.SAPName,
                 PhysicalState = row.PhysicalState,
@@ -372,7 +431,8 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                 IsForWashing = row.IsForWashing,
                 MaterialType = row.MaterialType,
                 CommonName = row.CommonName,
-                SumOfPercentage = row.BackBoneSteps == null || row.BackBoneSteps.Count == 0 ? 0 : row.BackBoneSteps.Where(x => x.BackBoneStepType == BackBoneStepType.Add).Sum(x => x.Percentage),
+                SumOfPercentage = row.BackBoneSteps == null || row.BackBoneSteps.Count == 0 ? 0 :
+                Math.Round(row.BackBoneSteps.Where(x => x.BackBoneStepType == BackBoneStepType.Add).Sum(x => x.Percentage),2),
 
 
             };
@@ -390,7 +450,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                     Expression<Func<Material, bool>> CriteriaId = null!;
                     Func<Material, bool> CriteriaExist = x => Data.Id == null ?
                     x.SAPName.Equals(Data.SapName) : x.Id != Data.Id.Value && x.SAPName.Equals(Data.SapName);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
+                    string CacheKey = StaticClass.Materials.Cache.GetAll(Data.FocusFactory);
 
                     return await Repository.AnyAsync(Cache: CacheKey, CriteriaExist: CriteriaExist, CriteriaId: CriteriaId);
                 });
@@ -410,7 +470,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                     Expression<Func<Material, bool>> CriteriaId = null!;
                     Func<Material, bool> CriteriaExist = x => Data.Id == null ?
                     x.M_Number.Equals(Data.MNumber) : x.Id != Data.Id.Value && x.M_Number.Equals(Data.MNumber);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
+                    string CacheKey = StaticClass.Materials.Cache.GetAll(Data.FocusFactory);
 
                     return await Repository.AnyAsync(Cache: CacheKey, CriteriaExist: CriteriaExist, CriteriaId: CriteriaId);
                 });
@@ -430,7 +490,7 @@ namespace Simulator.Server.EndPoints.HCs.Materials
                     Expression<Func<Material, bool>> CriteriaId = null!;
                     Func<Material, bool> CriteriaExist = x => Data.Id == null ?
                     x.CommonName.Equals(Data.CommonName) : x.Id != Data.Id.Value && x.CommonName.Equals(Data.CommonName);
-                    string CacheKey = StaticClass.Materials.Cache.GetAll;
+                    string CacheKey = StaticClass.Materials.Cache.GetAll(Data.FocusFactory);
 
                     return await Repository.AnyAsync(Cache: CacheKey, CriteriaExist: CriteriaExist, CriteriaId: CriteriaId);
                 });

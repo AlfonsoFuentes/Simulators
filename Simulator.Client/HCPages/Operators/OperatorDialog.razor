@@ -19,6 +19,7 @@
                     <EquipmentMaterialTable EquipmentId="Model.Id"
                                             MainProcessId="@Model.MainProcessId"
                                             EquipmentName="@Model.Name"
+                                            FocusFactory="Model.FocusFactory"
                                             IsStorageForOneFluid=false
                                             @bind-Items=@Model.MaterialEquipments ValidateAsync="ValidateAsync"
                                             MaterialType="MaterialType.RawMaterial"></EquipmentMaterialTable>

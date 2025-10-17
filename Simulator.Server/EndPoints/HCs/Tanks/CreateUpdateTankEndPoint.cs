@@ -76,7 +76,7 @@ namespace Simulator.Server.EndPoints.HCs.Tanks
             row.FluidStorage = request.FluidStorage;
             row.InitialLevelValue = request.InitialLevelValue;
             row.InitialLevelUnit = request.InitialLevelUnitName;
-
+            row.FocusFactory = request.FocusFactory;
             row.ProccesEquipmentType = ProccesEquipmentType.Tank;
             return row;
         }
@@ -225,7 +225,7 @@ namespace Simulator.Server.EndPoints.HCs.Tanks
                 InitialLevelValue = row.InitialLevelValue,
                 Name = row.Name,
 
-                
+                FocusFactory = row.FocusFactory,
                 Order = row.Order,
                 EquipmentType = ProccesEquipmentType.Tank,
 

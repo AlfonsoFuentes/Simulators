@@ -63,7 +63,7 @@ namespace Simulator.Server.EndPoints.HCs.Mixers
             row.Name = request.Name;
 
             row.ProccesEquipmentType = ProccesEquipmentType.Mixer;
-
+            row.FocusFactory = request.FocusFactory;
             return row;
         }
 
@@ -198,7 +198,7 @@ namespace Simulator.Server.EndPoints.HCs.Mixers
                 MainProcessId = row.MainProcessId,
                 EquipmentType = row.ProccesEquipmentType,
                 Name = row.Name,
-
+                FocusFactory = row.FocusFactory,
                 Order = row.Order,
             };
         }

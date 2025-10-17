@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.Pumps;
+﻿using FluentValidation;
+using Simulator.Shared.Models.HCs.Pumps;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.Pumps

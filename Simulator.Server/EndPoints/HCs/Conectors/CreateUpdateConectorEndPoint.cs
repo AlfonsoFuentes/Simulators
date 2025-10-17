@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Simulator.Server.Databases.Entities.HC;
-using Simulator.Server.EndPoints.HCs.Conectors;
+﻿using Simulator.Server.Databases.Entities.HC;
 using Simulator.Server.EndPoints.HCs.Materials;
 using Simulator.Server.EndPoints.HCs.ProccesEquipments;
 using Simulator.Shared.Models.HCs.BaseEquipments;

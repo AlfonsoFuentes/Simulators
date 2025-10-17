@@ -1,3 +1,4 @@
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Mixers;
 
 
@@ -13,6 +14,9 @@ public partial class MixerTable
         Items.Where(Criteria).ToList();
     [Parameter]
     public Guid MainProcessId { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     protected override async Task OnParametersSetAsync()
     {
         await GetAll();
@@ -23,8 +27,8 @@ public partial class MixerTable
         var result = await GenericService.GetAll<MixerResponseList, MixerGetAll>(new MixerGetAll()
         {
             MainProcessId = MainProcessId,
-          
-             
+
+
         });
         if (result.Succeeded)
         {
@@ -33,8 +37,12 @@ public partial class MixerTable
     }
     public async Task AddNew()
     {
-        MixerDTO response = new() { MainProcessId = MainProcessId };
-   
+        MixerDTO response = new()
+        {
+            MainProcessId = MainProcessId,
+            FocusFactory = FocusFactory
+        };
+
         var parameters = new DialogParameters<MixerDialog>
         {
            { x => x.Model, response },
@@ -132,7 +140,7 @@ public partial class MixerTable
             DeleteGroupMixerRequest request = new()
             {
                 SelecteItems = SelecteItems,
-                MainProcessId=MainProcessId,
+                MainProcessId = MainProcessId,
 
             };
             var resultDelete = await GenericService.Post(request);

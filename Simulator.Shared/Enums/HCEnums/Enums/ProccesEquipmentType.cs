@@ -9,6 +9,7 @@
         Mixer,
         Pump,
         Operator,
+        StreamJoiner
 
     }
     

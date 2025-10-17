@@ -1,0 +1,176 @@
+﻿
+<MudStack Spacing="2" Justify="Justify.FlexStart">
+    <MudButton OnClick="balance.Calculate">Calculate</MudButton>
+    <MudGrid>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Gas Natural volume flow at normal conditions"
+                                 T="double"
+                                 @bind-Value="@balance.gn.VolumetricFlow.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.gn.VolumetricFlow.Unit Items="@balance.gn.VolumetricFlow.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Gas Natural Temperature"
+                                 T="double"
+                                 @bind-Value="@balance.gn.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.gn.Temperature.Unit Items="@balance.gn.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Air Temperature"
+                                 T="double"
+                                 @bind-Value="@balance.air.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.air.Temperature.Unit Items="@balance.air.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Boiler Pressure (g)"
+                                 T="double"
+                                 Value="@balance.steamproduced.Pressure.GetValueManometric(balance.steamproduced.Pressure.Unit)"
+                                 ValueChanged="@(()=>balance.steamproduced.Pressure.SetValueManometric(balance.steamproduced.Pressure.Value,balance.steamproduced.Pressure.Unit))"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.steamproduced.Pressure.Unit Items="@balance.steamproduced.Pressure.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Boiler Mass flow"
+                                 T="double"
+                                 @bind-Value="@balance.steamproduced.MassFlow.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.steamproduced.MassFlow.Unit Items="@balance.steamproduced.MassFlow.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Boiler purge volumetric flow"
+                                 T="double"
+                                 @bind-Value="@balance.purge.VolumetricFlow.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.purge.VolumetricFlow.Unit Items="@balance.purge.VolumetricFlow.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Boiler temperature water inlet"
+                                 T="double"
+                                 @bind-Value="@balance.waterInletToBoiler.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.waterInletToBoiler.Temperature.Unit Items="@balance.waterInletToBoiler.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Chimney gases temperature"
+                                 T="double"
+                                 @bind-Value="@balance.cgSaliendoEconomizador.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.cgSaliendoEconomizador.Temperature.Unit Items="@balance.cgSaliendoEconomizador.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Economizer temperature water inlet"
+                                 T="double"
+                                 @bind-Value="@balance.waterInletToEconomizador.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.waterInletToEconomizador.Temperature.Unit Items="@balance.waterInletToEconomizador.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Steam to dearetor Pressure (g)"
+                                 T="double"
+                                 Value="@balance.SteamToDearetor.Pressure.GetValueManometric(balance.SteamToDearetor.Pressure.Unit)"
+                                 ValueChanged="@(()=>balance.SteamToDearetor.Pressure.SetValueManometric(balance.SteamToDearetor.Pressure.Value,balance.SteamToDearetor.Pressure.Unit))"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.SteamToDearetor.Pressure.Unit Items="@balance.SteamToDearetor.Pressure.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+            
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Recovered condensate temperature"
+                                 T="double"
+                                 @bind-Value="@balance.RecoveredCondensate.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.RecoveredCondensate.Temperature.Unit Items="@balance.RecoveredCondensate.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Freshe water temperature"
+                                 T="double"
+                                 @bind-Value="@balance.FreshWater.Temperature.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.FreshWater.Temperature.Unit Items="@balance.FreshWater.Temperature.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudStack Row=true Justify="Justify.FlexEnd">
+                <MudNumericField Immediate="true"
+                                 Label="Freshe water mass flow"
+                                 T="double"
+                                 @bind-Value="@balance.FreshWater.MassFlow.Value"
+                                 Variant="Variant.Outlined"
+                                 Margin="Margin.Dense"
+                                 HideSpinButtons=true></MudNumericField>
+                <Select @bind-Value=@balance.FreshWater.MassFlow.Unit Items="@balance.FreshWater.MassFlow.UnitsList" TValue="UnitMeasure"></Select>
+            </MudStack>
+        </MudItem>
+
+  
+    </MudGrid>
+    
+
+</MudStack>
+
+
+@code {
+
+}

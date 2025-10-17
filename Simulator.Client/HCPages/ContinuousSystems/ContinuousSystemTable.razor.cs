@@ -1,3 +1,4 @@
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.ContinuousSystems;
 
 
@@ -13,6 +14,9 @@ public partial class ContinuousSystemTable
         Items.Where(Criteria).ToList();
     [Parameter]
     public Guid MainProcessId { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     protected override async Task OnParametersSetAsync()
     {
         await GetAll();
@@ -23,8 +27,8 @@ public partial class ContinuousSystemTable
         var result = await GenericService.GetAll<ContinuousSystemResponseList, ContinuousSystemGetAll>(new ContinuousSystemGetAll()
         {
             MainProcessId = MainProcessId,
-          
-             
+
+
         });
         if (result.Succeeded)
         {
@@ -33,8 +37,12 @@ public partial class ContinuousSystemTable
     }
     public async Task AddNew()
     {
-        ContinuousSystemDTO response = new() { MainProcessId = MainProcessId };
-   
+        ContinuousSystemDTO response = new()
+        {
+            MainProcessId = MainProcessId,
+            FocusFactory = FocusFactory
+        };
+
         var parameters = new DialogParameters<ContinuousSystemDialog>
         {
            { x => x.Model, response },
@@ -132,7 +140,7 @@ public partial class ContinuousSystemTable
             DeleteGroupContinuousSystemRequest request = new()
             {
                 SelecteItems = SelecteItems,
-                MainProcessId=MainProcessId,
+                MainProcessId = MainProcessId,
 
             };
             var resultDelete = await GenericService.Post(request);

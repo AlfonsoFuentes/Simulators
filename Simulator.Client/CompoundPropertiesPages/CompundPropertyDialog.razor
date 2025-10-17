@@ -1,0 +1,75 @@
+﻿<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+            @if (Model != null)
+            {
+                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-1">
+                    <MudTabPanel Text="Main">
+                        <MudStack>
+                            <TextField Label="Name" @bind-Value=@Model.Name></TextField>
+                            <TextField Label="Formula" @bind-Value=@Model.Formula></TextField>
+                            <TextField Label="Structural Formula" @bind-Value=@Model.StructuralFormula></TextField>
+                            <TextField Label="Main Family" @bind-Value=@Model.MainFamily></TextField>
+                            <TextField Label="Secondary Family" @bind-Value=@Model.SecondaryFamily></TextField>
+                            <DoubleNumericField Label="Molecular weight" @bind-Value=@Model.MolecularWeight For="() => Model.MolecularWeight"
+                                                ValidateAsync="ValidateAsync"></DoubleNumericField>
+
+                        </MudStack>
+
+                    </MudTabPanel>
+                    <MudTabPanel Text="Critical Properties">
+
+                        <CriticalProperties @bind-Model="@Model" ValidateAsync="ValidateAsync"></CriticalProperties>
+
+                    </MudTabPanel>
+                    <MudTabPanel Text="Vapor Pressure">
+                        <CompoundConstants @bind-Model="@Model.VapourPressure"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Heat Of Vaporization">
+                        <CompoundConstants @bind-Model="@Model.HeatOfVaporization"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Liquid Cp">
+                        <CompoundConstants @bind-Model="@Model.LiquidCp"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Gas Cp">
+                        <CompoundConstants @bind-Model="@Model.GasCp"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Liquid Viscosity">
+                        <CompoundConstants @bind-Model="@Model.LiquidViscosity"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Gas Viscosity">
+                        <CompoundConstants @bind-Model="@Model.GasViscosity"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Liquid Conductivity">
+                        <CompoundConstants @bind-Model="@Model.LiquidThermalConductivity"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Gas Conductivity">
+                        <CompoundConstants @bind-Model="@Model.GasThermalConductivity"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Liquid Density">
+                        <CompoundConstants @bind-Model="@Model.LiquidDensity"></CompoundConstants>
+                    </MudTabPanel>
+                    <MudTabPanel Text="Superficial Tension">
+                        <CompoundConstants @bind-Model="@Model.SuperficialTension"></CompoundConstants>
+                    </MudTabPanel>
+
+
+                </MudTabs>
+            }
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+
+@code {
+
+}

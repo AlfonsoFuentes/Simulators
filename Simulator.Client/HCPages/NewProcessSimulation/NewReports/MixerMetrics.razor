@@ -1,0 +1,51 @@
+﻿@* Pages/MixerMetricsReport.razor *@
+@using MudBlazor
+@using Simulator.Shared.NuevaSimlationconQwen
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
+
+
+@* <MudGrid>
+    @foreach (var mixer in Mixers)
+    {
+        <MudItem xs="12" sm="3" md="3">
+            <MudPaper Elevation="2" Class="pa-4 text-center">
+                <MudText Typo="Typo.h6">@mixer.Name</MudText>
+
+                @{
+                    var chartData = new double[]
+                    {
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.Batching),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.Washing),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByFeeder),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByOperator),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByWashoutPump),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByTransferToWIP),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.TransferToWIP),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.NoBatchAssigned),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.PlannedDowntime),
+                        mixer.Metrics.GetPercentageTime(MixerTimeType.Other),
+                    };
+                }
+
+                <MudChart ChartType="ChartType.Pie"
+                          InputData="@chartData"
+                          InputLabels="@ChartLabels"
+                          Width="250px" Height="250px" />
+            </MudPaper>
+        </MudItem>
+    }
+</MudGrid> *@
+
+@code {
+    [Parameter] public GeneralSimulation Simulation { get; set; } = null!;
+
+    private static readonly string[] ChartLabels = {
+        "Production", "Wash", "Feeder Starved", "Operator Starved",
+        "Wash Pump Starved", "WIP Starved","Transfer to WIP", "No Batch", "Planned Downtime", "Other"
+    };
+
+    private IEnumerable<ProcessMixer> Mixers =>
+        Simulation.Equipments
+                  .OfType<ProcessMixer>()
+                  .OrderBy(m => m.Name);
+}

@@ -8,6 +8,7 @@ using Simulator.Shared.Models.HCs.Mixers;
 using Simulator.Shared.Models.HCs.Operators;
 using Simulator.Shared.Models.HCs.Pumps;
 using Simulator.Shared.Models.HCs.SimulationPlanneds;
+using Simulator.Shared.Models.HCs.StreamJoiners;
 using Simulator.Shared.Models.HCs.Tanks;
 using Simulator.Shared.Models.HCs.Washouts;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments;
@@ -17,9 +18,11 @@ using Simulator.Shared.NuevaSimlationconQwen.Equipments.Operators;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
+using Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders;
 using Simulator.Shared.NuevaSimlationconQwen.Materials;
 using Simulator.Shared.NuevaSimlationconQwen.Reports;
 using Simulator.Shared.NuevaSimlationconQwen.States.PlannedDownTimes;
+using Simulator.Shared.NuevaSimlationconQwen.StreanJoiners;
 using Simulator.Shared.Simulations;
 
 namespace Simulator.Shared.NuevaSimlationconQwen
@@ -27,7 +30,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
 
     public class GeneralSimulation
     {
-      
+
         public CriticalDowntimeReportManager CriticalDowntimeReportManager { get; private set; } = null!;
 
         public ManufacturingSystemAnalizer ManufacturingSystemAnalizer { get; set; } = null!;
@@ -71,7 +74,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             ReadSkids(NewSimulationDTO.Skids);
             ReadOperators(NewSimulationDTO.Operators);
             ReadLines(NewSimulationDTO.Lines);
-
+            ReadStreamJoiners(NewSimulationDTO.StreamJoiners);
             ConnectEquipments(NewSimulationDTO);
             MapMaterialEquipments(NewSimulationDTO.MaterialEquipments);
             ReadPlannedDownTimes(NewSimulationDTO.AllEquipments);
@@ -99,14 +102,30 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             {
                 var line = new ProcessLine()
                 {
+
                     Id = lineDto.Id,
                     Name = lineDto.Name,
-                    EquipmentType = ProccesEquipmentType.Line,
-
+                    EquipmentType = ProccesEquipmentType.Line
 
 
                 };
                 Equipments.Add(line);
+            }
+        }
+        void ReadStreamJoiners(List<StreamJoinerDTO> streamjoiners)
+        {
+            foreach (var streamjoinerdto in streamjoiners)
+            {
+                var streamjoiner = new ProcessStreamJoiner()
+                {
+
+                    Id = streamjoinerdto.Id,
+                    Name = streamjoinerdto.Name,
+                    EquipmentType = ProccesEquipmentType.StreamJoiner
+
+
+                };
+                Equipments.Add(streamjoiner);
             }
         }
 
@@ -199,9 +218,24 @@ namespace Simulator.Shared.NuevaSimlationconQwen
         }
         public void SetPlanned(SimulationPlannedDTO planned)
         {
+            Planned = new();
             Planned = planned;
             CurrentDate = InitDate;
             ReadPlannedLines(NewSimulationDTO, planned);
+            ReadOperatorsForMixers(planned);
+        }
+        void ReadOperatorsForMixers(SimulationPlannedDTO planned)
+        {
+            var operatorsforMixers = Equipments.OfType<ProcessMixer>().SelectMany(x => x.InletEquipments.OfType<ProcessOperator>()).ToList();
+            foreach (var operators in operatorsforMixers)
+            {
+                operators.OperatorHasNotRestrictionToInitBatch = planned.OperatorHasNotRestrictionToInitBatch;
+                operators.MaxRestrictionTime = planned.MaxRestrictionTime;
+            }
+
+
+
+
         }
         void ReadPlannedLines(NewSimulationDTO simulationDto, SimulationPlannedDTO planned)
         {
@@ -272,6 +306,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
 
 
                 };
+
                 Equipments.Add(mixer);
             }
         }
@@ -315,7 +350,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             // ✅ Asignar CriticalDowntimeReportManager a TODOS los equipos
             Equipments.ForEach(x =>
             {
-               
+
                 x.ReportManager = CriticalDowntimeReportManager;
                 x.Init(currendate);
             });
@@ -323,6 +358,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
 
 
         }
+
         public Amount CurrenTime { get; set; } = new Amount(0, TimeUnits.Second);
         public async Task RunSimulationAsync()
         {
@@ -335,8 +371,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
             TotalSimulacionTime = new Amount(totaltime.TotalSeconds, TimeUnits.Second);
             CurrenTime = new Amount(0, TimeUnits.Second);
 
-            Amount UpdateTime = new Amount(10, TimeUnits.Second);
-            Amount CurrentUpdateTime = new Amount(0, TimeUnits.Second);
+
             var orderedEquipments = Equipments.OrderBy(e => e.TopologicalLevel).ToList();
             do
             {
@@ -365,9 +400,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen
 
                 CurrentDate = CurrentDate.AddSeconds(1);
                 CurrenTime += OneSecond;
-                CurrentUpdateTime += OneSecond;
-                if (OnLiveReport)
-                    await UpdateModel();
+
+                await UpdateModel();
+
 
             }
             while (CurrenTime < TotalSimulacionTime && IsSimulationRunning && !StopSimulationRequested);
@@ -488,7 +523,6 @@ namespace Simulator.Shared.NuevaSimlationconQwen
                 }
             }
         }
-
 
 
 

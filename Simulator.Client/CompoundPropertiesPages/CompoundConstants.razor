@@ -1,0 +1,37 @@
+﻿@using Simulator.Shared.Models.CompoundProperties
+<MudStack>
+    <MudGrid>
+        <MudItem xs="12" sm="6"><DoubleNumericField Label="C1" @bind-Value="@Model.C1" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6">   <DoubleNumericField Label="C2" @bind-Value="@Model.C2" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6">   <DoubleNumericField Label="C3" @bind-Value="@Model.C3" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6"><DoubleNumericField Label="C4" @bind-Value="@Model.C4" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6">  <DoubleNumericField Label="C5" @bind-Value="@Model.C5" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6"> <DoubleNumericField Label="C6" @bind-Value="@Model.C6" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6">    <DoubleNumericField Label="C7" @bind-Value="@Model.C7" Change="OnModelChanged"></DoubleNumericField></MudItem>
+        <MudItem xs="12" sm="6"></MudItem>
+        <MudItem xs="12" sm="6"><SelectUnit Label="Min Temperature" @bind-Value=@Model.Minimal_Temperature Change="OnModelChanged"></SelectUnit></MudItem>
+        <MudItem xs="12" sm="6">    <SelectUnit Label="Max Temperature" @bind-Value=@Model.Maximum_Temperature Change="OnModelChanged"></SelectUnit></MudItem>
+    </MudGrid>
+
+
+
+
+
+
+
+
+
+
+
+</MudStack>
+
+@code {
+    [Parameter]
+    public CompoundConstantDTO Model { get; set; } = new();
+    [Parameter]
+    public EventCallback<CompoundConstantDTO> ModelChanged { get; set; }
+    async Task OnModelChanged()
+    {
+        await ModelChanged.InvokeAsync(Model);
+    }
+}

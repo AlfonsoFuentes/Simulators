@@ -15,6 +15,7 @@ namespace Simulator.Server.Databases.Entities.HC
         public bool IsForWashing { get; set; } = false;
         public MaterialPhysicState PhysicalState { get; set; } = MaterialPhysicState.None;
         public ProductCategory ProductCategory { get; set; } = ProductCategory.None;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public static Material Create() =>
             new()
             {
@@ -81,6 +82,7 @@ namespace Simulator.Server.Databases.Entities.HC
 
         };
 
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public List<SKULine> SKULines { get; set; } = new();
 
         public string SkuCode { get; set; } = string.Empty;
@@ -97,7 +99,7 @@ namespace Simulator.Server.Databases.Entities.HC
 
         [ForeignKey("SKUId")]
         public List<PlannedSKU> PlannedSKUs { get; set; } = new();
-      
+
     }
     public class SKULine : AuditableEntity<Guid>, ITenantCommon
     {
@@ -159,7 +161,7 @@ namespace Simulator.Server.Databases.Entities.HC
     }
     public class Conector : AuditableEntity<Guid>, ITenantCommon
     {
-        
+
         public Guid MainProcessId { get; set; } = Guid.Empty;
 
         public Guid FromId { get; set; }
@@ -192,11 +194,12 @@ namespace Simulator.Server.Databases.Entities.HC
     }
     public abstract class BaseEquipment : AuditableEntity<Guid>, ITenantCommon
     {
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public ProccesEquipmentType ProccesEquipmentType { get; set; } = ProccesEquipmentType.None;
         public int X { get; set; }
         public int Y { get; set; }
         public string Name { get; set; } = string.Empty;
-        public bool IsForWashing { get; set; } = false;
+
         public ProcessFlowDiagram MainProcess { get; set; } = null!;
         public Guid MainProcessId { get; set; } = Guid.Empty;
         public List<EquipmentPlannedDownTime> PlannedDownTimes { get; private set; } = new();
@@ -221,7 +224,7 @@ namespace Simulator.Server.Databases.Entities.HC
         public List<MixerPlanned> MixerPlanneds { get; set; } = new();
 
         public LinePlanned? LinePlanned { get; set; } = null!;
-        public Guid? LinePlannedId {  get; set; } = Guid.Empty;
+        public Guid? LinePlannedId { get; set; } = null!;
 
         [ForeignKey("MixerId")]
         public List<PreferedMixer> PreferedMixers { get; set; } = new();
@@ -239,9 +242,20 @@ namespace Simulator.Server.Databases.Entities.HC
             MainProcessId = mainId,
 
         };
-
+        public bool IsForWashing { get; set; }
         public double FlowValue { get; set; }
         public string FlowUnit { get; set; } = string.Empty;
+
+    }
+    public class StreamJoiner : BaseEquipment
+    {
+        public static StreamJoiner Create(Guid mainId) => new()
+        {
+            Id = Guid.NewGuid(),
+            MainProcessId = mainId,
+
+        };
+
 
     }
     public class Tank : BaseEquipment
@@ -295,7 +309,7 @@ namespace Simulator.Server.Databases.Entities.HC
         public Guid ProccesEquipmentId { get; set; }
         public double CapacityValue { get; set; }
         public string CapacityUnit { get; set; } = string.Empty;
-        public static MaterialEquipment Create(Guid EquipmentId,Guid MainProcessId)
+        public static MaterialEquipment Create(Guid EquipmentId, Guid MainProcessId)
         {
             return new()
             {
@@ -332,10 +346,10 @@ namespace Simulator.Server.Databases.Entities.HC
         public string Name { get; set; } = string.Empty;
         public List<BaseEquipment> ProccesEquipments { get; set; } = new List<BaseEquipment>();
         public List<SimulationPlanned> SimulationPlanneds { get; set; } = new();
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
 
-      
     }
-    
+
 
     public class MixerPlanned : AuditableEntity<Guid>, ITenantCommon
     {
@@ -349,9 +363,12 @@ namespace Simulator.Server.Databases.Entities.HC
         public CurrentMixerState CurrentMixerState { get; set; } = CurrentMixerState.None;
         public static MixerPlanned Create(Guid SimulationPlannedId)
         {
-            var retorno = new MixerPlanned { Id = Guid.NewGuid(), 
-                SimulationPlannedId = SimulationPlannedId };
-           
+            var retorno = new MixerPlanned
+            {
+                Id = Guid.NewGuid(),
+                SimulationPlannedId = SimulationPlannedId
+            };
+
             return retorno;
         }
         public double MixerLevelValue { get; set; }
@@ -376,8 +393,8 @@ namespace Simulator.Server.Databases.Entities.HC
     public class LinePlanned : AuditableEntity<Guid>, ITenantCommon
     {
 
-        public Guid LineId { get;  set; }
-        public Line Line { get;  set; } = null!;
+        public Guid LineId { get; set; }
+        public Line Line { get; set; } = null!;
         public ShiftType ShiftType { get; set; }
 
         public SimulationPlanned HCSimulationPlanned { get; set; } = null!;
@@ -385,14 +402,14 @@ namespace Simulator.Server.Databases.Entities.HC
 
         public static LinePlanned Create(Guid SimulationId)
         {
-            LinePlanned retorno = new() { Id = Guid.NewGuid()};
+            LinePlanned retorno = new() { Id = Guid.NewGuid() };
             retorno.SimulationPlannedId = SimulationId;
 
             return retorno;
         }
         [ForeignKey("LinePlannedId")]
         public List<PlannedSKU> SKUPlanneds { get; private set; } = new List<PlannedSKU>();
-       
+
 
         public double WIPLevelValue { get; set; }
         public string WIPLevelUnit { get; set; } = string.Empty;
@@ -406,7 +423,7 @@ namespace Simulator.Server.Databases.Entities.HC
 
         public string Name { get; set; } = string.Empty;
         public DateTime? InitDate { get; set; }
-        public TimeSpan? InitSpam {  get; set; }
+        public TimeSpan? InitSpam { get; set; }
         public DateTime? EndDate { get; set; }
         public double PlannedHours { get; set; }
         public ProcessFlowDiagram MainProcess { get; set; } = null!;
@@ -420,6 +437,9 @@ namespace Simulator.Server.Databases.Entities.HC
             Id = Guid.NewGuid(),
             MainProcessId = MainProcessId,
         };
+        public bool OperatorHasNotRestrictionToInitBatch { get; set; }
+        public double MaxRestrictionTimeValue { get; set; }
+        public string MaxRestrictionTimeUnit { get; set; } = string.Empty;
     }
     public class PlannedSKU : AuditableEntity<Guid>, ITenantCommon
     {
@@ -436,9 +456,9 @@ namespace Simulator.Server.Databases.Entities.HC
         public double LineSpeedValue { get; set; }
         public string LineSpeedUnit { get; set; } = string.Empty;
 
-      
-        public static PlannedSKU Create(Guid LinePlannedId) => 
-            new() { Id = Guid.NewGuid(), LinePlannedId= LinePlannedId };
+
+        public static PlannedSKU Create(Guid LinePlannedId) =>
+            new() { Id = Guid.NewGuid(), LinePlannedId = LinePlannedId };
 
         public LinePlanned LinePlanned { get; set; } = null!;
         public Guid LinePlannedId { get; set; }

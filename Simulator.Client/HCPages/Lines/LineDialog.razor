@@ -14,17 +14,17 @@
                                ValidateAsync="ValidateAsync"
                                For="()=>Model.Name">
                     </TextField>
-                    <Select For="() => Model.PackageType" @bind-Value="Model.PackageType" 
+                    <Select For="() => Model.PackageType" @bind-Value="Model.PackageType"
                             Label="Package Type" Items="Enum.GetValues<PackageType>().ToList()" ValidateAsync="ValidateAsync"></Select>
                     <SelectUnit @bind-Value=@Model.TimeToReviewAU For="() => Model.TimeToReviewAUValue" ValidateAsync="ValidateAsync" Change="Model.ChangeTimeToReviewAU" Label="Time to review AU"></SelectUnit>
 
-                    
+
 
                 </MudTabPanel>
                 <MudTabPanel Text="Line SKUs">
-                    <SKULineTable LineId="@Model.Id" ValidateAsync="ValidateAsync" 
-                    @bind-Items=@Model.LineSKUs EquipmentName="@Model.Name" PackageType="@Model.PackageType"></SKULineTable>
-                
+                    <SKULineTable LineId="@Model.Id" ValidateAsync="ValidateAsync"
+                                  @bind-Items=@Model.LineSKUs EquipmentName="@Model.Name" PackageType="@Model.PackageType" FocusFactory="@Model.FocusFactory"></SKULineTable>
+
                 </MudTabPanel>
                 <MudTabPanel Text="Planned down time">
                     <EquipmentPlannedDownTimeTable @bind-Items=@Model.PlannedDownTimes EquipmentId="Model.Id" EquipmentName="@Model.Name"></EquipmentPlannedDownTimeTable>
@@ -34,7 +34,7 @@
                                          ValidateAsync="ValidateAsync"
                                          @bind-Items=@Model.InletConnectors></InletConnectorTable>
                 </MudTabPanel>
-           
+
             </MudTabs>
 
 

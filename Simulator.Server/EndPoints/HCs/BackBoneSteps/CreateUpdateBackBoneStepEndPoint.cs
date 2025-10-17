@@ -12,6 +12,7 @@ namespace Simulator.Server.EndPoints.HCs.BackBoneSteps
             {
                 app.MapPost(StaticClass.BackBoneSteps.EndPoint.CreateUpdate, async (BackBoneStepDTO Data, IRepository Repository) =>
                 {
+                    List<string> cacheMaterial = new();
                     var lastorder = await GetLastOrder(Repository, Data.MaterialId);
                     BackBoneStep? row = null;
                     if (Data.Id == Guid.Empty)
@@ -23,15 +24,19 @@ namespace Simulator.Server.EndPoints.HCs.BackBoneSteps
                     }
                     else
                     {
-                        row = await Repository.GetByIdAsync<BackBoneStep>(Data.Id);
+                        Expression<Func<BackBoneStep, bool>> Criteria = x => x.Id == Data.Id;
+                        Func<IQueryable<BackBoneStep>, IIncludableQueryable<BackBoneStep, object>> includes = x => x
+                   .Include(y => y.HCMaterial);
+                        row = await Repository.GetAsync(Criteria:Criteria,Includes:includes);
                         if (row == null) { return Result.Fail(Data.NotFound); }
                         await Repository.UpdateAsync(row);
+                        cacheMaterial = [.. StaticClass.Materials.Cache.Key(row.Id, row.HCMaterial.FocusFactory)];
                     }
 
 
                     Data.Map(row);
                     List<string> cache = [.. StaticClass.BackBoneSteps.Cache.Key(row.Id, row.MaterialId)];
-
+                    if (cacheMaterial.Count > 0) cache.AddRange(cacheMaterial);
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
 
                     return Result.EndPointResult(result,

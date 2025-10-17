@@ -5,8 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace Simulator.Shared.Models.HCs.SKUs
 {
-    
-    public class SKUDTO:BaseResponse, IMessageResponse, IRequest
+
+    public class SKUDTO : BaseResponse, IMessageResponse, IRequest
     {
         public string EndPointName => StaticClass.HCSKUs.EndPoint.CreateUpdate;
 
@@ -19,9 +19,9 @@ namespace Simulator.Shared.Models.HCs.SKUs
         public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
         public string SkuCode { get; set; } = string.Empty;
 
-        public  ProductCategory ProductCategory { get; set; } = ProductCategory.None;
-        public  MaterialDTO BackBone { get; set; } = null!;
-
+        public ProductCategory ProductCategory { get; set; } = ProductCategory.None;
+        public MaterialDTO BackBone { get; set; } = null!;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public string BackBoneCommonName => BackBone == null ? string.Empty : BackBone.CommonName;
         public string BackBoneM_Number => BackBone == null ? string.Empty : BackBone.M_Number;
 
@@ -112,7 +112,8 @@ namespace Simulator.Shared.Models.HCs.SKUs
     public class SKUGetAll : IGetAll
     {
         public string EndPointName => StaticClass.HCSKUs.EndPoint.GetAll;
- 
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
+
     }
     public class SKUResponseList : IResponseAll
     {
@@ -128,6 +129,7 @@ namespace Simulator.Shared.Models.HCs.SKUs
         public override string Legend => Name;
 
         public override string ClassName => StaticClass.HCSKUs.ClassName;
+        public FocusFactory FocusFactory { get; set; }= FocusFactory.None;
     }
     public class ValidateSKUCodeRequest : ValidateMessageResponse, IRequest
     {
@@ -135,7 +137,7 @@ namespace Simulator.Shared.Models.HCs.SKUs
         public string SkuCode { get; set; } = string.Empty;
 
         public string EndPointName => StaticClass.HCSKUs.EndPoint.ValidateSKUCode;
-
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public override string Legend => SkuCode;
 
         public override string ClassName => StaticClass.HCSKUs.ClassName;
@@ -183,7 +185,7 @@ namespace Simulator.Shared.Models.HCs.SKUs
             {
                 Id = response.Id,
                 Name = response.Name,
-             
+
                 Order = response.Order,
 
 
@@ -193,7 +195,7 @@ namespace Simulator.Shared.Models.HCs.SKUs
         {
             return new()
             {
-          
+
                 Id = response.Id,
                 Name = response.Name,
                 Order = response.Order,

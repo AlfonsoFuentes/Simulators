@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.MainProcesss;
+﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Models.HCs.MainProcesss;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.MainProcesss
@@ -19,7 +20,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.MainProcesss
                 .When(x => !string.IsNullOrEmpty(x.Name))
                 .WithMessage(x => $"{x.Name} already exist");
 
-          
+            RuleFor(x => x.FocusFactory).NotEqual(FocusFactory.None).WithMessage("Focus Factory must be defined!");
 
         }
 

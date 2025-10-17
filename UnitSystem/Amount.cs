@@ -22,8 +22,7 @@ namespace UnitSystem
         public Amount()
         {
             dvalue = 0;
-            //unit = UnitMeasure.None;
-            //unitname = unit.Name;
+            
         }
 
         //public ValueChanged OnValueChanged;

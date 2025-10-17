@@ -24,14 +24,19 @@ public partial class BackBoneStepDialog
     }
     async Task GetAllMaterials()
     {
-        var result = await GenericService.GetAll<MaterialResponseList, RawMaterialGetAll>(new RawMaterialGetAll());
+        var result = await GenericService.GetAll<MaterialResponseList, RawMaterialGetAll>(new RawMaterialGetAll()
+        {
+            FocusFactory = FocusFactory
+        });
         if (result.Succeeded)
         {
-           
-            
+
+
             RawMaterials = result.Data.Items.ToList();
         }
     }
+    [Parameter]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     private async Task Submit()
     {
         if (Model.MaterialId == Guid.Empty)
@@ -91,17 +96,17 @@ public partial class BackBoneStepDialog
 
         }
     }
-   
+
     void ChangetoWashout()
     {
-        if(Model.BackBoneStepType== Shared.Enums.HCEnums.Enums.BackBoneStepType.Washout)
+        if (Model.BackBoneStepType == Shared.Enums.HCEnums.Enums.BackBoneStepType.Washout)
         {
             var rawmaterial = RawMaterials.FirstOrDefault(x => x.IsForWashing);
-            if(rawmaterial != null)
+            if (rawmaterial != null)
             {
                 Model.StepRawMaterial = rawmaterial;
             }
-           
+
 
         }
         else

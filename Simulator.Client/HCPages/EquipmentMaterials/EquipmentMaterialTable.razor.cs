@@ -39,6 +39,9 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
         [Parameter]
         public MaterialType MaterialType { get; set; } = MaterialType.None;
         [Parameter]
+        [EditorRequired]
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
+        [Parameter]
         public bool IsMixer { get; set; } = false;
         [Parameter]
         public bool IsSkid { get; set; } = false;
@@ -79,12 +82,13 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
             response.IsMixer = IsMixer;
             response.IsSkid = IsSkid;
             response.MainProcessId = MainProcessId;
+            
             var parameters = new DialogParameters<EquipmentMaterialDialog>
             {
                 { x => x.Model, response },
                 {x=>x.IsStorageForOneFluid,IsStorageForOneFluid },
                 {x=>x.MaterialType,MaterialType },
-
+                 {x=>x.FocusFactory,FocusFactory },
             };
 
             var options = new DialogOptions() { MaxWidth = MaxWidth.Medium };
@@ -113,6 +117,7 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
                 { x => x.Model, response },
                 {x=>x.IsStorageForOneFluid,IsStorageForOneFluid },
                 {x=>x.MaterialType,MaterialType },
+                 {x=>x.FocusFactory,FocusFactory },
 
         };
             var options = new DialogOptions() { MaxWidth = MaxWidth.Medium };

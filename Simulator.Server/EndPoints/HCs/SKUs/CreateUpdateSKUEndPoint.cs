@@ -1,5 +1,6 @@
 ﻿using Simulator.Server.Databases.Entities.HC;
 using Simulator.Server.EndPoints.HCs.Materials;
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.SKUs;
 
 namespace Simulator.Server.EndPoints.HCs.SKUs
@@ -30,7 +31,7 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
 
 
                     Data.Map(row);
-                    List<string> cache = [.. StaticClass.SKUs.Cache.Key(row.Id)];
+                    List<string> cache = [.. StaticClass.SKUs.Cache.Key(row.Id, row.FocusFactory)];
 
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
 
@@ -59,7 +60,7 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
             row.MaterialId = request.BackBone!.Id;
             row.PackageType = request.PackageType;
             row.Name = request.Name;
-
+            row.FocusFactory = request.FocusFactory;
 
 
             return row;
@@ -78,7 +79,7 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
                     if (row == null) { return Result.Fail(Data.NotFound); }
                     await Repository.RemoveAsync(row);
 
-                    List<string> cache = [.. StaticClass.SKUs.Cache.Key(row.Id)];
+                    List<string> cache = [.. StaticClass.SKUs.Cache.Key(row.Id, row.FocusFactory)];
 
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
                     return Result.EndPointResult(result,
@@ -101,17 +102,19 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
             {
                 app.MapPost(StaticClass.HCSKUs.EndPoint.DeleteGroup, async (DeleteGroupSKURequest Data, IRepository Repository) =>
                 {
+                    FocusFactory focusFactory = FocusFactory.None;
                     foreach (var rowItem in Data.SelecteItems)
                     {
                         var row = await Repository.GetByIdAsync<SKU>(rowItem.Id);
                         if (row != null)
                         {
                             await Repository.RemoveAsync(row);
+                            focusFactory = row.FocusFactory;
                         }
                     }
 
 
-                    List<string> cache = [StaticClass.SKUs.Cache.GetAll];
+                    List<string> cache = [StaticClass.SKUs.Cache.GetAll(focusFactory)];
 
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
                     return Result.EndPointResult(result,
@@ -137,10 +140,11 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
 
                     Func<IQueryable<SKU>, IIncludableQueryable<SKU, object>> includes = x => x
                     .Include(y => y.Material!);
-
-                    string CacheKey = StaticClass.SKUs.Cache.GetAll;
+                    Expression<Func<SKU, bool>> Criteria = request.FocusFactory == Shared.Enums.HCEnums.Enums.FocusFactory.None ? null! :
+                    x => x.FocusFactory == request.FocusFactory;
+                    string CacheKey = StaticClass.SKUs.Cache.GetAll(request.FocusFactory);
                     var rows = await Repository.GetAllAsync(Cache: CacheKey, Includes: includes);
-                  
+
                     if (rows == null)
                     {
                         return Result<SKUResponseList>.Fail(
@@ -203,9 +207,9 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
                 SizeUnitName = row.SizeUnit,
                 WeigthValue = row.WeigthValue,
                 WeigthUnitName = row.WeigthUnit,
-             
-                SkuCode = row.SkuCode,
 
+                SkuCode = row.SkuCode,
+                FocusFactory = row.FocusFactory,
                 Order = row.Order,
             };
         }
@@ -222,7 +226,7 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
                     Expression<Func<SKU, bool>> CriteriaId = null!;
                     Func<SKU, bool> CriteriaExist = x => Data.Id == null ?
                     x.Name.Equals(Data.Name) : x.Id != Data.Id.Value && x.Name.Equals(Data.Name);
-                    string CacheKey = StaticClass.SKUs.Cache.GetAll;
+                    string CacheKey = StaticClass.SKUs.Cache.GetAll(Data.FocusFactory);
 
                     return await Repository.AnyAsync(Cache: CacheKey, CriteriaExist: CriteriaExist, CriteriaId: CriteriaId);
                 });
@@ -245,7 +249,7 @@ namespace Simulator.Server.EndPoints.HCs.SKUs
                     Expression<Func<SKU, bool>> CriteriaId = null!;
                     Func<SKU, bool> CriteriaExist = x => Data.Id == null ?
                     x.SkuCode.Equals(Data.SkuCode) : x.Id != Data.Id.Value && x.SkuCode.Equals(Data.SkuCode);
-                    string CacheKey = StaticClass.SKUs.Cache.GetAll;
+                    string CacheKey = StaticClass.SKUs.Cache.GetAll(Data.FocusFactory);
 
                     return await Repository.AnyAsync(Cache: CacheKey, CriteriaExist: CriteriaExist, CriteriaId: CriteriaId);
                 });

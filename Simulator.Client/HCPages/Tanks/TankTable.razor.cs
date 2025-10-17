@@ -1,3 +1,4 @@
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Tanks;
 
 namespace Simulator.Client.HCPages.Tanks;
@@ -10,6 +11,9 @@ public partial class TankTable
         Items.Where(Criteria).ToList();
     [Parameter]
     public Guid MainProcessId { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     protected override async Task OnParametersSetAsync()
     {
         await GetAll();
@@ -20,8 +24,8 @@ public partial class TankTable
         var result = await GenericService.GetAll<TankResponseList, TankGetAll>(new TankGetAll()
         {
             MainProcessId = MainProcessId,
-          
-             
+
+
         });
         if (result.Succeeded)
         {
@@ -30,8 +34,12 @@ public partial class TankTable
     }
     public async Task AddNew()
     {
-        TankDTO response = new() { MainProcessId = MainProcessId };
-   
+        TankDTO response = new()
+        {
+            MainProcessId = MainProcessId,
+            FocusFactory = FocusFactory
+        };
+
         var parameters = new DialogParameters<TankDialog>
         {
            { x => x.Model, response },
@@ -129,7 +137,7 @@ public partial class TankTable
             DeleteGroupTankRequest request = new()
             {
                 SelecteItems = SelecteItems,
-                MainProcessId=MainProcessId,
+                MainProcessId = MainProcessId,
 
             };
             var resultDelete = await GenericService.Post(request);

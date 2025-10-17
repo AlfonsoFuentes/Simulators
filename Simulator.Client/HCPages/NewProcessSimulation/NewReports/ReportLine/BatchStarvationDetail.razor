@@ -1,0 +1,33 @@
+﻿@* Components/Reports/BatchStarvationDetail.razor *@
+@using MudBlazor
+
+<MudDataGrid T="StarvationItem"
+             Items="_starvationItems"
+             ReadOnly="true"
+           
+             Dense="true"
+            >
+    <Columns>
+        <PropertyColumn Property="item => item.Type" Title="Starvation Type" />
+        <PropertyColumn Property="item => item.Time" Title="Time" />
+    </Columns>
+</MudDataGrid>
+
+@code {
+    [Parameter] public BatchReport Batch { get; set; } = null!;
+
+    private List<StarvationItem> _starvationItems => new()
+    {
+        new() { Type = "Init Delay", Time = Batch.StarvedTimeInitBatch },
+        new() { Type = "Starved by Feeder", Time = Batch.StarvedTimeByFeeder },
+        new() { Type = "Starved by Operator", Time = Batch.StarvedTimeByOperator },
+        new() { Type = "Starved by Wash Pump", Time = Batch.StarvedTimeByWashoutPump },
+        new() { Type = "Starved in Transfer", Time = Batch.StarvedTimeTransferingToWip }
+    };
+
+    private class StarvationItem
+    {
+        public string Type { get; init; } = string.Empty;
+        public Amount Time { get; init; } = new Amount(0,TimeUnits.Minute);
+    }
+}

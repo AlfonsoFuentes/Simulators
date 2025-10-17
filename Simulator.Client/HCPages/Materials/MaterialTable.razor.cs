@@ -20,7 +20,10 @@ public partial class MaterialTable
     }
     async Task GetAll()
     {
-        var result = await GenericService.GetAll<MaterialResponseList, MaterialGetAll>(new MaterialGetAll());
+        var result = await GenericService.GetAll<MaterialResponseList, MaterialGetAll>(new MaterialGetAll()
+        {
+
+        });
         if (result.Succeeded)
         {
             Items = result.Data.Items;

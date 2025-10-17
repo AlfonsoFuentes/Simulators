@@ -22,7 +22,8 @@ namespace Simulator.Client.HCPages.SKULines
         }
         [Parameter]
         public PackageType PackageType { get; set; } = PackageType.None;
-
+        [Parameter]
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         protected override async Task OnInitializedAsync()
         {
             await GetAllSkUs();
@@ -92,6 +93,7 @@ namespace Simulator.Client.HCPages.SKULines
             SKUDTO Model = new SKUDTO()
             {
                 PackageType = PackageType,
+                FocusFactory=FocusFactory,
 
 
             };
@@ -116,7 +118,7 @@ namespace Simulator.Client.HCPages.SKULines
         {
             var result = await GenericService.GetAll<SKUResponseList, SKUGetAll>(new SKUGetAll()
             {
-
+                 FocusFactory= FocusFactory,
             });
             if (result.Succeeded)
             {

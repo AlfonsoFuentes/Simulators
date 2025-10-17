@@ -7,10 +7,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Operators
     public class ProcessOperator : ManufactureFeeder, ILiveReportable
     {
         // Propiedades específicas
-        public List<ProcessMixer> OutletMixers =>OutletEquipments.OfType<ProcessMixer>().ToList();
-
-        public ReportColumn ReportColumn => ReportColumn.Column1_OperatorsAndRawMaterialTanks;
-        public ReportPriorityInColumn ReportPriority => ReportPriorityInColumn.High;
+        public List<ProcessMixer> OutletMixers => OutletEquipments.OfType<ProcessMixer>().ToList();
 
         // 👇 Define si es para lavado o no
         public override bool IsForWashout { get; set; } = false;
@@ -19,11 +16,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Operators
         {
             OutletState = new FeederAvailableState(this);
         }
-
-        public override bool IsAnyTankInletStarved()
-        {
-            // ProcessOperator no tiene tanques de entrada que lo starven
-            return false;
-        }
+        public bool OperatorHasNotRestrictionToInitBatch { get; set; } = true;
+        public Amount MaxRestrictionTime { get; set; } = new(TimeUnits.Minute);
     }
 }

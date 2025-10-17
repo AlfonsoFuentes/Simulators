@@ -2,12 +2,8 @@
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
 {
-    public interface IFeederStarved
-    {
-    }
-    public interface IFeederInUse
-    {
-    }
+    
+    
     public abstract class FeederOutletState : OutletState<IManufactureFeeder>
     {
        
@@ -22,39 +18,78 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
     {
         public FeederAvailableState(IManufactureFeeder feeder) : base(feeder)
         {
+            
             StateLabel = "Available";
             AddTransition<FeederPlannedDownTimeState>(feeder => feeder.IsEquipmentInPlannedDownTimeState());
-            AddTransition<IsFeederStarvedByInletState>(feeder => feeder.IsAnyTankInletStarved());
-            AddTransition<FeederIsInUseByAnotherEquipmentState>(feeder => !string.IsNullOrEmpty(feeder.OcupiedByName));
+            AddTransition<FeederStarvedByInletState>(feeder => feeder.IsAnyTankInletStarved());
+            AddTransition<FeederIsInUseByAnotherEquipmentState>(feeder =>
+            {
+                if (feeder.OcuppiedBy != null)
+                {
+                    return true;
+                }
+                return false;
+            });
         }
     }
 
-    public class FeederPlannedDownTimeState : FeederOutletState, IFeederStarved
+    public class FeederPlannedDownTimeState : FeederOutletState
     {
         public FeederPlannedDownTimeState(IManufactureFeeder feeder) : base(feeder)
         {
             StateLabel = "Is Starved by planned downtime";
-            AddTransition<FeederAvailableState>(feeder => !feeder.IsEquipmentInPlannedDownTimeState());
+            AddTransition<FeederRealesStarvedState>(feeder => feeder.IsEquipmentInPlannedDownTimeStateRealesed());
         }
     }
 
-    public class IsFeederStarvedByInletState : FeederOutletState, IFeederStarved
+    public class FeederStarvedByInletState : FeederOutletState
     {
-        public IsFeederStarvedByInletState(IManufactureFeeder feeder) : base(feeder)
+        public FeederStarvedByInletState(IManufactureFeeder feeder) : base(feeder)
         {
-            StateLabel = "Is Starved by Tank Low Level";
-            AddTransition<FeederAvailableState>(feeder => !feeder.IsAnyTankInletStarved());
+            StateLabel = "Is Starved by Tank No Available";
+            AddTransition<FeederRealesStarvedState>(feeder => feeder.IsAnyTankInletStarvedRealesed());
         }
     }
 
-    public class FeederIsInUseByAnotherEquipmentState : FeederOutletState, IFeederInUse
+    public class FeederIsInUseByAnotherEquipmentState : FeederOutletState
     {
         public FeederIsInUseByAnotherEquipmentState(IManufactureFeeder feeder) : base(feeder)
         {
-            StateLabel = $"In Use by {Context.OcupiedByName}";
-            AddTransition<FeederAvailableState>(feeder => string.IsNullOrEmpty(feeder.OcupiedByName));
+            StateLabel= "In Use by Another Equipment";
+            if (Context.OcuppiedBy != null)
+            {
+                StateLabel = $"In Use by {Context.OcuppiedBy.Name}";
+            }
+           
+           
+            AddTransition<FeederRealesStarvedState>(feeder =>
+            {
+                if (feeder.OcuppiedBy == null)
+                {
+                    return true;
+                }
+                return false;
+            });
         }
 
        
+    }
+    
+    public class FeederRealesStarvedState : FeederOutletState
+    {
+        public FeederRealesStarvedState(IManufactureFeeder feeder) : base(feeder)
+        {
+            StateLabel = $"Realesing Starved state";
+            AddTransition<FeederAvailableState>(feeder =>
+            {
+              
+                if (feeder.GetWaitingQueueLength() > 0)
+                {
+                    feeder.NotifyNextWaitingEquipment();
+
+                }
+                return true;
+            });
+        }
     }
 }

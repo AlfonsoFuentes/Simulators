@@ -98,6 +98,9 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
                     case ProccesEquipmentType.ContinuousSystem:
                         Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Tank).ToList();
                         break;
+                    case ProccesEquipmentType.StreamJoiner:
+                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Line).ToList();
+                        break;
                     default:
                         Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
@@ -106,27 +109,6 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
             }
 
         }
-        //private Task<IEnumerable<BaseEquipmentDTO?>> SearchEquipment(string value, CancellationToken token)
-        //{
-        //    Func<BaseEquipmentDTO?, bool> Criteria = x =>
-        //    x!.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
-        //    ;
-        //    var items = Items;
-        //    if (EquipmentType == ProccesEquipmentType.Pump)
-        //    {
-        //        items = items.Where(x => x!.EquipmentType != ProccesEquipmentType.Pump&& x.EquipmentType != ProccesEquipmentType.Operator).ToList();
-        //    }
-        //    else if (EquipmentType != ProccesEquipmentType.Operator)
-        //    {
-        //        items = items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
-        //    }
-        //    else if(EquipmentType == ProccesEquipmentType.Operator)
-        //    {
-        //        items = items.Where(x => x!.EquipmentType == ProccesEquipmentType.Mixer).ToList();
-        //    }
-        //        IEnumerable<BaseEquipmentDTO?> FilteredItems = string.IsNullOrEmpty(value) ? items.AsEnumerable() :
-        //             items.Where(Criteria);
-        //    return Task.FromResult(FilteredItems);
-        //}
+        
     }
 }

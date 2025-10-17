@@ -31,6 +31,7 @@
             </MudStack>
             <MudStack>
                 <MudStack Row=true Spacing="2">
+                   
                     <Select For="() => Model.PackageType" @bind-Value="Model.PackageType"
                             Label="Pachage Type" Items="Enum.GetValues<PackageType>().ToList()" ValidateAsync="ValidateAsync"></Select>
 
@@ -38,6 +39,8 @@
                             Label="Category" Items="Enum.GetValues<ProductCategory>().ToList()" ValidateAsync="ValidateAsync"></Select>
 
                 </MudStack>
+                <Select For="() => Model.FocusFactory" @bind-Value="Model.FocusFactory"
+                        Label="Focus Factory" Items="Enum.GetValues<FocusFactory>().ToList()" Change=GetAllMaterials ValidateAsync="ValidateAsync"></Select>
                 <AutoCompleteIconButton @bind-Value="@Model.BackBone"
                                         TValue="MaterialDTO"
                                         Label="Product Backbone"

@@ -1,0 +1,55 @@
+﻿/* 
+ * LinePerformanceReport.css
+ * Estilos para el reporte de desempeño de líneas de producción
+ */
+
+/* Clases de colores para starvation */
+.starvation-low {
+    color: #2e7d32; /* Verde oscuro - eficiente */
+    font-weight: bold;
+}
+
+.starvation-medium {
+    color: #f57f17; /* Naranja - aceptable */
+    font-weight: bold;
+}
+
+.starvation-high {
+    color: #c62828; /* Rojo - problema */
+    font-weight: bold;
+}
+
+/* Estilo para encabezado de línea */
+.run-header {
+    background-color: #f5f5f5;
+    border-left: 4px solid #1976d2; /* Azul primario de Material Design */
+    border-radius: 4px;
+}
+
+/* Estilo para encabezado de WIP */
+.wip-header {
+    background-color: #fafafa;
+    border-radius: 4px;
+}
+
+/* Ajustes para mejor legibilidad en tablas */
+.mud-table-cell {
+    font-size: 0.875rem;
+}
+
+/* Espaciado consistente */
+.mud-paper {
+    margin-bottom: 1rem;
+}
+
+/* Responsive: ajustar paddings en móviles */
+@media (max-width: 600px) {
+    .run-header,
+    .wip-header {
+        padding: 12px 8px !important;
+    }
+
+    .mud-grid {
+        gap: 8px;
+    }
+}

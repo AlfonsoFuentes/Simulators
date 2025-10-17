@@ -1,3 +1,4 @@
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Pumps;
 
 namespace Simulator.Client.HCPages.Pumps;
@@ -10,6 +11,9 @@ public partial class PumpTable
         Items.Where(Criteria).ToList();
     [Parameter]
     public Guid MainProcessId { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     protected override async Task OnParametersSetAsync()
     {
         await GetAll();
@@ -20,8 +24,8 @@ public partial class PumpTable
         var result = await GenericService.GetAll<PumpResponseList, PumpGetAll>(new PumpGetAll()
         {
             MainProcessId = MainProcessId,
-          
-             
+
+
         });
         if (result.Succeeded)
         {
@@ -30,8 +34,12 @@ public partial class PumpTable
     }
     public async Task AddNew()
     {
-        PumpDTO response = new() { MainProcessId = MainProcessId };
-   
+        PumpDTO response = new()
+        {
+            MainProcessId = MainProcessId,
+            FocusFactory = FocusFactory
+        };
+
         var parameters = new DialogParameters<PumpDialog>
         {
            { x => x.Model, response },
@@ -129,7 +137,7 @@ public partial class PumpTable
             DeleteGroupPumpRequest request = new()
             {
                 SelecteItems = SelecteItems,
-                MainProcessId=MainProcessId,
+                MainProcessId = MainProcessId,
 
             };
             var resultDelete = await GenericService.Post(request);

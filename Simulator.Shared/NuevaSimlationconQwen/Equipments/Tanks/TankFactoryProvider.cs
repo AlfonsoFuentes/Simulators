@@ -43,7 +43,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
                 LoLevel = dto.MinLevel,
                 LoLolevel = dto.LoLoLevel,
                 InitialLevel = dto.InitialLevel,
-                TankCalculationType = dto.TankCalculationType,
+             
             };
         }
     }
@@ -55,7 +55,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 
         public ProcessBaseTank Create(TankDTO dto)
         {
-            return new ProcessRecipedRawMaterialTank
+            return new ProcessRecipedTank
             {
                 Id = dto.Id,
                 Name = dto.Name,

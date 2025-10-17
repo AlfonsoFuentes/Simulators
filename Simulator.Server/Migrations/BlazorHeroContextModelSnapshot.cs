@@ -17,7 +17,7 @@ namespace Simulator.Server.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -155,6 +155,257 @@ namespace Simulator.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("C1")
+                        .HasColumnType("float");
+
+                    b.Property<double>("C2")
+                        .HasColumnType("float");
+
+                    b.Property<double>("C3")
+                        .HasColumnType("float");
+
+                    b.Property<double>("C4")
+                        .HasColumnType("float");
+
+                    b.Property<double>("C5")
+                        .HasColumnType("float");
+
+                    b.Property<double>("C6")
+                        .HasColumnType("float");
+
+                    b.Property<double>("C7")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Maximum_Temperature")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Maximum_Temperature_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Minimal_Temperature")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Minimal_Temperature_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CompoundConstants");
+                });
+
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.Equilibrio.CompoundProperty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Acentric_Factor")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Acentric_Factor_SRK")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Asterisk_Volume")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Asterisk_Volume_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Boiling_Temperature")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Boiling_Temperature_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Critical_Pressure")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Critical_Pressure_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Critical_Temperature")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Critical_Temperature_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Critical_Volume")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Critical_Volume_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Critical_Z")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("DeletedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Enthalpy_Combustion")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Enthalpy_Combustion_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Enthalpy_Formation")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Enthalpy_Formation_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Entropy_Formation")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Entropy_Formation_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Formula")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GasCpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GasThermalConductivityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GasViscosityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Gibbs_Energy_Formation")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Gibbs_Energy_Formation_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("HeatOfVaporizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LiquidCpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LiquidDensityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LiquidThermalConductivityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LiquidViscosityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MainFamily")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Melting_Temperature")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Melting_Temperature_Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("MolecularWeight")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SecondaryFamily")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StructuralFormula")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SuperficialTensionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("VapourPressureId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GasCpId");
+
+                    b.HasIndex("GasThermalConductivityId");
+
+                    b.HasIndex("GasViscosityId");
+
+                    b.HasIndex("HeatOfVaporizationId");
+
+                    b.HasIndex("LiquidCpId");
+
+                    b.HasIndex("LiquidDensityId");
+
+                    b.HasIndex("LiquidThermalConductivityId");
+
+                    b.HasIndex("LiquidViscosityId");
+
+                    b.HasIndex("SuperficialTensionId");
+
+                    b.HasIndex("VapourPressureId");
+
+                    b.ToTable("CompoundProperties");
+                });
+
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.BackBoneStep", b =>
                 {
                     b.Property<Guid>("Id")
@@ -225,10 +476,10 @@ namespace Simulator.Server.Migrations
                     b.Property<DateTime?>("DeletedOnUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<int>("FocusFactory")
+                        .HasColumnType("int");
 
-                    b.Property<bool>("IsForWashing")
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastModifiedBy")
@@ -427,6 +678,9 @@ namespace Simulator.Server.Migrations
 
                     b.Property<DateTime?>("DeletedOnUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("FocusFactory")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -710,6 +964,9 @@ namespace Simulator.Server.Migrations
                     b.Property<DateTime?>("DeletedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FocusFactory")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -747,6 +1004,9 @@ namespace Simulator.Server.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("EA_Case")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FocusFactory")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
@@ -887,9 +1147,19 @@ namespace Simulator.Server.Migrations
                     b.Property<Guid>("MainProcessId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("MaxRestrictionTimeUnit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("MaxRestrictionTimeValue")
+                        .HasColumnType("float");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("OperatorHasNotRestrictionToInitBatch")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -1127,7 +1397,17 @@ namespace Simulator.Server.Migrations
                     b.Property<double>("FlowValue")
                         .HasColumnType("float");
 
+                    b.Property<bool>("IsForWashing")
+                        .HasColumnType("bit");
+
                     b.ToTable("Pumps");
+                });
+
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.StreamJoiner", b =>
+                {
+                    b.HasBaseType("Simulator.Server.Databases.Entities.HC.BaseEquipment");
+
+                    b.ToTable("StreamJoiners");
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Tank", b =>
@@ -1230,6 +1510,89 @@ namespace Simulator.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.Equilibrio.CompoundProperty", b =>
+                {
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "GasCp")
+                        .WithMany("GasCps")
+                        .HasForeignKey("GasCpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "GasThermalConductivity")
+                        .WithMany("GasThermalConductivities")
+                        .HasForeignKey("GasThermalConductivityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "GasViscosity")
+                        .WithMany("GasViscosities")
+                        .HasForeignKey("GasViscosityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "HeatOfVaporization")
+                        .WithMany("HeatOfVaporizations")
+                        .HasForeignKey("HeatOfVaporizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "LiquidCp")
+                        .WithMany("LiquidCps")
+                        .HasForeignKey("LiquidCpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "LiquidDensity")
+                        .WithMany("LiquidDensities")
+                        .HasForeignKey("LiquidDensityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "LiquidThermalConductivity")
+                        .WithMany("LiquidThermalConductivities")
+                        .HasForeignKey("LiquidThermalConductivityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "LiquidViscosity")
+                        .WithMany("LiquidViscosities")
+                        .HasForeignKey("LiquidViscosityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "SuperficialTension")
+                        .WithMany("SuperficialTensions")
+                        .HasForeignKey("SuperficialTensionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", "VapourPressure")
+                        .WithMany("VaporPressures")
+                        .HasForeignKey("VapourPressureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GasCp");
+
+                    b.Navigation("GasThermalConductivity");
+
+                    b.Navigation("GasViscosity");
+
+                    b.Navigation("HeatOfVaporization");
+
+                    b.Navigation("LiquidCp");
+
+                    b.Navigation("LiquidDensity");
+
+                    b.Navigation("LiquidThermalConductivity");
+
+                    b.Navigation("LiquidViscosity");
+
+                    b.Navigation("SuperficialTension");
+
+                    b.Navigation("VapourPressure");
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.BackBoneStep", b =>
@@ -1456,6 +1819,29 @@ namespace Simulator.Server.Migrations
                         .HasForeignKey("LinePlannedId");
 
                     b.Navigation("LinePlanned");
+                });
+
+            modelBuilder.Entity("Simulator.Server.Databases.Entities.Equilibrio.CompoundConstant", b =>
+                {
+                    b.Navigation("GasCps");
+
+                    b.Navigation("GasThermalConductivities");
+
+                    b.Navigation("GasViscosities");
+
+                    b.Navigation("HeatOfVaporizations");
+
+                    b.Navigation("LiquidCps");
+
+                    b.Navigation("LiquidDensities");
+
+                    b.Navigation("LiquidThermalConductivities");
+
+                    b.Navigation("LiquidViscosities");
+
+                    b.Navigation("SuperficialTensions");
+
+                    b.Navigation("VaporPressures");
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.BackBoneStep", b =>

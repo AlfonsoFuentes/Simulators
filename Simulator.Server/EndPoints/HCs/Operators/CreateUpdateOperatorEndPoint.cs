@@ -58,7 +58,7 @@ namespace Simulator.Server.EndPoints.HCs.Operators
 
             row.Name = request.Name;
             row.ProccesEquipmentType = ProccesEquipmentType.Operator;
-
+            row.FocusFactory = request.FocusFactory;
 
             return row;
         }
@@ -192,7 +192,7 @@ namespace Simulator.Server.EndPoints.HCs.Operators
             {
                 Id = row.Id,
                 MainProcessId = row.MainProcessId,
-
+                FocusFactory = row.FocusFactory,
                 Name = row.Name,
                 EquipmentType = row.ProccesEquipmentType,
                 Order = row.Order,

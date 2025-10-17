@@ -6,11 +6,11 @@
         APC_Disinfectant,
         FabricSoftener,
         APC_DishWash,
-        DentalCreamTripleAction,
-        DentalCreamExtraWhitening,
-        DentalCreamDoubleFresh,
-        DentalCreamKolynos,
-        DentalCreamMint
+        TripleAction,
+        ExtraWhitening,
+        DoubleFresh,
+        Kolynos,
+        Mint
     }
 }
 

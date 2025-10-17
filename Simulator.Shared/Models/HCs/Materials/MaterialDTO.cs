@@ -6,30 +6,36 @@ using static Simulator.Shared.StaticClasses.StaticClass;
 namespace Simulator.Shared.Models.HCs.Materials
 {
 
-    
+
     public class RawMaterialGetAll : IGetAll
     {
         public string EndPointName => StaticClass.Materials.EndPoint.GetAllRawMaterial;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     }
     public class RawMaterialSimpleGetAll : IGetAll
     {
         public string EndPointName => StaticClass.Materials.EndPoint.GetAllRawMaterialSimple;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     }
     public class ProductBackBoneGetAll : IGetAll
     {
         public string EndPointName => StaticClass.Materials.EndPoint.GetAllProductBackBone;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     }
     public class RawMaterialBackBoneGetAll : IGetAll
     {
         public string EndPointName => StaticClass.Materials.EndPoint.GetAllRawMaterialBackBone;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     }
     public class BackBoneGetAll : IGetAll
     {
         public string EndPointName => StaticClass.Materials.EndPoint.GetAllBackBone;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     }
-    
+
     public class MaterialDTO : BaseDTO, IMessageResponse, IRequest
     {
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public string EndPointName => StaticClass.Materials.EndPoint.CreateUpdate;
 
         public string Legend => Name;
@@ -43,7 +49,7 @@ namespace Simulator.Shared.Models.HCs.Materials
         public string SAPName { get; set; } = string.Empty;
         public string CommonName { get; set; } = string.Empty;
         public virtual MaterialType MaterialType { get; set; }
-        
+
 
         public MaterialPhysicState PhysicalState { get; set; } = MaterialPhysicState.None;
         public ProductCategory ProductCategory { get; set; } = ProductCategory.None;
@@ -56,7 +62,7 @@ namespace Simulator.Shared.Models.HCs.Materials
             return BackBoneSteps.Count == 0 ? 1 : BackBoneSteps.MaxBy(x => x.Order)!.Order;
         }
         public double SumOfPercentage { get; set; } = 0;
-        
+
         public List<BaseEquipmentDTO> ProcessEquipments { get; set; } = new();
 
     }
@@ -81,9 +87,16 @@ namespace Simulator.Shared.Models.HCs.Materials
     public class MaterialGetAll : IGetAll
     {
         public string EndPointName => StaticClass.Materials.EndPoint.GetAllMaterial;
-        public MaterialType MaterialType { get; set; }= MaterialType.None;
+        public MaterialType MaterialType { get; set; } = MaterialType.None;
+
     }
-    
+    public class MaterialGetAllByFocusFactory : IGetAll
+    {
+        public string EndPointName => StaticClass.Materials.EndPoint.GetAllMaterialByFocus;
+        public MaterialType MaterialType { get; set; } = MaterialType.None;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
+
+    }
     public class MaterialResponseList : IResponseAll
     {
         public List<MaterialDTO> Items { get; set; } = new();
@@ -96,6 +109,7 @@ namespace Simulator.Shared.Models.HCs.Materials
         public string EndPointName => StaticClass.Materials.EndPoint.ValidateSAPName;
 
         public override string Legend => SapName;
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
 
         public override string ClassName => StaticClass.Materials.ClassName;
     }
@@ -107,7 +121,7 @@ namespace Simulator.Shared.Models.HCs.Materials
         public string EndPointName => StaticClass.Materials.EndPoint.ValidateMNumber;
 
         public override string Legend => MNumber;
-
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public override string ClassName => StaticClass.Materials.ClassName;
     }
     public class ValidateMaterialCommonNameRequest : ValidateMessageResponse, IRequest
@@ -118,7 +132,7 @@ namespace Simulator.Shared.Models.HCs.Materials
         public string EndPointName => StaticClass.Materials.EndPoint.ValidateCommonName;
 
         public override string Legend => CommonName;
-
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public override string ClassName => StaticClass.Materials.ClassName;
     }
     public class DeleteGroupMaterialRequest : DeleteMessageResponse, IRequest

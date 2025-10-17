@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.MainProcesss;
+﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Models.HCs.MainProcesss;
 using Simulator.Shared.Models.HCs.SimulationPlanneds;
 using Simulator.Shared.NuevaSimlationconQwen;
 using Simulator.Shared.Simulations;
@@ -148,9 +149,12 @@ namespace Simulator.Client.HCPages.MainProcesses
             await GetAllPlanneds(_MainProcessId);
             await SelectProcess(_MainProcessId);
         }
+        FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public async Task SelectProcessAndPlannedByID(Guid _MainProcessId)
         {
             MainProcessId = _MainProcessId;
+            var selectitem = Items.FirstOrDefault(x => x.Id == _MainProcessId);
+            if (selectitem != null) FocusFactory = selectitem.FocusFactory;
             var task1 = GetAllPlanneds(MainProcessId);
             var task2 = SelectProcess(MainProcessId);
 
@@ -167,7 +171,7 @@ namespace Simulator.Client.HCPages.MainProcesses
         public async Task SelectAllPlan()
         {
 
-            await SelectProcess(MainProcessId);
+            await GetAllPlanneds(MainProcessId);
 
         }
         bool SimulationLoading { get; set; }
@@ -178,6 +182,7 @@ namespace Simulator.Client.HCPages.MainProcesses
             var result = await GenericService.GetById<NewSimulationDTO, GetProcessByIdRequest>(new GetProcessByIdRequest()
             {
                 MainProcessId = MainProcessId,
+                FocusFactory= FocusFactory,
 
 
 

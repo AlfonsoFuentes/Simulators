@@ -1,0 +1,28 @@
+﻿
+@using MudBlazor
+
+<MudDataGrid T="BatchReport"
+             Items="@Batches"
+             ReadOnly="true"
+        
+             Dense="true">
+    <Columns>
+        <HierarchyColumn T="BatchReport" />
+        <PropertyColumn Property="b => b.MixerName" Title="Mixer" />
+        <PropertyColumn Property="b => b.BatchSize" Title="Batch Size" />
+        <PropertyColumn Property="b => b.MixerState" Title="State" />
+        <PropertyColumn Property="b => b.DateReceivedToInitBatch" Title="Order Received" />
+        <PropertyColumn Property="b => b.RealInitiatedBatchString" Title="Order Started" />
+        <PropertyColumn Property="b => b.TheroticalBatchTime" Title="Theoretical Time" />
+        <PropertyColumn Property="b => b.TotalStarvedTime" Title="Total Starved" />
+        <PropertyColumn Property="b => b.RealBatchTime" Title="Real Batch Time" />
+    </Columns>
+
+    <ChildRowContent>
+        <BatchStarvationDetail Batch="@context.Item" />
+    </ChildRowContent>
+</MudDataGrid>
+
+@code {
+    [Parameter] public List<BatchReport> Batches { get; set; } = new();
+}

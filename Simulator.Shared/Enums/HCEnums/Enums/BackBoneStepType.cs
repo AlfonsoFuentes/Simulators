@@ -7,9 +7,10 @@
         Add,
         Mixing,
         Analisys,
-        pH_Adjust,
+        Adjust,
         Cooling,
-        Connect_Mixer_WIP
+        Connect_Mixer_WIP,
+        Transfer_To_Drop
         
     }
     

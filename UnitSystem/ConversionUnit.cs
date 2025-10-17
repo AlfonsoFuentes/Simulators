@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 #nullable disable
 namespace UnitSystem
@@ -785,5 +786,97 @@ namespace UnitSystem
 
         }
     }
+
+    public class MassVolumeSpecific : Amount
+    {
+        public MassVolumeSpecific() : this(0)
+        {
+        }
+        public MassVolumeSpecific(double dvalue) : base(dvalue, MassVolumeSpecificUnits.cm3_g)
+        {
+        }
+        public MassVolumeSpecific(double dvalue, UnitMeasure u) : base(dvalue, u)
+        {
+        }
+        public MassVolumeSpecific(UnitMeasure u) : this(0, u)
+        {
+        }
+        public MassVolumeSpecific(double dvalue, string u) : base(dvalue, u)
+        {
+        }
+    }
+    public class MolarDensity : Amount
+    {
+        public MolarDensity() : this(0)
+        {
+        }
+        public MolarDensity(double dvalue) : base(dvalue, MolarDensityUnits.gmol_L)
+        {
+        }
+        public MolarDensity(double dvalue, UnitMeasure u) : base(dvalue, u)
+        {
+        }
+        public MolarDensity(UnitMeasure u) : this(0, u)
+        {
+        }
+        public MolarDensity(double dvalue, string u) : base(dvalue, u)
+        {
+        }
+    }
+    public class MolarVolumeSpecific : Amount
+    {
+        public MolarVolumeSpecific() : this(0)
+        {
+        }
+        public MolarVolumeSpecific(double dvalue) : base(dvalue, MolarVolumeSpecificUnits.L_gmol)
+        {
+        }
+        public MolarVolumeSpecific(double dvalue, UnitMeasure u) : base(dvalue, u)
+        {
+        }
+        public MolarVolumeSpecific(UnitMeasure u) : this(0, u)
+        {
+        }
+        public MolarVolumeSpecific(double dvalue, string u) : base(dvalue, u)
+        {
+        }
+    }
+    public class MolarEnergy : Amount
+    {
+        public MolarEnergy() : this(0)
+        {
+        }
+        public MolarEnergy(double dvalue) : base(dvalue, MolarEnergyUnits.Kcal_gmol)
+        {
+        }
+        public MolarEnergy(double dvalue, UnitMeasure u) : base(dvalue, u)
+        {
+        }
+        public MolarEnergy(UnitMeasure u) : this(0, u)
+        {
+        }
+        public MolarEnergy(double dvalue, string u) : base(dvalue, u)
+        {
+        }
+    }
+    public class MolarEntropy:Amount
+    {
+        public MolarEntropy() : this(0)
+        {
+        }
+        public MolarEntropy(double dvalue) : base(dvalue, MolarEntropyUnits.KJ_Kgmol_C)
+        {
+        }
+        public MolarEntropy(double dvalue, UnitMeasure u) : base(dvalue, u)
+        {
+        }
+        public MolarEntropy(UnitMeasure u) : this(0, u)
+        {
+        }
+        public MolarEntropy(double dvalue, string u) : base(dvalue, u)
+        {
+        }
+    }
+   
 }
 

@@ -144,6 +144,7 @@ namespace UnitSystem
         public static readonly UnitMeasure Barrel = new UnitMeasure("Barrel", "B", Meter3 * 0.15898724, "Volume");
     }
 
+
     [UnitDefinitionClass]
     public static class TimeUnits
     {
@@ -160,8 +161,8 @@ namespace UnitSystem
     [UnitDefinitionClass]
     public static class MilestoneDurationUnits
     {
-        
-        
+
+
         public static readonly UnitMeasure Day = new UnitMeasure("day", "d", SIUnitTypes.Day, "Time");
         public static readonly UnitMeasure Month = new UnitMeasure("Month", "mo", 24.0 * Day, "Time");
         public static readonly UnitMeasure Weeks = new UnitMeasure("Month", "w", 7 * Day, "Time");
@@ -200,14 +201,7 @@ namespace UnitSystem
         public static readonly UnitMeasure Pound = new UnitMeasure("Pound", "lib", KiloGram * 2.2, "Mass");
         public static readonly UnitMeasure Onze = new UnitMeasure("Onze", "Oz", KiloGram * 35.27394095, "Mass");
     }
-    [UnitDefinitionClass]
-    public static class MolUnits
-    {
-        public static readonly UnitMeasure kgMol = new UnitMeasure("kg-mol", "Kmol", SIUnitTypes.Mol, "Mol");
 
-        public static readonly UnitMeasure grmol = new UnitMeasure("gr-mol", "gmol", 0.001 * kgMol, "Mol");
-    
-    }
 
     [UnitDefinitionClass]
     public static class ForceUnits
@@ -359,6 +353,7 @@ namespace UnitSystem
     {
         public static readonly UnitMeasure Mole = new UnitMeasure("mole", "mol", SIUnitTypes.AmountOfSubstance, "AmountOfSubstance");
         public static readonly UnitMeasure KMole = new UnitMeasure("Kmole", "Kmol", 1000 * Mole, "AmountOfSubstance");
+        public static readonly UnitMeasure MilliMole = new UnitMeasure("m-mole", "m-mol", Mole / 1000, "AmountOfSubstance");
         public static readonly UnitMeasure lbMole = new UnitMeasure("lbmole", "lbmol", KMole / 2.2, "AmountOfSubstance");
     }
     [UnitDefinitionClass]
@@ -406,6 +401,63 @@ namespace UnitSystem
         public static readonly UnitMeasure lb_ft3 = new UnitMeasure("lb/ft3", "lb/ft3", MassUnits.Pound / VolumeUnits.Foot3, "MassDensity");
         public static readonly UnitMeasure lb_in3 = new UnitMeasure("lb/in3", "lb/in3", MassUnits.Pound / VolumeUnits.inch3, "MassDensity");
         public static readonly UnitMeasure lb_gal = new UnitMeasure("lb/gal", "lb/gal", MassUnits.Pound / VolumeUnits.Galon, "MassDensity");
+
+
+    }
+    [UnitDefinitionClass]
+    public static class MolarDensityUnits
+    {
+        public static readonly UnitMeasure Kgmol_m3 = new UnitMeasure("Kgmol/m3", "Kgmol/m3", AmountOfSubstanceUnits.KMole / VolumeUnits.Meter3, "MolarDensity");
+        public static readonly UnitMeasure g_m3 = new UnitMeasure("gmol/m3", "gmol/m3", AmountOfSubstanceUnits.Mole / VolumeUnits.Meter3, "MolarDensity");
+
+        public static readonly UnitMeasure Kgmol_cm3 = new UnitMeasure("Kgmol/cm3", "Kgmol/cm3", AmountOfSubstanceUnits.KMole / VolumeUnits.cMeter3, "MolarDensity");
+        public static readonly UnitMeasure gmol_cm3 = new UnitMeasure("gmol/cm3", "gmol/cm3", AmountOfSubstanceUnits.Mole / VolumeUnits.cMeter3, "MolarDensity");
+
+        public static readonly UnitMeasure gmol_L = new UnitMeasure("gmol/L", "gmol/L", AmountOfSubstanceUnits.Mole / VolumeUnits.Liter, "MolarDensity");
+        public static readonly UnitMeasure gmol_mL = new UnitMeasure("gmol/mL", "gmol/mL", AmountOfSubstanceUnits.Mole / VolumeUnits.MilliLiter, "MolarDensity");
+
+        public static readonly UnitMeasure Kgmol_L = new UnitMeasure("Kgmol/L", "Kgmol/L", AmountOfSubstanceUnits.KMole / VolumeUnits.Liter, "MolarDensity");
+        public static readonly UnitMeasure lbmol_ft3 = new UnitMeasure("lbmol/ft3", "lbmol/ft3", AmountOfSubstanceUnits.lbMole / VolumeUnits.Foot3, "MolarDensity");
+        public static readonly UnitMeasure lbmol_in3 = new UnitMeasure("lbmol/in3", "lbmol/in3", AmountOfSubstanceUnits.lbMole / VolumeUnits.inch3, "MolarDensity");
+        public static readonly UnitMeasure lbmol_gal = new UnitMeasure("lbmol/gal", "lbmol/gal", AmountOfSubstanceUnits.lbMole / VolumeUnits.Galon, "MolarDensity");
+
+
+    }
+    [UnitDefinitionClass]
+    public static class MassVolumeSpecificUnits
+    {
+        public static readonly UnitMeasure m3_Kg = new UnitMeasure("m3/Kg", "m3/Kg", 1 / (MassUnits.KiloGram / VolumeUnits.Meter3), "MassVolumeSpecific");
+        public static readonly UnitMeasure m3_g = new UnitMeasure("m3/g", "m3/g", 1 / (MassUnits.Gram / VolumeUnits.Meter3), "MassVolumeSpecific");
+        public static readonly UnitMeasure m3_mg = new UnitMeasure("m3/mg", "m3/mg", 1 / (MassUnits.MilliGram / VolumeUnits.Meter3), "MassVolumeSpecific");
+        public static readonly UnitMeasure cm3_Kg = new UnitMeasure("cm3/Kg", "cm3/Kg3", 1 / (MassUnits.KiloGram / VolumeUnits.cMeter3), "MassVolumeSpecific");
+        public static readonly UnitMeasure cm3_g = new UnitMeasure("cm3/g", "cm3/g", 1 / (MassUnits.Gram / VolumeUnits.cMeter3), "MassVolumeSpecific");
+        public static readonly UnitMeasure L_mg = new UnitMeasure("L/mg", "L/mg", 1 / (MassUnits.MilliGram / VolumeUnits.Liter), "MassVolumeSpecific");
+        public static readonly UnitMeasure L_g = new UnitMeasure("L/g", "L/g", 1 / (MassUnits.Gram / VolumeUnits.Liter), "MassVolumeSpecific");
+        public static readonly UnitMeasure mL_g = new UnitMeasure("mL/g", "mL/g", 1 / (MassUnits.Gram / VolumeUnits.MilliLiter), "MassVolumeSpecific");
+
+        public static readonly UnitMeasure L_Kg = new UnitMeasure("L/Kg", "L/Kg", 1 / (MassUnits.KiloGram / VolumeUnits.Liter), "MassVolumeSpecific");
+        public static readonly UnitMeasure ft3_lb = new UnitMeasure("ft3/lb", "ft3/lb", 1 / (MassUnits.Pound / VolumeUnits.Foot3), "MassVolumeSpecific");
+        public static readonly UnitMeasure in3_lb = new UnitMeasure("in3/lb", "in3/lb", 1 / (MassUnits.Pound / VolumeUnits.inch3), "MassVolumeSpecific");
+        public static readonly UnitMeasure gal_lb = new UnitMeasure("gal/lb", "gal/lb", 1 / (MassUnits.Pound / VolumeUnits.Galon), "MassVolumeSpecific");
+
+
+    }
+    [UnitDefinitionClass]
+    public static class MolarVolumeSpecificUnits
+    {
+        public static readonly UnitMeasure m3_Kgmol = new UnitMeasure("m3/Kgmol", "m3/Kgmol", 1 / (AmountOfSubstanceUnits.KMole / VolumeUnits.Meter3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure m3_gmol = new UnitMeasure("m3/gmol", "m3/gmol", 1 / (AmountOfSubstanceUnits.Mole / VolumeUnits.Meter3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure m3_mgmol = new UnitMeasure("m3/mgmol", "m3/mgmol", 1 / (AmountOfSubstanceUnits.MilliMole / VolumeUnits.Meter3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure cm3_Kgmol = new UnitMeasure("cm3/Kgmol", "cm3/Kgmol", 1 / (AmountOfSubstanceUnits.KMole / VolumeUnits.cMeter3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure cm3_gmol = new UnitMeasure("cm3/gmol", "cm3/gmol", 1 / (AmountOfSubstanceUnits.Mole / VolumeUnits.cMeter3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure L_mgmol = new UnitMeasure("L/mgmol", "L/mgmol", 1 / (AmountOfSubstanceUnits.MilliMole / VolumeUnits.Liter), "MolarVolumeSpecific");
+        public static readonly UnitMeasure L_gmol = new UnitMeasure("L/gmol", "L/gmol", 1 / (AmountOfSubstanceUnits.Mole / VolumeUnits.Liter), "MolarVolumeSpecific");
+        public static readonly UnitMeasure mL_gmol = new UnitMeasure("mL/gmol", "mL/gmol", 1 / (AmountOfSubstanceUnits.Mole / VolumeUnits.MilliLiter), "MolarVolumeSpecific");
+
+        public static readonly UnitMeasure L_Kgmol = new UnitMeasure("L/Kgmol", "L/Kgmol", 1 / (AmountOfSubstanceUnits.KMole / VolumeUnits.Liter), "MolarVolumeSpecific");
+        public static readonly UnitMeasure ft3_lbmol = new UnitMeasure("ft3/lbmol", "ft3/lbmol", 1 / (AmountOfSubstanceUnits.lbMole / VolumeUnits.Foot3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure in3_lbmol = new UnitMeasure("in3/lbmol", "in3/lbmol", 1 / (AmountOfSubstanceUnits.lbMole / VolumeUnits.inch3), "MolarVolumeSpecific");
+        public static readonly UnitMeasure gal_lbmol = new UnitMeasure("gal/lbmol", "gal/lbmol", 1 / (AmountOfSubstanceUnits.lbMole / VolumeUnits.Galon), "MolarVolumeSpecific");
 
 
     }
@@ -466,6 +518,7 @@ namespace UnitSystem
         W_m_K / 6.9334717985, "ThermalConductivity");
 
     }
+
     [UnitDefinitionClass]
     public static class VolumeEnergyUnits
     {
@@ -489,6 +542,7 @@ namespace UnitSystem
          EnergyUnits.BTU / VolumeUnits.Galon, "VolumeEnergy");
 
     }
+
     [UnitDefinitionClass]
     public static class MassEnergyUnits
     {
@@ -521,9 +575,44 @@ namespace UnitSystem
 
     }
     [UnitDefinitionClass]
+    public static class MolarEnergyUnits
+    {
+        public static readonly UnitMeasure J_Kgmol = new UnitMeasure("Joule/Kgmol", "Joule/Kgmol",
+            EnergyUnits.Joule / AmountOfSubstanceUnits.KMole, "MolarEnergy");
+
+        public static readonly UnitMeasure J_gmol = new UnitMeasure("Joule/gmol", "Joule/g",
+           EnergyUnits.Joule / AmountOfSubstanceUnits.Mole, "MolarEnergy");
+
+        public static readonly UnitMeasure KJ_Kgmol = new UnitMeasure("KJoule/Kgmol", "KJoule/Kgmol",
+           EnergyUnits.KiloJoule / AmountOfSubstanceUnits.KMole, "MolarEnergy");
+
+        public static readonly UnitMeasure KJ_gmol = new UnitMeasure("KJoule/gmol", "KJoule/gmol",
+          EnergyUnits.KiloJoule / AmountOfSubstanceUnits.Mole, "MolarEnergy");
+
+
+        public static readonly UnitMeasure cal_Kgmol = new UnitMeasure("cal/Kgmol", "cal/Kgmol",
+           EnergyUnits.Calorie / AmountOfSubstanceUnits.KMole, "MolarEnergy");
+
+        public static readonly UnitMeasure cal_gmol = new UnitMeasure("cal/gmol", "cal/gmol",
+          EnergyUnits.Calorie / AmountOfSubstanceUnits.Mole, "MolarEnergy");
+
+        public static readonly UnitMeasure Kcal_Kgmol = new UnitMeasure("Kcal/Kgmol", "Kcal/Kgmol",
+          EnergyUnits.KiloCalorie / AmountOfSubstanceUnits.KMole, "MolarEnergy");
+
+        public static readonly UnitMeasure Kcal_gmol = new UnitMeasure("Kcal/gmol", "Kcal/gmol",
+          EnergyUnits.KiloCalorie / AmountOfSubstanceUnits.Mole, "MolarEnergy");
+
+
+        public static readonly UnitMeasure BTU_lbmol = new UnitMeasure("BTU/lbmol", "BTU/lbmol",
+          EnergyUnits.BTU / AmountOfSubstanceUnits.lbMole, "MolarEnergy");
+
+
+
+    }
+    [UnitDefinitionClass]
     public static class MassEntropyUnits
     {
-
+          
         public static readonly UnitMeasure BTU_lb_F = new UnitMeasure("BTU/lb/°F", "BTU/lb/°F",
           EnergyUnits.BTU / MassUnits.Pound / TemperatureUnits.DegreeFahrenheit, "MassEntropy");
 
@@ -543,6 +632,33 @@ namespace UnitSystem
 
         public static readonly UnitMeasure Kcal_Kg_C = new UnitMeasure("Kcal/Kg/°C", "Kcal/Kg/°C",
           BTU_lb_F / 1, "MassEntropy");
+
+
+
+    }
+    [UnitDefinitionClass]
+    public static class MolarEntropyUnits
+    {
+
+        public static readonly UnitMeasure BTU_lbmol_F = new UnitMeasure("BTU/lbmol/°F", "BTU/lbmol/°F",
+          EnergyUnits.BTU / AmountOfSubstanceUnits.lbMole / TemperatureUnits.DegreeFahrenheit, "MolarEntropy");
+
+        public static readonly UnitMeasure KJ_Kgmol_C = new UnitMeasure("KJoule/Kgmol/°C", "KJoule/Kgmol/°C",
+           BTU_lbmol_F / 4.1868, "MolarEntropy");
+
+        public static readonly UnitMeasure J_mol_C = new UnitMeasure("Joule/gmol/°C", "Joule/gmol/°C",
+           KJ_Kgmol_C, "MolarEntropy");
+
+        public static readonly UnitMeasure J_Kgmol_C = new UnitMeasure("Joule/Kgmol/°C", "Joule/Kgmol/°C",
+             BTU_lbmol_F / 4186.8, "MolarEntropy");
+
+
+
+        public static readonly UnitMeasure cal_mol_C = new UnitMeasure("cal/gmol/°C", "cal/gmol/°C",
+       BTU_lbmol_F / 1, "MolarEntropy");
+
+        public static readonly UnitMeasure Kcal_Kgmol_C = new UnitMeasure("Kcal/Kgmol/°C", "Kcal/Kgmol/°C",
+          BTU_lbmol_F / 1, "MolarEntropy");
 
 
 
@@ -608,18 +724,18 @@ namespace UnitSystem
     public static class MolarFlowUnits
     {
         public static readonly UnitMeasure Kgmol_min = new UnitMeasure("Kg-mol/min", "Kg-mol/min",
-        MolUnits.kgMol / TimeUnits.Minute, "MolarFlow");
+        AmountOfSubstanceUnits.KMole / TimeUnits.Minute, "MolarFlow");
         public static readonly UnitMeasure Kgmol_sg = new UnitMeasure("Kg-mol/sg", "Kg-mol/sg",
-       MolUnits.kgMol / TimeUnits.Second, "MolarFlow");
+       AmountOfSubstanceUnits.KMole / TimeUnits.Second, "MolarFlow");
         public static readonly UnitMeasure Kgmol_hr = new UnitMeasure("Kg-mol/hr", "Kg-mol/hr",
-        MolUnits.kgMol / TimeUnits.Second, "MolarFlow");
+        AmountOfSubstanceUnits.KMole / TimeUnits.Second, "MolarFlow");
 
         public static readonly UnitMeasure gmol_min = new UnitMeasure("g-mol/min", "g-mol/min",
-       MolUnits.grmol / TimeUnits.Minute, "MolarFlow");
+       AmountOfSubstanceUnits.Mole / TimeUnits.Minute, "MolarFlow");
         public static readonly UnitMeasure gmol_sg = new UnitMeasure("g-mol/sg", "g-mol/sg",
-       MolUnits.grmol / TimeUnits.Second, "MolarFlow");
+       AmountOfSubstanceUnits.Mole / TimeUnits.Second, "MolarFlow");
         public static readonly UnitMeasure gmol_hr = new UnitMeasure("g-mol/hr", "g-mol/hr",
-        MolUnits.grmol / TimeUnits.Second, "MolarFlow");
+        AmountOfSubstanceUnits.Mole / TimeUnits.Second, "MolarFlow");
     }
     [UnitDefinitionClass]
     public static class HeatSurfaceFlowUnits

@@ -11,10 +11,7 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
         public EventCallback<List<OutletConnectorDTO>> ItemsChanged { get; set; }
         [Parameter]
         public List<OutletConnectorDTO> Items { get; set; } = new();
-        //string nameFilter = string.Empty;
-        //public Func<OutletConnectorDTO, bool> Criteria => x => x.Material != null && x.Material.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
-        //public List<OutletConnectorDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
-        //    Items.Where(Criteria).ToList();
+
 
         OutletConnectorResponseList OutletConnectorResponseList { get; set; } = new();
 

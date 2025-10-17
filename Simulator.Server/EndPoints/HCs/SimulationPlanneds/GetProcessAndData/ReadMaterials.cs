@@ -16,7 +16,7 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
     {
         public static async Task ReadSimulationMaterials(this NewSimulationDTO simulation, IQueryRepository Repository)
         {
-            string CacheKey = StaticClass.Materials.Cache.GetAll;
+            string CacheKey = StaticClass.Materials.Cache.GetAll(simulation.FocusFactory);
             var rows = await Repository.GetAllAsync<Material>(CacheKey);
             if (rows != null && rows.Count > 0)
             {

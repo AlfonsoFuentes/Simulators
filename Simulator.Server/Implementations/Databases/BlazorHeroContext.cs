@@ -1,5 +1,6 @@
 ﻿using LazyCache;
 using Simulator.Server.Databases.Contracts;
+using Simulator.Server.Databases.Entities.Equilibrio;
 using Simulator.Server.Databases.Entities.HC;
 using Simulator.Server.Interfaces.Database;
 using Simulator.Server.Interfaces.UserServices;
@@ -35,6 +36,7 @@ namespace Simulator.Server.Implementations.Databases
         public DbSet<Line> Lines { get; set; }
         public DbSet<Mixer> HCMixers { get; set; }
         public DbSet<Pump> Pumps { get; set; }
+        public DbSet<StreamJoiner> StreamJoiners { get; set; }
         public DbSet<Operator> Operators { get; set; }
         public DbSet<Tank> Tanks { get; set; }
         public DbSet<MaterialEquipment> MaterialEquipments { get; set; }
@@ -45,6 +47,8 @@ namespace Simulator.Server.Implementations.Databases
         public DbSet<MixerPlanned> MixerPlanneds { get; set; }
         public DbSet<PlannedSKU> PlannedSKUs { get; set; }
         public DbSet<PreferedMixer> PreferedMixer { get; set; }
+        public DbSet<CompoundProperty> CompoundProperties { get; set; }
+        public DbSet<CompoundConstant> CompoundConstants { get; set; }
         void ConfiguerQueryFilters(ModelBuilder builder)
         {
            
@@ -68,6 +72,8 @@ namespace Simulator.Server.Implementations.Databases
             builder.Entity<MixerPlanned>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<PlannedSKU>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<PreferedMixer>().HasQueryFilter(p => p.IsDeleted == false);
+            builder.Entity<CompoundProperty>().HasQueryFilter(p => p.IsDeleted == false);
+            builder.Entity<CompoundConstant>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<BaseEquipment>().UseTpcMappingStrategy();
 
         }

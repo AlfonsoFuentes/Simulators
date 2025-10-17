@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.BaseEquipments;
+﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.Conectors;
 using Simulator.Shared.Models.HCs.SimulationPlanneds;
 
@@ -18,7 +19,8 @@ namespace Simulator.Shared.Models.HCs.MainProcesss
     }
     public class MainProcessDTO : BaseResponse, IMessageResponse, IRequest
     {
-        
+
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public string EndPointName => StaticClass.MainProcesss.EndPoint.CreateUpdate;
 
         public string Legend => Name;

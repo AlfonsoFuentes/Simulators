@@ -1,4 +1,5 @@
-﻿using Simulator.Server.Databases.Entities.HC;
+﻿using Simulator.Server.Databases.Entities.Equilibrio;
+using Simulator.Server.Databases.Entities.HC;
 
 namespace Simulator.Server.Interfaces.Database
 {
@@ -28,6 +29,9 @@ namespace Simulator.Server.Interfaces.Database
         DbSet<MixerPlanned> MixerPlanneds { get; set; }
         DbSet<PlannedSKU> PlannedSKUs { get; set; }
         DbSet<PreferedMixer> PreferedMixer { get; set; }
+        DbSet<CompoundConstant> CompoundConstants { get; set; }
+        DbSet<CompoundProperty> CompoundProperties { get; set; }
+        DbSet<StreamJoiner> StreamJoiners { get; set; }
 
         Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys);
         Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory);

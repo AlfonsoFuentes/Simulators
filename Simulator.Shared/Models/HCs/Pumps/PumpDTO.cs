@@ -16,6 +16,7 @@ namespace Simulator.Shared.Models.HCs.Pumps
         public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
         public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
 
+        public bool IsForWashing {  get; set; }
         public override ProccesEquipmentType EquipmentType { get; set; } = ProccesEquipmentType.Pump;
         double _FlowValue;
         string _FlowUnitName = MassFlowUnits.Kg_min.Name;

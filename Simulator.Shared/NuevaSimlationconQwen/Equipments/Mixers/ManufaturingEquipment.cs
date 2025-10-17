@@ -19,6 +19,6 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         //Lo que estamos produciendo ahora mismo
 
 
-        public abstract void ReceiveManufactureOrderFromWIP(IVesselManufactureOrder order);
+        public abstract void ReceiveManufactureOrderFromWIP(ITankManufactureOrder order);
     }
 }

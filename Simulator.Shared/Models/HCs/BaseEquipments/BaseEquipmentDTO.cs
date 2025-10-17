@@ -32,10 +32,10 @@ namespace Simulator.Shared.Models.HCs.BaseEquipments
         public bool CopyData { get; set; } = true;
 
         public virtual ProccesEquipmentType EquipmentType { get; set; } = ProccesEquipmentType.None;
-
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public List<PortConnection> OutletConnections { get; set; } = new List<PortConnection>();
         public List<PortConnection> InletConnections { get; set; } = new List<PortConnection>();
-        public bool IsForWashing { get; set; } = false;
+      
         public List<BaseEquipmentDTO> OutletEquipmentConnections { get; set; } = new List<BaseEquipmentDTO>();
         public List<BaseEquipmentDTO> InletEquipmentConnections { get; set; } = new List<BaseEquipmentDTO>();
         public List<MaterialDTO> Materials => MaterialEquipments == null || MaterialEquipments.Count == 0 ? new() : MaterialEquipments.Select(x => x.Material!).ToList();

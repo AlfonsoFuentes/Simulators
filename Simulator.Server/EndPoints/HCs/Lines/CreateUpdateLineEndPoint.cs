@@ -60,7 +60,7 @@ namespace Simulator.Server.EndPoints.HCs.Lines
             row.PackageType = request.PackageType;
             row.ProccesEquipmentType = ProccesEquipmentType.Line;
             row.Name = request.Name;
-
+            row.FocusFactory = request.FocusFactory;
 
 
             return row;
@@ -200,7 +200,7 @@ namespace Simulator.Server.EndPoints.HCs.Lines
                 PackageType = row.PackageType,
                 EquipmentType = row.ProccesEquipmentType,
                 Name = row.Name,
-
+                FocusFactory = row.FocusFactory,
                 Order = row.Order,
             };
         }

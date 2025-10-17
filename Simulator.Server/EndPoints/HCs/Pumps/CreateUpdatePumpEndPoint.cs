@@ -3,6 +3,7 @@ using Simulator.Server.EndPoints.HCs.Conectors;
 using Simulator.Server.EndPoints.HCs.EquipmentPlannedDownTimes;
 using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Pumps;
+using Simulator.Shared.Models.HCs.StreamJoiners;
 
 namespace Simulator.Server.EndPoints.HCs.Pumps
 {
@@ -61,7 +62,7 @@ namespace Simulator.Server.EndPoints.HCs.Pumps
             row.Name = request.Name;
 
             row.ProccesEquipmentType = ProccesEquipmentType.Pump;
-
+            row.FocusFactory = request.FocusFactory;
             return row;
         }
 
@@ -200,6 +201,7 @@ namespace Simulator.Server.EndPoints.HCs.Pumps
                 Name = row.Name,
                 EquipmentType = row.ProccesEquipmentType,
                 Order = row.Order,
+                FocusFactory = row.FocusFactory,
             };
         }
 

@@ -4,7 +4,6 @@ using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Operators;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
-using Simulator.Shared.Simulations.Tanks;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Reports
 {
@@ -18,8 +17,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
 
     public enum ReportPriorityInColumn
     {
-        High, // ← Arriba en la columna
-        Low   // ← Abajo en la columna
+        High = 1, // ← Arriba en la columna
+        Medium = 2,
+        Low = 3   // ← Abajo en la columna
     }
     public interface ILiveReportable
     {
@@ -62,6 +62,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                 return equipment switch
                 {
                     ProcessOperator op => CreateOperatorReport(op),
+                    ProcessRecipedTank receipedtank => CreatRecipedMaterialTankReport(receipedtank),
                     ProcessBaseTankForRawMaterial tank => CreateRawMaterialTankReport(tank),
                     ProcessContinuousSystem skid => CreateSkidReport(skid),
                     ProcessMixer mixer => CreateMixerReport(mixer),
@@ -77,15 +78,34 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
         // =============== OPERADORES ===============
         private static EquipmentReportMetadata CreateOperatorReport(ProcessOperator op)
         {
+            var reports = new List<LiveReportItem>
+        {
+                new() { Label = "Operator", Value = op.Name, Style = new() },
+                new() { Label = "State", Value = op.OutletState?.StateLabel ?? "Unknown", Style = GetOperatorStateStyle(op) }
+        };
+            if (op.WaitingQueue.Count > 0)
+            {
+                reports.Add(new LiveReportItem
+                {
+                    Label = "Waiting Queue",
+                    Value = op.WaitingQueue.Count.ToString(),
+                    Style = new() { Color = "Orange" }
+                });
+                foreach (var eq in op.WaitingQueue)
+                {
+                    reports.Add(new LiveReportItem
+                    {
+                        Label = "Equipment",
+                        Value = eq.Name,
+                        Style = new() { Color = "Orange" }
+                    });
+                }
+            }
             return new EquipmentReportMetadata
             {
                 Column = ReportColumn.Column1_OperatorsAndRawMaterialTanks,
                 Priority = ReportPriorityInColumn.High,
-                Items = new List<LiveReportItem>
-            {
-                new() { Label = "Operator", Value = op.Name, Style = new() },
-                new() { Label = "State", Value = op.OutletState?.StateLabel ?? "Unknown", Style = GetOperatorStateStyle(op) }
-            }
+                Items = reports,
             };
         }
 
@@ -106,7 +126,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
             new() { Label = "State", Value = tank.OutletState?.StateLabel ?? "Unknown", Style = GetTankLevelStyle(tank) }
         };
 
-            foreach (var outlet in tank.OutletPumps)
+            foreach (var outlet in tank.OutletPumps.OrderBy(x => x.Name))
             {
                 reports.Add(new LiveReportItem
                 {
@@ -114,6 +134,24 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                     Value = outlet.OutletState?.StateLabel ?? "Unknown",
                     Style = new()
                 });
+                if (outlet.WaitingQueue.Count > 0)
+                {
+                    reports.Add(new LiveReportItem
+                    {
+                        Label = "Waiting Queue",
+                        Value = outlet.WaitingQueue.Count.ToString(),
+                        Style = new() { Color = "Orange" }
+                    });
+                    foreach (var eq in outlet.WaitingQueue)
+                    {
+                        reports.Add(new LiveReportItem
+                        {
+                            Label = "Equipment",
+                            Value = eq.Name,
+                            Style = new() { Color = "Orange" }
+                        });
+                    }
+                }
             }
 
             return new EquipmentReportMetadata
@@ -123,13 +161,86 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                 Items = reports
             };
         }
+        private static EquipmentReportMetadata CreatRecipedMaterialTankReport(ProcessRecipedTank tank)
+        {
+            var reports = new List<LiveReportItem>
+        {
+            new() { Label = "Tank", Value = tank.Name, Style = new() },
+            new() { Label = "Level", Value = $"{Math.Round(tank.CurrentLevel.GetValue(MassUnits.KiloGram))} Kg", Style = GetTankLevelStyle(tank) },
+            new() { Label = "State", Value = tank.OutletState?.StateLabel ?? "Unknown", Style = GetTankLevelStyle(tank) }
+        };
 
-        private static ReportStyle GetTankLevelStyle(ProcessBaseTankForRawMaterial tank)
+            foreach (var outlet in tank.OutletPumps.OrderBy(x => x.Name))
+            {
+                reports.Add(new LiveReportItem
+                {
+                    Label = outlet.Name,
+                    Value = outlet.OutletState?.StateLabel ?? "Unknown",
+                    Style = new()
+                });
+                if (outlet.WaitingQueue.Count > 0)
+                {
+                    reports.Add(new LiveReportItem
+                    {
+                        Label = "Waiting Queue",
+                        Value = outlet.WaitingQueue.Count.ToString(),
+                        Style = new() { Color = "Orange" }
+                    });
+                    foreach (var eq in outlet.WaitingQueue)
+                    {
+                        reports.Add(new LiveReportItem
+                        {
+                            Label = "Equipment",
+                            Value = eq.Name,
+                            Style = new() { Color = "Orange" }
+                        });
+                    }
+                }
+            }
+            if (tank.CurrentTankManufactureOrder != null)
+            {
+                if (tank.CurrentTankManufactureOrder.TimeToEmptyMassInProcess.Value > 0)
+                {
+                    reports.Add(new LiveReportItem
+                    {
+                        Label = "Time Empty Vessel",
+                        Value = $"{Math.Round(tank.CurrentTankManufactureOrder.TimeToEmptyMassInProcess.GetValue(TimeUnits.Minute), 2)}, min",
+                        Style = new()
+                    });
+                }
+                if (tank.CurrentTankManufactureOrder.ManufactureOrdersFromMixers.Count > 0)
+                {
+                    foreach (var order in tank.CurrentTankManufactureOrder.ManufactureOrdersFromMixers)
+                    {
+                        reports.Add(new LiveReportItem
+                        {
+                            Label = "Mixer",
+                            Value = $"{order.ManufaturingEquipment.Name}, {order.BatchSize.GetValue(MassUnits.KiloGram)}, kg",
+                            Style = new()
+                        });
+
+                    }
+
+                }
+
+            }
+
+
+            return new EquipmentReportMetadata
+            {
+                Column = ReportColumn.Column1_OperatorsAndRawMaterialTanks,
+                Priority = ReportPriorityInColumn.Medium,
+                Items = reports
+            };
+        }
+
+        private static ReportStyle GetTankLevelStyle(ProcessBaseTank tank)
         {
             if (tank.CurrentLevel < tank.LoLolevel) return new() { Color = "Red", FontEmphasis = "Bold" };
             if (tank.CurrentLevel < tank.LoLevel) return new() { Color = "Orange" };
             return new() { Color = "Green" };
         }
+
 
         // =============== SKIDS ===============
         private static EquipmentReportMetadata CreateSkidReport(ProcessContinuousSystem skid)
@@ -174,7 +285,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                 {
                 new LiveReportItem { Label = "Batch Size", Value = mixer.CurrentManufactureOrder.BatchSize.ToString(), Style = new() },
                 new LiveReportItem { Label = "Material", Value = mixer.CurrentManufactureOrder.Material.CommonName, Style = new() },
-                new LiveReportItem { Label = "Producing To", Value = mixer.CurrentManufactureOrder.WIPOrder.WIP.Name, Style = new() },
+                new LiveReportItem { Label = "Producing To", Value = mixer.CurrentManufactureOrder.WIPOrder.Tank.Name, Style = new() },
                 new LiveReportItem { Label = "Step", Value = mixer.InletState ?.StateLabel ?? "null", Style = new() }
             });
 
@@ -188,6 +299,26 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                 new LiveReportItem { Label = "Current Batch Time", Value = mixer.CurrentManufactureOrder.CurrentBatchTime.ToString(), Style = new() },
                 new LiveReportItem { Label = "Starved Time", Value = mixer.CurrentManufactureOrder.CurrentStarvedTime.ToString(), Style = new() { Color = "Orange", FontEmphasis = "Bold" } }
             });
+            }
+            if (mixer.ManufacturingOrders.Count > 0)
+            {
+                items.Add(new LiveReportItem { Label = "Queued Batches", Value = mixer.ManufacturingOrders.Count.ToString(), Style = new() });
+                foreach (var order in mixer.ManufacturingOrders)
+                {
+                    items.Add(new LiveReportItem { Label = "Next Scheduled", Value = $"{order.Material.CommonName} to {order.WIPOrder.Tank.Name}", Style = new() });
+                }
+            }
+            if (mixer.ProcessOperator != null && !mixer.ProcessOperator.OperatorHasNotRestrictionToInitBatch)
+            {
+                items.Add(new LiveReportItem { Label = "Operator Attached", Value = mixer.ProcessOperator.Name, Style = new() });
+                if (mixer.ProcessOperator.MaxRestrictionTime.Value > 0)
+                {
+                    items.Add(new LiveReportItem { Label = "Operator will be realease in: ", Value = $"{Math.Round(mixer.OperatorStarvedPendingTime.GetValue(TimeUnits.Minute), 2)}, min" , Style = new() });
+                }
+                else
+                {
+                    items.Add(new LiveReportItem { Label = "Operator will be realease", Value = $"When init Transfer to WIP", Style = new() });
+                }
             }
 
             return new EquipmentReportMetadata
@@ -223,6 +354,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                 new LiveReportItem { Label = "Average Outlet flow", Value = $"{Math.Round(wip.CurrentOrder.AverageOutletFlow.GetValue(MassFlowUnits.Kg_min),2)}, Kg/min"?? "Unknown", Style = new() },
                 new LiveReportItem { Label = "Time to empty Mass in process", Value = wip.CurrentOrder.TimeToEmptyMassInProcess.ToString() ?? "Unknown", Style = new() }
             });
+                if (wip.CurrentOrder.ManufactureOrdersFromMixers.Count > 0)
+                {
+                    items.Add(new LiveReportItem { Label = "Batches in Order", Value = wip.CurrentOrder.ManufactureOrdersFromMixers.Count.ToString(), Style = new() });
+                    foreach (var order in wip.CurrentOrder.ManufactureOrdersFromMixers)
+                    {
+                        items.Add(new LiveReportItem { Label = "Batch", Value = $"{order.ManufaturingEquipment.Name}, {order.BatchSize.GetValue(MassUnits.KiloGram)} kg", Style = new() });
+                    }
+                }
+
             }
 
             return new EquipmentReportMetadata
@@ -255,7 +395,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
                 items.AddRange(new[]
                 {
                 new LiveReportItem { Label = "BackBone", Value = line.CurrentProductionOrder.SKU?.Material.CommonName ?? "None", Style = new() },
-                new LiveReportItem { Label = "Planned Cases", Value = line.CurrentProductionOrder.ProductionSKURun?.TotalCases.ToString() ?? "None", Style = new() },
+                new LiveReportItem { Label = "Planned Cases", Value = line.CurrentProductionOrder.ProductionSKURun?.PlannedCases.ToString() ?? "None", Style = new() },
                 new LiveReportItem { Label = "Produced Cases", Value = line.CurrentProductionOrder.ProductionSKURun?.ProducedCases.ToString() ?? "None", Style = new() },
                 new LiveReportItem { Label = "Pending Cases", Value = line.CurrentProductionOrder.ProductionSKURun?.RemainingCases.ToString() ?? "None", Style = new() },
                 new LiveReportItem { Label = "Current Flow", Value = line.CurrentProductionOrder.ProductionSKURun?.CurrentFlow.ToString() ?? "None", Style = new() },

@@ -1,3 +1,4 @@
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Operators;
 
 namespace Simulator.Client.HCPages.Operators;
@@ -10,6 +11,9 @@ public partial class OperatorTable
         Items.Where(Criteria).ToList();
     [Parameter]
     public Guid MainProcessId { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     protected override async Task OnParametersSetAsync()
     {
         await GetAll();
@@ -20,8 +24,8 @@ public partial class OperatorTable
         var result = await GenericService.GetAll<OperatorResponseList, OperatorGetAll>(new OperatorGetAll()
         {
             MainProcessId = MainProcessId,
-          
-             
+
+
         });
         if (result.Succeeded)
         {
@@ -30,8 +34,12 @@ public partial class OperatorTable
     }
     public async Task AddNew()
     {
-        OperatorDTO response = new() { MainProcessId = MainProcessId };
-   
+        OperatorDTO response = new()
+        {
+            MainProcessId = MainProcessId,
+            FocusFactory = FocusFactory
+        };
+
         var parameters = new DialogParameters<OperatorDialog>
         {
            { x => x.Model, response },
@@ -129,7 +137,7 @@ public partial class OperatorTable
             DeleteGroupOperatorRequest request = new()
             {
                 SelecteItems = SelecteItems,
-                MainProcessId=MainProcessId,
+                MainProcessId = MainProcessId,
 
             };
             var resultDelete = await GenericService.Post(request);

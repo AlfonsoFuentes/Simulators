@@ -1,28 +1,36 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Models.HCs.Lines;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
+using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks.States;
 using Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders;
 using Simulator.Shared.NuevaSimlationconQwen.Reports;
+using Simulator.Shared.NuevaSimlationconQwen.StreanJoiners;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
 {
     public class ProcessLine : Equipment, ILiveReportable
     {
 
-
         public List<ProcessWipTankForLine> WIPTanksAttached => _wipTanks ??= InletPumps.SelectMany(x => x.InletWipTanks).ToList();
         public List<ProcessMixer> PreferredManufacturer { get; set; } = new();
 
         private List<ProcessPump>? _inletPumps;
         private List<ProcessWipTankForLine>? _wipTanks;
-
+        private List<ProcessStreamJoiner>? _processStreamJoiner;
+        public List<ProcessStreamJoiner> StreamJoinersAttached => _processStreamJoiner ??= InletEquipments.OfType<ProcessStreamJoiner>().ToList();
         public List<ProcessPump> InletPumps => _inletPumps ??= InletEquipments.OfType<ProcessPump>().ToList();
 
         //Aqui hay que poner el miezclador de corrientes
 
         public ShiftType ShiftType { get; set; } = ShiftType.Shift_1_2_3;
         public CurrentShift ActualShift { get; set; }
+        public ProcessLine()
+        {
+
+
+        }
         public override void ValidateOutletInitialState(DateTime currentdate)
         {
 
@@ -109,7 +117,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         {
 
             FromLineToWipProductionOrder orderforwips = new(this, sku);
-
+            ScheduledProductionOrders.AddLast(orderforwips);
             ProductionOrders.Enqueue(orderforwips);
         }
         public bool IsScheduledForShift(CurrentShift currentShift) => currentShift switch
@@ -144,6 +152,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         };
 
 
+        public LinkedList<FromLineToWipProductionOrder> ScheduledProductionOrders { get; set; } = new();
         Queue<FromLineToWipProductionOrder> ProductionOrders { get; set; } = new Queue<FromLineToWipProductionOrder>();
         public FromLineToWipProductionOrder InformNextProductionOrder => ProductionOrders.Any() ? ProductionOrders.Peek() : null!;
         public FromLineToWipProductionOrder CurrentProductionOrder { get; set; } = null!;
@@ -349,8 +358,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Lines
         }
         public bool MustChangeFormat()
         {
-            FromLineToWipProductionOrder _nextproductionorder = 
-                NextProductionOrder != null? NextProductionOrder: ProductionOrders.Any() ? ProductionOrders.Peek() : null!;
+            FromLineToWipProductionOrder _nextproductionorder =
+                NextProductionOrder != null ? NextProductionOrder : ProductionOrders.Any() ? ProductionOrders.Peek() : null!;
             if (_nextproductionorder == null)
             {
                 return false;

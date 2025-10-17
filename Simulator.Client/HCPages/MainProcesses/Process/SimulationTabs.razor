@@ -1,11 +1,12 @@
 ﻿@using Simulator.Client.HCPages.NewProcessSimulation
-@using Simulator.Client.HCPages.NewProcessSimulation.Cards
+
 @using Simulator.Client.HCPages.NewProcessSimulation.NewReports
+@using Simulator.Client.HCPages.NewProcessSimulation.NewReports.ReportLine
 @using Simulator.Shared.NuevaSimlationconQwen
 <MudStack>
 
 
-   
+
     @if (Simulation.Planned == null)
     {
         <MudText Typo="Typo.h6">Must load production plan</MudText>
@@ -13,24 +14,104 @@
     }
     else
     {
-       
+
+        <MudStack>
+            @if (Simulation.IsSimulationRunning)
+            {
+                <MudPaper Elevation="2" Class="pa-2 mb-2" Style="@(Simulation.IsSimulationPaused ? "background-color: #fff3e0;" : "background-color: #e8f5e9;")">
+                    <div class="d-flex align-items-center">
+                        @if (Simulation.IsSimulationPaused)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Pause" Color="Color.Warning" Class="mr-2" />
+                            <MudText Typo="Typo.body2" Color="Color.Warning"><strong>PAUSED</strong></MudText>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.PlayArrow" Color="Color.Success" Class="mr-2" />
+                            <MudText Typo="Typo.body2" Color="Color.Success"><strong>RUNNING</strong></MudText>
+                        }
+                        <MudSpacer />
+                        <MudText Typo="Typo.body2">
+                            <small>@Simulation.SimulationTime.ToString(@"hh\:mm\:ss")</small>
+                        </MudText>
+                    </div>
+                </MudPaper>
+            }
+            <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                @if (!Simulation.IsSimulationRunning)
+                {
+                    <MudButton Variant=Variant.Filled Color=Color.Success OnClick="StartSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
+                        Start
+                    </MudButton>
+                }
+                else if (Simulation.IsSimulationRunning && !Simulation.IsSimulationPaused)
+                {
+                    <MudButton Variant=Variant.Filled Color=Color.Warning OnClick="PauseSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Pause">
+                        Pause
+                    </MudButton>
+                    <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
+                        Stop
+                    </MudButton>
+                }
+                else if (Simulation.IsSimulationRunning && Simulation.IsSimulationPaused)
+                {
+                    <MudButton Variant=Variant.Filled Color=Color.Success OnClick="ResumeSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.PlayArrow">
+                        Resume
+                    </MudButton>
+                    <MudButton Variant=Variant.Filled Color=Color.Error OnClick="StopSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Stop">
+                        Stop
+                    </MudButton>
+                }
+
+                @if (Simulation.IsSimulationRunning || Simulation.IsSimulationPaused)
+                {
+                    <MudButton Variant=Variant.Outlined Color=Color.Secondary OnClick="ResetSimulation" Size="Size.Small" StartIcon="@Icons.Material.Rounded.RestartAlt">
+                        Reset
+                    </MudButton>
+                }
+            </MudStack>
+            <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                <MudText Typo=Typo.button Color="Color.Dark">@($"Init time: {Simulation.InitDate.ToString()}")</MudText>
+                <MudText Typo=Typo.button>@($"End time: {Simulation.EndDate.ToString()}")</MudText>
+            </MudStack>
+
+            <MudStack Row=true Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                <MudText Typo=Typo.button>@($"Date: {Simulation.CurrentDate.ToShortDateString()}")</MudText>
+                <MudText Typo=Typo.button>@($"Current Shift: {Simulation.CurrentShift}")</MudText>
+                <MudText Typo=Typo.button>@($"Hour: {Simulation.CurrentDate.Hour}")</MudText>
+                <MudText Typo=Typo.button>@($"Minute: {Simulation.CurrentDate.Minute}")</MudText>
+                <MudText Typo=Typo.button>@($"Second: {Simulation.CurrentDate.Second}")</MudText>
+                <MudText Typo=Typo.button>@($"Run Time: {Math.Round(Simulation.CurrenTime.GetValue(TimeUnits.Minute), 2)}, min")</MudText>
+            </MudStack>
+            <MudSlider T="int" @bind-Value="@velocity" Min="1" Max="500" Color="Color.Info">Simulation Speed: @velocity.ToString()</MudSlider>
+        </MudStack>
+
         <MudTabs>
 
             <MudTabPanel Text="Live">
-                <LiveReportView2 Simulation="@Simulation"></LiveReportView2>
+                <LiveReportView2 Simulation="@Simulation" Column1Items="@Column1Items" Column2Items="@Column2Items" FlatRows="@FlatRows"></LiveReportView2>
             </MudTabPanel>
             <MudTabPanel Text="Stoppages">
                 <StoppageReports Simulation="@Simulation"></StoppageReports>
             </MudTabPanel>
-            <MudTabPanel Text="Capacity">
-                <NewProductionCapacityReport Simulation=@Simulation />
+            <MudTabPanel Text="Line Metrics">
+                <AllLinesPerformanceReport Simulation="@Simulation"></AllLinesPerformanceReport>
             </MudTabPanel>
+            <MudTabPanel Text="Mixer Metrics">
+                <MixerMetrics Simulation="@Simulation"></MixerMetrics>
+            </MudTabPanel>
+            <MudTabPanel Text="Dashboard">
+                <MixerDashboardPage Simulation="@Simulation"></MixerDashboardPage>
+            </MudTabPanel>
+            <MudTabPanel Text="Table">
+                <MixerUtilizationTable Simulation="@Simulation"></MixerUtilizationTable>
+            </MudTabPanel>
+
         </MudTabs>
     }
-    
+
 </MudStack>
 @code {
-    [Parameter]
-    public GeneralSimulation Simulation { get; set; } = null!;
-    
+
 }
+

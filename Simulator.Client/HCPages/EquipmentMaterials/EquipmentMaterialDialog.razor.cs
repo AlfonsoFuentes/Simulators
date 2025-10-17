@@ -18,6 +18,8 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
         }
         [Parameter]
         public MaterialType MaterialType { get; set; } = MaterialType.None;
+        [Parameter]
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
 
         protected override async Task OnInitializedAsync()
         {
@@ -112,7 +114,7 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
             {
                 var result = await GenericService.GetAll<MaterialResponseList, BackBoneGetAll>(new BackBoneGetAll()
                 {
-
+                    FocusFactory = FocusFactory
                 });
                 if (result.Succeeded)
                 {
@@ -121,9 +123,11 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
             }
             else
             {
-                var result = await GenericService.GetAll<MaterialResponseList, MaterialGetAll>(new MaterialGetAll()
+                var result = await GenericService.GetAll<MaterialResponseList, MaterialGetAllByFocusFactory>(new MaterialGetAllByFocusFactory()
                 {
                     MaterialType = MaterialType,
+                    FocusFactory = FocusFactory
+                  
                 });
                 if (result.Succeeded)
                 {

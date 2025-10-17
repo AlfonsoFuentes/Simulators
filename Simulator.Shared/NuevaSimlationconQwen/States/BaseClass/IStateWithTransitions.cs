@@ -78,7 +78,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.States.BaseClass
         }
 
         // ✅ Hooks protegidos (igual que antes)
-        protected virtual void BeforeRun(DateTime currentdate) { }
+        public virtual void BeforeRun(DateTime currentdate) { }
         protected virtual void AfterRun(DateTime currentdate) { }
         protected virtual void BeforeCheckStatus(DateTime currentdate) { }
         protected virtual void AfterCheckStatus(DateTime currentdate) { }

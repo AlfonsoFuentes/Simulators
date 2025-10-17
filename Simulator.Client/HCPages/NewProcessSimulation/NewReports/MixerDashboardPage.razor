@@ -1,0 +1,32 @@
+﻿@* Pages/MixerDashboardPage.razor *@
+@page "/mixers"
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Estado de Mezcladores</MudText>
+
+    @if (_mixers.Any())
+    {
+        @foreach (var mixer in _mixers.OrderBy(m => m.Name))
+        {
+            <MixerMetricsCard Mixer="mixer" />
+        }
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Info">No hay mezcladores en la simulación.</MudAlert>
+    }
+</MudContainer>
+
+@code {
+    private List<ProcessMixer> _mixers = new();
+
+    protected override void OnInitialized()
+    {
+        // Asumiendo que GeneralSimulation está inyectado y tiene un método para obtener mezcladores
+        _mixers = Simulation.Equipments.OfType<ProcessMixer>().ToList();
+    }
+
+    [Parameter]
+    public GeneralSimulation Simulation { get; set; } = null!;
+}

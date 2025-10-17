@@ -2,40 +2,97 @@
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
+using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks.States;
 using Simulator.Shared.NuevaSimlationconQwen.Materials;
+using Simulator.Shared.NuevaSimlationconQwen.Reports;
+using static Simulator.Shared.StaticClasses.StaticClass;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
 {
-    public interface IVesselManufactureOrder
+    public interface ITankManufactureOrder
     {
-        IMaterial Material { get; }
-        ProcessLine Line { get; }
-        List<IManufactureOrder> ManufactureOrdersFromMixers { get; }
-        Amount MassPendingToProduce { get; }
-        Amount MassPendingToDeliver { get; }
-        IManufactureOrder LastInOrder { get; }
         Amount TotalMassProducingInMixer { get; }
-        Amount TimeToEmptyMassInProcess { get; }
+        IManufactureOrder LastInOrder { get; }
+        List<IManufactureOrder> ManufactureOrdersFromMixers { get; }
+        IMaterial Material { get; }
+        void AddMixerManufactureOrder(IManufactureOrder mixerManufactureOrder);
+        void AddRunTime();
+        void RemoveManufactureOrdersFromMixers(IManufactureOrder mixerManufactureOrder);
+        IRequestTansferTank Tank { get; set; }
+        Amount RunTime { get; }
+        Amount OneSecond { get; set; }
         Amount TotalMassStoragedOrProducing { get; }
+        Amount TimeToEmptyMassInProcess { get; }
+        WipTankForLineReport Report { get; }
+    }
+    public class RecipedTankManufactureOrder : ITankManufactureOrder
+    {
+        public Amount TimeToEmptyMassInProcess => Tank.AverageFlowRate.Value == 0 ? new Amount(0, TimeUnits.Minute) :
+           new Amount(TotalMassStoragedOrProducing.GetValue(MassUnits.KiloGram) / Tank.AverageFlowRate.GetValue(MassFlowUnits.Kg_min), TimeUnits.Minute);
+
+        public Amount TotalMassStoragedOrProducing => Tank.CurrentLevel + TotalMassProducingInMixer;
+        public Amount TotalMassProducingInMixer => new Amount(
+               _ManufactureOrdersFromMixers.Sum(x => x.BatchSize.GetValue(MassUnits.KiloGram)),
+               MassUnits.KiloGram
+           );
+        public IManufactureOrder LastInOrder => _ManufactureOrdersFromMixers.Count == 0 ? null! : _ManufactureOrdersFromMixers.OrderBy(x => x.Order).Last();
+        public Amount RunTime { get; set; } = new Amount(0, TimeUnits.Second);
+        public Amount OneSecond { get; set; } = new Amount(1, TimeUnits.Second);
+        public Guid Id { get; } = Guid.NewGuid();
+        public IMaterial Material { get; private set; } = null!;
+        public IRequestTansferTank Tank { get; set; } = null!;
+        public RecipedTankManufactureOrder(IRequestTansferTank tank, IMaterial material)
+        {
+            Tank = tank;
+            Material = material;
+            Report = new();
+            Report.Name = tank.Name;
+        }
+        public List<IManufactureOrder> ManufactureOrdersFromMixers => _ManufactureOrdersFromMixers;
+
+        public WipTankForLineReport Report { get; private set; } = null!;
+
+        List<IManufactureOrder> _ManufactureOrdersFromMixers = new List<IManufactureOrder>();
+        public void AddMixerManufactureOrder(IManufactureOrder mixerManufactureOrder)
+        {
+            _ManufactureOrdersFromMixers.Add(mixerManufactureOrder);
+        }
+        public void RemoveManufactureOrdersFromMixers(IManufactureOrder mixerManufactureOrder)
+        {
+            if (_ManufactureOrdersFromMixers.Contains(mixerManufactureOrder))
+            {
+                _ManufactureOrdersFromMixers.Remove(mixerManufactureOrder);
+            }
+        }
+        public void AddRunTime()
+        {
+            RunTime += OneSecond;
+        }
+    }
+    public interface IWIPManufactureOrder : ITankManufactureOrder
+    {
+        ProcessLine Line { get; }
+        Amount MassPendingToDeliver { get; }
         Amount AverageOutletFlow { get; }
         FromLineToWipProductionOrder LineCurrentProductionOrder { get; set; }
         FromLineToWipProductionOrder LineNextProductionOrder { get; }
-        ProcessWipTankForLine WIP { get; set; }
         string LineName { get; }
         string MaterialName { get; }
         Amount MassDelivered { get; }
         Amount MassProduced { get; }
+        Amount MassPendingToProduce { get; }
+
 
         void AddMassDelivered(Amount mass);
         void AddMassProduced(Amount mass);
-        void AddMixerManufactureOrder(IManufactureOrder mixerManufactureOrder);
-        void AddRunTime();
-        void RemoveManufactureOrdersFromMixers(IManufactureOrder mixerManufactureOrder);
-        void SendToLineCurrentOrderIsProduced();
-        bool IsSendToLineCurrentOrderIsProduced { get; set; }
+
+
+        bool IsPendingToProduceCompleted();
     }
-    public class WIPInletMixerManufacturingOrder : IVesselManufactureOrder
+    public class WIPInletMixerManufacturingOrder : IWIPManufactureOrder
     {
+        public WipTankForLineReport Report { get; private set; } = null!;
+        public Amount OneSecond { get; set; } = new Amount(1, TimeUnits.Second);
         public Amount PendingBatchTime => ManufactureOrdersFromMixers.Count == 0 ? new Amount(0, TimeUnits.Minute) :
             new Amount(_ManufactureOrdersFromMixers.Sum(x => x.PendingBatchTime.GetValue(TimeUnits.Minute)), TimeUnits.Minute);
         public List<IManufactureOrder> ManufactureOrdersFromMixers => _ManufactureOrdersFromMixers;
@@ -61,17 +118,19 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public IMaterial Material => LineCurrentProductionOrder.Material;
         public ProcessLine Line => LineCurrentProductionOrder.Line;
 
-      
-        public ProcessWipTankForLine WIP { get; set; } = null!;
+
+        public IRequestTansferTank Tank { get; set; } = null!;
         public FromLineToWipProductionOrder LineCurrentProductionOrder { get; set; } = null!;
         // ✅ Constructor seguro
         public WIPInletMixerManufacturingOrder(ProcessWipTankForLine wip, FromLineToWipProductionOrder productionorder)
         {
             LineCurrentProductionOrder = productionorder;
 
-            WIP = wip;
+            Tank = wip;
 
             LineNextProductionOrder = Line.InformNextProductionOrder;
+            Report = new WipTankForLineReport(); 
+            Report.Name = wip.Name;
 
         }
 
@@ -84,10 +143,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
                _ManufactureOrdersFromMixers.Sum(x => x.BatchSize.GetValue(MassUnits.KiloGram)),
                MassUnits.KiloGram
            );
-        public Amount TotalMassStoragedOrProducing => WIP.CurrentLevel + TotalMassProducingInMixer;
+        public Amount TotalMassStoragedOrProducing => Tank.CurrentLevel + TotalMassProducingInMixer;
         public Amount MassDelivered { get; private set; } = new Amount(0, MassUnits.KiloGram);
         public Amount MassProduced { get; private set; } = new Amount(0, MassUnits.KiloGram);
-        public Amount MassToProduce => LineCurrentProductionOrder.TotalQuantityToProduce + WIP.LoLolevel * 1.1;
+        public Amount MassToProduce => LineCurrentProductionOrder.TotalQuantityToProduce + Tank.LoLolevel * 1.1;
         public Amount MassToDeliver => LineCurrentProductionOrder.TotalQuantityToProduce;
         public Amount MassPendingToProduce => MassToProduce - MassProduced;
         public Amount MassPendingToDeliver => MassToDeliver - MassDelivered;
@@ -100,14 +159,14 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public Amount TimeToEmptyMassInProcess => AverageOutletFlow.Value == 0 ? new Amount(0, TimeUnits.Minute) :
            new Amount(TotalMassStoragedOrProducing.GetValue(MassUnits.KiloGram) / AverageOutletFlow.GetValue(MassFlowUnits.Kg_min), TimeUnits.Minute);
 
-        Amount OneSecon { get; set; } = new Amount(1, TimeUnits.Second);
+
 
         public FromLineToWipProductionOrder LineNextProductionOrder { get; private set; } = null!;
-        public bool IsSendToLineCurrentOrderIsProduced { get; set; } = false;
+
 
         public void AddRunTime()
         {
-            RunTime += OneSecon;
+            RunTime += OneSecond;
         }
         public void AddMassDelivered(Amount mass)
         {
@@ -117,15 +176,23 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         {
             MassProduced += mass;
         }
-        public void SendToLineCurrentOrderIsProduced()
+
+        public bool IsPendingToProduceCompleted()
         {
-            Line.ReceivedWIPCurrentOrderRealesed(LineCurrentProductionOrder);
-            IsSendToLineCurrentOrderIsProduced = true;
+            var result = MassPendingToProduce.Value <= 0;
+            if (result)
+            {
+                Line.ReceivedWIPCurrentOrderRealesed(LineCurrentProductionOrder);
+
+                return true;
+            }
+            return false;
         }
 
     }
-    public class WIPInletSKIDManufacturingOrder : IVesselManufactureOrder
+    public class WIPInletSKIDManufacturingOrder : IWIPManufactureOrder
     {
+        public Amount OneSecond { get; set; } = new Amount(1, TimeUnits.Second);
         public Amount PendingBatchTime => ManufactureOrdersFromMixers.Count == 0 ? new Amount(0, TimeUnits.Minute) :
             new Amount(_ManufactureOrdersFromMixers.Sum(x => x.PendingBatchTime.GetValue(TimeUnits.Minute)), TimeUnits.Minute);
         public List<IManufactureOrder> ManufactureOrdersFromMixers => _ManufactureOrdersFromMixers;
@@ -150,18 +217,19 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public Guid Id { get; } = Guid.NewGuid();
         public IMaterial Material => LineCurrentProductionOrder.Material;
         public ProcessLine Line => LineCurrentProductionOrder.Line;
+        public WipTankForLineReport Report { get; private set; } = null!;
 
-
-        public ProcessWipTankForLine WIP { get; set; } = null!;
+        public IRequestTansferTank Tank { get; set; } = null!;
         public FromLineToWipProductionOrder LineCurrentProductionOrder { get; set; } = null!;
         // ✅ Constructor seguro
         public WIPInletSKIDManufacturingOrder(ProcessWipTankForLine wip, FromLineToWipProductionOrder productionorder)
         {
             LineCurrentProductionOrder = productionorder;
 
-            WIP = wip;
+            Tank = wip;
             LineNextProductionOrder = Line.InformNextProductionOrder;
-
+            Report = new WipTankForLineReport();
+            Report.Name = wip.Name;
 
         }
 
@@ -174,10 +242,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
                _ManufactureOrdersFromMixers.Sum(x => x.BatchSize.GetValue(MassUnits.KiloGram)),
                MassUnits.KiloGram
            );
-        public Amount TotalMassStoragedOrProducing => WIP.CurrentLevel + TotalMassProducingInMixer;
+        public Amount TotalMassStoragedOrProducing => Tank.CurrentLevel + TotalMassProducingInMixer;
         public Amount MassDelivered { get; private set; } = new Amount(0, MassUnits.KiloGram);
         public Amount MassProduced { get; private set; } = new Amount(0, MassUnits.KiloGram);
-        public Amount MassToProduce => LineCurrentProductionOrder.TotalQuantityToProduce + WIP.LoLolevel * 1.1;
+        public Amount MassToProduce => LineCurrentProductionOrder.TotalQuantityToProduce + Tank.LoLolevel * 1.1;
         public Amount MassToDeliver => LineCurrentProductionOrder.TotalQuantityToProduce;
         public Amount MassPendingToProduce => MassToProduce - MassProduced;
         public Amount MassPendingToDeliver => MassToDeliver - MassDelivered;
@@ -190,10 +258,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public Amount TimeToEmptyMassInProcess => AverageOutletFlow.Value == 0 ? new Amount(0, TimeUnits.Minute) :
            new Amount(MassPendingToProduce.GetValue(MassUnits.KiloGram) / AverageOutletFlow.GetValue(MassFlowUnits.Kg_min), TimeUnits.Minute);
 
-        Amount OneSecon { get; set; } = new Amount(1, TimeUnits.Second);
+
         public void AddRunTime()
         {
-            RunTime += OneSecon;
+            RunTime += OneSecond;
         }
         public void AddMassDelivered(Amount mass)
         {
@@ -203,16 +271,28 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         {
             MassProduced += mass;
         }
-        public bool IsSendToLineCurrentOrderIsProduced { get; set; } = false;
-        public void SendToLineCurrentOrderIsProduced()
-        {
-            Line.ReceivedWIPCurrentOrderRealesed(LineCurrentProductionOrder);
-            IsSendToLineCurrentOrderIsProduced = true;
-        }
 
+
+        public bool IsPendingToProduceCompleted()
+        {
+            var result = MassPendingToProduce.Value <= 0;
+            if (result)
+            {
+                Line.ReceivedWIPCurrentOrderRealesed(LineCurrentProductionOrder);
+
+                return true;
+            }
+            return false;
+        }
     }
     public class FromLineToWipProductionOrder
     {
+        public Amount ProducedCases => ProductionSKURun.ProducedCases;
+        public Amount PlannedCases => ProductionSKURun.PlannedCases;
+        public Amount TimePlanned => ProductionSKURun.TimePlanned;
+        public Amount TimeConsumed => ProductionSKURun.TimeConsumed;
+        public Amount ProducedMass => ProductionSKURun.ProducedMass;
+        public Amount PlannedMass => ProductionSKURun.TotalPlannedMass;
         public ProductionSKURun ProductionSKURun { get; set; } = null!;
         public ProcessSKUByLine SKU { get; set; }
 
@@ -220,12 +300,15 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public IMaterial Material => SKU.Material;
         public Amount Size => SKU.Size;
         public ProcessLine Line { get; set; } = null!;
+        public List<WipTankForLineReport> WipTankReports { get; set; } = new();
         public List<ProcessWipTankForLine> WIPs { get; set; } = new List<ProcessWipTankForLine>();
         public Amount TotalQuantityToProduce { get; set; } = new Amount(0, MassUnits.KiloGram);
         public Amount TimeToChangeSKU => SKU.TimeToChangeFormat;
         public Amount AverageFlow => ProductionSKURun.AverageMassFlow;
         public List<ManufaturingEquipment> PreferredManufacturer { get; set; } = new();
         // ✅ Constructor seguro
+
+
         public FromLineToWipProductionOrder(ProcessLine line, ProcessSKUByLine _SKU)
         {
             SKU = _SKU;
@@ -233,6 +316,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
             Line = line;
             TotalQuantityToProduce = SKU.TotalPlannedMass;
             ProductionSKURun = new ProductionSKURun(SKU);
+
         }
 
         // ✅ Propiedad calculada: nombre del material (para reportes)
@@ -244,6 +328,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         {
 
             WIPs.Add(wip);
+            WipTankReports.Add(wip.CurrentReport);
         }
 
     }
@@ -253,9 +338,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public Guid Id { get; } = Guid.NewGuid();
         public IMaterial Material { get; private set; } = null!;
         public ProcessWipTankForLine WIPTank { get; private set; } = null!;
-        public IVesselManufactureOrder WIPOrder { get; private set; } = null!;
+        public IWIPManufactureOrder WIPOrder { get; private set; } = null!;
 
-        public FromWIPToMixerManufactureOrder(IVesselManufactureOrder _WIPOrder, ProcessWipTankForLine wip)
+        public FromWIPToMixerManufactureOrder(IWIPManufactureOrder _WIPOrder, ProcessWipTankForLine wip)
         {
             Material = _WIPOrder.Material;
             WIPTank = wip;
@@ -265,49 +350,93 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
     }
     public class TransferFromMixertoWIPOrder
     {
-        public TransferFromMixertoWIPOrder(ProcessMixer SourceMixer, ProcessWipTankForLine DestinationWip, Amount TotalQuantityToTransfer, Amount TransferFlow)
+        public TransferFromMixertoWIPOrder(ProcessMixer SourceMixer, IProcessTank DestinationWip, Amount TotalQuantityToTransfer, Amount TransferFlow)
         {
-            this.SourceMixer = SourceMixer;
+            this._SourceMixer = SourceMixer;
             this.TotalQuantityToTransfer = TotalQuantityToTransfer;
             this.TransferFlow = TransferFlow;
-            this.DestinationWip = DestinationWip;
+            this._DestinationWip = DestinationWip;
         }
-
+        public ProcessMixer SourceMixer => _SourceMixer;
+        public IProcessTank DestinationWip => _DestinationWip;
         public Guid Id { get; } = Guid.NewGuid();
-        public ProcessMixer SourceMixer { get; set; } = null!;
-        public ProcessWipTankForLine DestinationWip { get; set; } = null!;
+        public ProcessMixer _SourceMixer { get; set; } = null!;
+        public IProcessTank _DestinationWip { get; set; } = null!;
         public Amount TotalQuantityToTransfer { get; set; } = new Amount(0, MassUnits.KiloGram);
         public Amount MassReceived { get; set; } = new Amount(0, MassUnits.KiloGram);
         public Amount PendingToReceive => TotalQuantityToTransfer - MassReceived;
-
         public Amount TransferFlow { get; set; } = new Amount(0, MassFlowUnits.Kg_min);
+
+        public bool CanTransferWithoutOverflowingDestination()
+        {
+            if (_DestinationWip == null || PendingToReceive.Value == 0)
+                return true; // Nada que transferir → seguro
+
+            if (TransferFlow.Value == 0)
+                return false; // Flujo inválido
+            var currentLevel = _DestinationWip.CurrentLevel;
+            var futurelevel = currentLevel + PendingToReceive;
+            var pendingtimeToreceive = PendingToReceive / TransferFlow;
+            var outletDuringPendingTime = _DestinationWip.OutletFlows * pendingtimeToreceive;
+
+            futurelevel -= outletDuringPendingTime;
+            if (futurelevel <= _DestinationWip.Capacity)
+            {
+                return true;
+            }
+            return false;
+
+        }
+        public bool IsTransferComplete => PendingToReceive.Value <= 0;
+
+        public bool IsTransferStarved => _DestinationWip.InletState is ITransferFromMixerStarved;
+        public bool IsTransferAvailable => _DestinationWip.InletState is ITransferFromMixerAvailable;
+
+        Amount OneSecond { get; set; } = new Amount(1, TimeUnits.Second);
+        public void SetCurrentMassTransfered()
+        {
+            Amount massTransfered = TransferFlow * OneSecond;
+            if (PendingToReceive <= massTransfered)
+            {
+                massTransfered = PendingToReceive;
+            }
+            _DestinationWip.CurrentLevel += massTransfered;
+            MassReceived += massTransfered;
+            _SourceMixer.ReceiveReportOfMassDelivered(massTransfered);
+        }
+        public void SendMixerTransferIsFinished()
+        {
+            SourceMixer.ReceiveTransferFinalizedFromWIP();
+
+        }
 
     }
     public interface IManufactureOrder
     {
-        IVesselManufactureOrder WIPOrder { get; }
+        ITankManufactureOrder WIPOrder { get; }
         Amount BatchSize { get; set; }
         Amount PendingBatchTime { get; }
         int Order { get; set; }
-        Amount CurrentBatchTime { get; set; }
+        Amount CurrentBatchTime { get; }
         Queue<IRecipeStep> RecipeSteps { get; set; }
         IRecipeStep CurrentStep { get; set; }
         IMaterial Material { get; }
-        Amount CurrentStarvedTime { get; set; }
+        Amount CurrentStarvedTime { get; }
         int TotalSteps { get; set; }
-        ManufaturingEquipment Mixer { get; }
+        ManufaturingEquipment ManufaturingEquipment { get; }
     }
     public class MixerManufactureOrder : IManufactureOrder
     {
+        public BatchReport BatchReport { get; private set; } = null!;
         public Guid Id { get; } = Guid.NewGuid();
-        public ManufaturingEquipment Mixer { get; private set; } = null!;
-        public IVesselManufactureOrder WIPOrder { get; private set; } = null!;
+        public ManufaturingEquipment ManufaturingEquipment { get; private set; } = null!;
+        public ITankManufactureOrder WIPOrder { get; private set; } = null!;
         public int Order { get; set; }
         public IMaterial Material { get; private set; } = null!;
         public int TotalSteps { get; set; } = 0;
-        public MixerManufactureOrder(ManufaturingEquipment Mixer, IVesselManufactureOrder WIPOrder)
+        public MixerManufactureOrder(ManufaturingEquipment Mixer, ITankManufactureOrder WIPOrder, BatchReport _BatchReport)
         {
-            this.Mixer = Mixer;
+            this.ManufaturingEquipment = Mixer;
             this.WIPOrder = WIPOrder;
             this.Material = WIPOrder.Material;
             if (Mixer.EquipmentMaterials.Any(x => x.Material.Id == Material.Id))
@@ -328,16 +457,19 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
                 }
 
             }
-
+            WIPOrder.Report.Batches.Add(_BatchReport);
+            BatchReport = _BatchReport;
         }
+
 
         public Amount BatchSize { get; set; } = new(0, MassUnits.KiloGram);
         public Amount BatchTime { get; set; } = new(0, MassUnits.KiloGram);
         public Amount RealBatchTime => BatchTime + CurrentStarvedTime;
-        public Amount CurrentStarvedTime { get; set; } = new Amount(0, TimeUnits.Minute);
-        public Amount CurrentBatchTime { get; set; } = new Amount(0, TimeUnits.Minute);
+        public Amount CurrentStarvedTime => BatchReport.TotalStarvedTime;
+
+        public Amount CurrentBatchTime => BatchReport.RealBatchTime;
         public Amount TheoricalPendingBatchTime => BatchTime - CurrentBatchTime;
-        public Amount CurrentMixerLevel => Mixer.CurrentLevel;
+        public Amount CurrentMixerLevel => ManufaturingEquipment.CurrentLevel;
         public bool IsBatchFinished { get; set; } = false;
         public bool IsBatchStarved { get; set; } = false;
 
@@ -350,14 +482,14 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
     public class SKIDManufactureOrder : IManufactureOrder
     {
         public Guid Id { get; } = Guid.NewGuid();
-        public ManufaturingEquipment Mixer { get; private set; } = null!;
-        public IVesselManufactureOrder WIPOrder { get; private set; } = null!;
+        public ManufaturingEquipment ManufaturingEquipment { get; private set; } = null!;
+        public ITankManufactureOrder WIPOrder { get; private set; } = null!;
         public int Order { get; set; }
         public IMaterial Material { get; private set; } = null!;
         public int TotalSteps { get; set; } = 0;
-        public SKIDManufactureOrder(ManufaturingEquipment Mixer, IVesselManufactureOrder WIPOrder)
+        public SKIDManufactureOrder(ManufaturingEquipment Mixer, ITankManufactureOrder WIPOrder)
         {
-            this.Mixer = Mixer;
+            this.ManufaturingEquipment = Mixer;
             this.WIPOrder = WIPOrder;
             Material = WIPOrder.Material;
 
@@ -370,7 +502,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
         public Amount CurrentStarvedTime { get; set; } = new Amount(0, TimeUnits.Minute);
         public Amount CurrentBatchTime { get; set; } = new Amount(0, TimeUnits.Minute);
         public Amount TheoricalPendingBatchTime => BatchTime - CurrentBatchTime;
-        public Amount CurrentMixerLevel => Mixer.CurrentLevel;
+        public Amount CurrentMixerLevel => ManufaturingEquipment.CurrentLevel;
         public bool IsBatchFinished { get; set; } = false;
         public bool IsBatchStarved { get; set; } = false;
 

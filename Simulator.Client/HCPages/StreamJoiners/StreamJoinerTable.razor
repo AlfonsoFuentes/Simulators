@@ -1,0 +1,36 @@
+﻿@using Simulator.Shared.Models.HCs.StreamJoiners
+
+
+
+
+
+<TableTemplate TValue="StreamJoinerDTO"
+               AddNew="AddNew"
+               @bind-NameFilter=@nameFilter
+               DeleteGroup="DeleteGroup"
+               Items="FilteredItems"
+               @bind-SelectedItems=@SelecteItems
+               TableTitle="StreamJoiners List">
+    <ColumnsTemplate>
+        <SelectColumn T="StreamJoinerDTO" />
+        <PropertyColumn Property="x => x.Name" Title="Name" TProperty="string" T="StreamJoinerDTO" />
+
+     
+        <TemplateColumn CellClass="d-flex justify-end" T="StreamJoinerDTO">
+            <CellTemplate Context="template">
+                <MudStack Row=true Spacing="2">
+                    <IconButton ToolTip="@($"Edit {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Variant=Variant.Outlined OnClick="@(() => Edit(template.Item))" />
+                    <IconButton ToolTip="@($"Delete {template.Item.Name}")" Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" Variant=Variant.Outlined Color="Color.Surface" OnClick="@(() => Delete(template.Item))" />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+
+    </ColumnsTemplate>
+</TableTemplate>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback RefreshProcessFlowDiagram { get; set; }
+}

@@ -21,13 +21,7 @@
                     <Switch Label="Is Pump for washout?" @bind-Value="@Model.IsForWashing" ValidateAsync="ValidateAsync"></Switch>
 
                 </MudTabPanel>
-                @*  <MudTabPanel Text="Materials">
-                    <EquipmentMaterialTable EquipmentId="Model.Id"
-                                            EquipmentName="@Model.Name"
-                                            IsMixer=false
-                                            @bind-Items=@Model.MaterialEquipments ValidateAsync="ValidateAsync"></EquipmentMaterialTable>
-                    <ValidationMessage For="() => Model.Materials.Count" style="color:red; font-size:x-small;" />
-                </MudTabPanel> *@
+                
                 <MudTabPanel Text="Planned down time">
                     <EquipmentPlannedDownTimeTable @bind-Items=@Model.PlannedDownTimes EquipmentId="Model.Id" EquipmentName="@Model.Name"></EquipmentPlannedDownTimeTable>
                 </MudTabPanel>

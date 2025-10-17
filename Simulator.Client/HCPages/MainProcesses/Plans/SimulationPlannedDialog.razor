@@ -1,0 +1,70 @@
+﻿@using Simulator.Client.HCPages.LinePlanneds
+@using Simulator.Client.HCPages.MixerPlanneds
+
+
+
+
+
+<EditForm Model="@Model" OnValidSubmit="Submit">
+    <MudCard>
+        <MudCardContent>
+
+            <FluentValidationValidator @ref="_fluentValidationValidator" />
+
+            <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-1">
+                <MudTabPanel Text="Configuration">
+                    <TextField @bind-Value="@Model.Name"
+                               Label="Name"
+                               ValidateAsync="ValidateAsync"
+                               For="()=>Model.Name">
+                    </TextField>
+                    <DatePicker Label="Init Date" @bind-Value=@Model.InitDate For="() => Model.InitDate" ValidateAsync="ValidateAsync"></DatePicker>
+                    <TimePicker Label="Init Hour" @bind-Value=@Model.InitSpam></TimePicker>
+                    <DoubleNumericField Label="Planne Hours" @bind-Value=@Model.Hours For="() => Model.Hours" ValidateAsync="ValidateAsync"></DoubleNumericField>
+                    <Field Label="Init Date">@Model.InitDateString</Field>
+                    <Field Label="End Date">@Model.EndDateString</Field>
+                </MudTabPanel>
+
+                <MudTabPanel Text="PLanned Mixers">
+                    <MixerPlannedTable SimulationPlannedId="@Model.Id" MainProcesId="@Model.MainProcessId" @bind-Items=@Model.PlannedMixers ValidateAsync="ValidateAsync"></MixerPlannedTable>
+
+                </MudTabPanel>
+                <MudTabPanel Text="Planned Lines">
+                    <LinePlannedTable @bind-Items=@Model.PlannedLines MainProcesId="@Model.MainProcessId" SimulationPlannedId="@Model.Id" ValidateAsync="ValidateAsync"></LinePlannedTable>
+                    <ValidationMessage For="() => Model.PlannedLines.Count" style="color:red; font-size:x-small;" />
+                </MudTabPanel>
+                <MudTabPanel Text="Operators">
+                    <Switch @bind-Value=@Model.OperatorHasNotRestrictionToInitBatch Change="() => Validated = true">
+                        @if (Model.OperatorHasNotRestrictionToInitBatch)
+                        {
+                            @("No restriction to init batch")
+                        }
+                        else
+                        {
+                            @("Has restriction to init batch")
+                        }
+                    </Switch>
+                    @if (!Model.OperatorHasNotRestrictionToInitBatch)
+                    {
+                        <SelectUnit @bind-Value=@Model.MaxRestrictionTime Change="() => {
+                                                                            Model.ChangeMaxRestrictionTime();
+                                                                          Validated = true;}"
+                                    Label="Max restriction time"></SelectUnit>
+                    }
+                </MudTabPanel>
+            </MudTabs>
+
+
+
+        </MudCardContent>
+        <MudCardActions>
+
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="Cancel" Color="Color.Transparent" Variant="Variant.Outlined"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.Save" Disabled=!Validated ButtonType="ButtonType.Submit" Variant="Variant.Outlined"></MudIconButton>
+
+        </MudCardActions>
+    </MudCard>
+</EditForm>
+@code {
+
+}

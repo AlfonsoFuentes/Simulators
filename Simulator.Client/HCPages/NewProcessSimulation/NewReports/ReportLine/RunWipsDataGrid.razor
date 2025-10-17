@@ -1,0 +1,31 @@
+﻿
+@using MudBlazor
+
+<MudDataGrid T="WipTankForLineReport"
+             Items="@WipReports"
+             ReadOnly="true"
+             ExpandSingleRow="false">
+    <Columns>
+        <HierarchyColumn T="WipTankForLineReport" />
+        <PropertyColumn Property="w => w.Name" Title="WIP" />
+        <PropertyColumn Property="w => w.Batches.Count" Title="Batches" />
+        <PropertyColumn Property="w => w.TotalRealBatchTime" Title="Total Time" />
+        
+    </Columns>
+
+    <ChildRowContent>
+        <MudText Typo="Typo.subtitle2" Class="mb-2">Batch Details</MudText>
+        <WipBatchesDataGrid Batches="@context.Item.Batches" />
+    </ChildRowContent>
+</MudDataGrid>
+
+@code {
+    [Parameter] public List<WipTankForLineReport> WipReports { get; set; } = new();
+
+    private string GetStarvationClass(double percentage) => percentage switch
+    {
+        <= 10 => "starvation-low",
+        <= 20 => "starvation-medium",
+        _ => "starvation-high"
+    };
+}

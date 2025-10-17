@@ -1,0 +1,47 @@
+﻿@using Caldera
+<MudStack Spacing="3">
+    <div>
+        <b>@CompoundList.Name</b>
+    </div>
+    <MudStack Row=true Spacing="2">
+        <UnitField Label="Mass Flow">@CompoundList.MassFlow.ToString() </UnitField>
+        <UnitField Label="Molar Flow">@CompoundList.MolarFlow.ToString() </UnitField>
+        <UnitField Label="Mass Entalpy">@CompoundList.MassEntalpy.ToString() </UnitField>
+        <UnitField Label="Enthalpy Flow">@CompoundList.EnthalpyFlow.ToString() </UnitField>
+        <UnitField Label="Temperature">@CompoundList.Temperature.ToString() </UnitField>
+    </MudStack>
+    <MudDataGrid T="Compound"
+                 MultiSelection="false"
+                 Items="@FilteredItems"
+                 Hideable="false"
+                 Dense=true
+                 Bordered=true
+                 Hover=true
+                 RowsPerPage=@(FilteredItems.Count==0?100:FilteredItems.Count)
+                 Outlined=true
+                 Striped=true
+                 Virtualize=true>
+        <Columns>
+
+            <PropertyColumn Property="x => x.Name" Title="Name" T="Compound" TProperty="string" />
+
+            <PropertyColumn Property="x => x.Formula" Title="Formula" T="Compound" TProperty="string" />
+            <PropertyColumn Property="x => x.MolecularWeight" Title="PM" T="Compound" TProperty="double" />
+            <PropertyColumn Property="x => Math.Round(x.Molar_Percentage * 100, 2)" Title="%v/v" T="Compound" TProperty="double" />
+            <PropertyColumn Property="x => Math.Round(x.Mass_Percentage * 100, 2)" Title="%v/v" T="Compound" TProperty="double" />
+            <PropertyColumn Property="x => Math.Round(x.MolarFlow.GetValue(MolarFlowUnits.Kgmol_hr), 3)" Title="Molar flow,kgmol/hr" T="Compound" TProperty="double" />
+            <PropertyColumn Property="x => Math.Round(x.MassFlow.GetValue(UnitSystem.MassFlowUnits.Kg_hr), 3)" Title="Mass flow, Kg/hr" T="Compound" TProperty="double" />
+            <PropertyColumn Property="x => Math.Round(x.SpecificHeat.GetValue(MassEntropyUnits.KJ_Kg_C), 3)" Title="kgmol/hr" T="Compound" TProperty="double" />
+            <PropertyColumn Property="x => Math.Round(x.MassEntalpy.GetValue(MassEnergyUnits.KJ_Kg), 1)" Title="Kg/hr" T="Compound" TProperty="double" />
+        </Columns>
+
+        <PagerContent>
+            <MudDataGridPager T="Compound" />
+        </PagerContent>
+    </MudDataGrid>
+</MudStack>
+
+
+@code {
+
+}

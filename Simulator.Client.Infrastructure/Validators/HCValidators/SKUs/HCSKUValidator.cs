@@ -16,7 +16,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.SKUs
 
             RuleFor(x => x.Name).NotEmpty().WithMessage("Name must be defined!");
             RuleFor(x => x.SkuCode).NotEmpty().WithMessage("Code must be defined!");
-
+            RuleFor(x => x.FocusFactory).NotEqual(FocusFactory.None).WithMessage("Focus Factory must be defined!");
             RuleFor(x => x.ProductCategory).NotEqual(ProductCategory.None).WithMessage("Category must be defined!");
             RuleFor(x => x.BackBone).NotNull().WithMessage("Back Bone must be defined!");
             RuleFor(x => x.SizeValue).NotEqual(0).WithMessage("SKU Size must be defined!");
@@ -39,7 +39,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.SKUs
             ValidateSKUCodeRequest validate = new()
             {
                 SkuCode = request.SkuCode,
-
+                FocusFactory = request.FocusFactory,
 
                 Id = request.Id
 
@@ -52,7 +52,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.SKUs
             ValidateSKUNameRequest validate = new()
             {
                 Name = name,
-
+                 FocusFactory=request.FocusFactory,
 
                 Id = request.Id
 

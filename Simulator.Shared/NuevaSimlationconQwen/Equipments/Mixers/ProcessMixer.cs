@@ -8,11 +8,11 @@ using Simulator.Shared.NuevaSimlationconQwen.Reports;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 {
-    public class ProcessMixer : ManufaturingEquipment, ISetMaterialsAtOutlet, ILiveReportable
+    public partial class ProcessMixer : ManufaturingEquipment, ISetMaterialsAtOutlet, ILiveReportable
     {
-        public ReportColumn ReportColumn => ReportColumn.Column2_SkidsAndMixers;
-        public ReportPriorityInColumn ReportPriority => ReportPriorityInColumn.Low;
 
+        public List<BatchReport> BatchReports { get; set; } = new List<BatchReport>();
+        public BatchReport CurrentBatchReport { get; set; } = null!;
         public List<ProcessLine> PreferredLines { get; set; } = new List<ProcessLine>();
         public override Amount CurrentLevel { get; set; } = new Amount(0, MassUnits.KiloGram);
 
@@ -21,6 +21,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
         public List<ProcessPump> OutletPumps => OutletEquipments.OfType<ProcessPump>().ToList();
         public ProcessPump? OutletPump => OutletPumps.FirstOrDefault();
+       
         public virtual void SetMaterialsAtOutlet(IMaterial material)
         {
             foreach (var outlet in OutletPumps)
@@ -34,22 +35,34 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             base.OnInit(currentdate);
 
             InletState = new MixerInletWaitingForManufactureOrderState(this);
-            OutletState = new MixerOuletInitialState(this);
+            OutletState = new MixerOuletWaitingState(this);
         }
-        public override void ReceiveManufactureOrderFromWIP(IVesselManufactureOrder order)
+        public override void ReceiveManufactureOrderFromWIP(ITankManufactureOrder order)
         {
-            MixerManufactureOrder newOrderMixer = new MixerManufactureOrder(this, order);
+            CurrentBatchReport = new(this);
+            MixerManufactureOrder newOrderMixer = new MixerManufactureOrder(this, order, CurrentBatchReport);
+          
+            CurrentBatchReport.DateReceivedToInitBatch = this.CurrentDate;
+            CurrentBatchReport.BatchSize = newOrderMixer.BatchSize;
+            CurrentBatchReport.TheroticalBatchTime = newOrderMixer.BatchTime;
+      
+          
+            BatchReports.Add(CurrentBatchReport);
             ManufacturingOrders.Enqueue(newOrderMixer);
             order.AddMixerManufactureOrder(newOrderMixer);
 
         }
-        
+
+        public void InitBatchDate()
+        {
+            CurrentBatchReport.InitRealBatchDate(this.CurrentDate);
+        }
         public bool InitBatchFromQueue()
         {
             if (CurrentManufactureOrder == null && CurrentTransferRequest == null && ManufacturingOrders.Count > 0)
             {
                 CurrentLevel = new Amount(0, MassUnits.KiloGram);
-
+               
                 CurrentManufactureOrder = ManufacturingOrders.Dequeue();
 
                 return true;
@@ -60,13 +73,6 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
         public TransferFromMixertoWIPOrder? CurrentTransferRequest { get; set; } = null;
 
-
-        public void ReceiveTransferReInitStarvedFromWIP()
-        {
-            //Recibe esta informacion la procesa el manejador de estados
-            TransferdStarvedReleased = true;
-
-        }
         public void ReceiveTransferFinalizedFromWIP()
         {
             //Recibe esta informacion la procesa el manejador de estados
@@ -76,8 +82,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
                 CurrentManufactureOrder = null!;
                 CurrentLevel = ZeroMass;
                 CurrentTransferRequest = null;
-                InletFinalizedCurrentTransferReceived = true;
-                OutletFinalizedCurrentTransferReceived = true;
+                OutletState = new MixerOuletWaitingState(this);
+                InletState = new MixerInletWaitingForManufactureOrderState(this);
+
             }
 
         }
@@ -92,8 +99,6 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
             }
 
         }
-
-
 
         public bool IsMustWashTank()
         {
@@ -122,7 +127,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
             return false;
         }
-        
+
         public Amount GetWashoutTime()
         {
             if (LastMaterial != null)
@@ -139,8 +144,8 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
             return new Amount(0, TimeUnits.Second);
         }
-        
-       
+
+
 
         public bool IsManufacturingRecipeFinished()
         {
@@ -150,9 +155,23 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
                 return false;
             }
-
+            SentNewTransferRequestToWIP();
 
             return true;
+        }
+        public bool IsCurrentStepByOperator()
+        {
+            if (CurrentManufactureOrder == null || CurrentManufactureOrder.CurrentStep == null) return false;
+            if (CurrentManufactureOrder.CurrentStep.BackBoneStepType == BackBoneStepType.Adjust ||
+                CurrentManufactureOrder.CurrentStep.BackBoneStepType == BackBoneStepType.Analisys ||
+                CurrentManufactureOrder.CurrentStep.BackBoneStepType == BackBoneStepType.Connect_Mixer_WIP ||
+                CurrentManufactureOrder.CurrentStep.BackBoneStepType == BackBoneStepType.Transfer_To_Drop)
+            {
+
+                return true;
+            }
+            return false;
+
         }
         public bool IsCurrentStepDifferentThanAdd()
         {
@@ -177,163 +196,204 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         }
         public bool IsCurrentStepFeederAvailable()
         {
-            if (CurrentManufactureOrder == null || CurrentManufactureOrder.CurrentStep == null|| !CurrentManufactureOrder.CurrentStep.RawMaterialId.HasValue) return false;
-            if(IsMaterialFeederAvailable(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value))
+            if (CurrentManufactureOrder == null || CurrentManufactureOrder.CurrentStep == null || !CurrentManufactureOrder.CurrentStep.RawMaterialId.HasValue) return false;
+            var IsOperator = IsMaterialFeederOperator(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value);
+            var newFeeder = IsMaterialFeederAvailableForMixer(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value);
+            if (IsOperator && newFeeder == null)
             {
-                Feeder = AssignMaterialFeeder(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value);
-                if (Feeder != null)
+                if (ProcessOperator != null && !ProcessOperator.OperatorHasNotRestrictionToInitBatch && ProcessOperator.OcuppiedBy == this)
                 {
-                    CalculateMassSteRequirements(); 
+                    //El operador es el feeder  no hay que asignar ni encolar
                     return true;
                 }
-               
+
+            }
+            if (newFeeder != null)
+            {
+
+
+                //Es bomba pero no es el operador o el operador es asignable porque no esta en uso en el mixer
+                Feeder = newFeeder;
+                Feeder.ActualFlow = Feeder.Flow;
+                Feeder.OcuppiedBy = this;
+                Feeder.OutletState = new FeederIsInUseByAnotherEquipmentState(Feeder);
+
+                return true;
+
             }
             EnqueueForMaterialFeeder(CurrentManufactureOrder.CurrentStep.RawMaterialId.Value);
-          
+
 
             return false;
         }
-        
-        
-       
-       
-        public bool IsTransferOrderSent()
+        public void ReleseCurrentMassStep()
+        {
+
+            if (Feeder != null)
+            {
+                ReleaseFeeder(Feeder);
+
+            }
+        }
+        void SentNewTransferRequestToWIP()
         {
             if (CurrentManufactureOrder != null)
             {
                 CurrentManufactureOrder.WIPOrder.RemoveManufactureOrdersFromMixers(CurrentManufactureOrder);
 
                 TransferFromMixertoWIPOrder newTransferOrder =
-                    new TransferFromMixertoWIPOrder(this, CurrentManufactureOrder.WIPOrder.WIP, CurrentManufactureOrder.BatchSize,
+                    new TransferFromMixertoWIPOrder(this, CurrentManufactureOrder.WIPOrder.Tank, CurrentManufactureOrder.BatchSize,
                     OutletPump?.Flow ?? new Amount(0, MassFlowUnits.Kg_min));
-                CurrentManufactureOrder.WIPOrder.WIP.ReceiveTransferRequestFromMixer(newTransferOrder);
-
-
+                CurrentManufactureOrder.WIPOrder.Tank.ReceiveTransferRequestFromMixer(newTransferOrder);
             }
-            return true;
         }
-        bool TransferRequestReceived = false;
+
+
+
+
         public void ReceiveTransferOrderFromWIPToInit(TransferFromMixertoWIPOrder TransferRequest)
         {
             //El manejador de estados del mixer manejara esta informacion
             CurrentTransferRequest = TransferRequest;
-            TransferRequestReceived = true;
-        }
-        public bool IsTransferRequestReceived()
-        {
-            if (TransferRequestReceived)
+            OutletState = new MixerOuletTransferingToWIPState(this);
+            if (ProcessOperator != null)
             {
-                TransferRequestReceived = false;
-                return true;
+                ReleaseOperator();
             }
+        }
+        public ProcessOperator? ProcessOperator { get; set; } = null!;
+        public bool IsOperatorAvailable()
+        {
+
+            var operators = InletEquipments.OfType<ProcessOperator>().ToList();
+
+            if (operators.Any())
+            {
+                var firstoperator = operators.FirstOrDefault(f => f.OutletState is FeederAvailableState);
+                if (firstoperator != null)
+                {
+                    ProcessOperator = AssignOperator();
+                    return true;
+                }
+                else
+                {
+                    EnqueueForOperator();
+                }
+
+            }
+
             return false;
         }
-        public bool IsTransferStarved()
+        public virtual ProcessOperator? AssignOperator()
         {
-            if (TransferStarved)
+            var feeder = InletEquipments
+                .OfType<ProcessOperator>()
+                .FirstOrDefault(f => f.OutletState is FeederAvailableState);
+
+            if (feeder != null)
             {
-                TransferStarved = false;
-                return true;
+                feeder.OcuppiedBy = this;
+
+                feeder.OutletState = new FeederIsInUseByAnotherEquipmentState(feeder);
+
+
             }
-            return false;
+            return feeder;
         }
-        bool TransferStarved = false;
-        public void ReceiveTransferStarvedFromWIP()
+        public virtual void EnqueueForOperator()
         {
-            //Recibe esta informacion la procesa el manejador de estados
-            TransferStarved = true;
+            var candidates = InletEquipments
+                .OfType<ProcessOperator>()
 
-        }
-        bool TransferdStarvedReleased = false;
-        public bool IsTranferStarvedReleased()
-        {
-            if (TransferdStarvedReleased)
+                .ToList();
+
+            if (candidates.Any())
             {
-                TransferdStarvedReleased = false;
-                return true;
+
+                var best = candidates.OrderBy(f => f.GetWaitingQueueLength()).First();
+                best.EnqueueWaitingEquipment(this);
             }
-            return false;
         }
-        bool InletFinalizedCurrentTransferReceived = false;
-        bool OutletFinalizedCurrentTransferReceived = false;
-        public bool IsOutletTransferFinished()
+        public void ReleaseOperator()
         {
-            if (OutletFinalizedCurrentTransferReceived)
+            var _feeder = ProcessOperator;
+            if (_feeder != null)
             {
+                // 1. Liberar nombre
+                _feeder.OcuppiedBy = null!;
 
-                OutletFinalizedCurrentTransferReceived = false;
-                return true;
+                // 2. Cambiar estado a disponible
+                _feeder.OutletState = new FeederAvailableState(_feeder);
+
+                // 3. Notificar al siguiente en la cola
+                NotifyNextWaitingEquipment(_feeder);
+                ProcessOperator = null!;
+
             }
-            return false;
         }
-        public bool IsInletTransferFinished()
+        public void OnOperatorMayBeAvailable(ProcessMixer mixer, ProcessOperator feeder)
         {
-            if (InletFinalizedCurrentTransferReceived)
+            if (feeder.OutletState is FeederAvailableState || feeder.OutletState is FeederRealesStarvedState)
             {
-                InletFinalizedCurrentTransferReceived = false;
-                return true;
+                mixer.EndCriticalReport();
+                feeder.OcuppiedBy = mixer;
+                feeder.OutletState = new FeederIsInUseByAnotherEquipmentState(feeder);
+
+                if (mixer.InletState is MixerBatchingByMassStarvedByFeederNoAvailableState)
+                {
+                    mixer.Feeder = feeder;
+                }
+                else if (mixer.InletState is MixerInletStarvedCatchOperatorStarvedTimeState ||
+                    mixer.InletState is MixerBatchingByOperatorStarvedState ||
+                    mixer.InletState is MixerInletStarvedCatchOperatorStarvedNoTimeState)
+                {
+
+                    mixer.ProcessOperator = feeder;
+                }
+
+
             }
-            return false;
         }
-        public void CalculateMassSteRequirements()
+        public void NotifyNextWaitingEquipment(ProcessOperator feeder)
         {
-            if (CurrentManufactureOrder == null && CurrentManufactureOrder!.CurrentStep is null) return;
+            if (feeder.WaitingQueue.Count == 0) return;
 
-            var step = CurrentManufactureOrder.CurrentStep;
-            var batchsize = CurrentManufactureOrder.BatchSize;
-            RequiredMass = step.Percentage / 100 * batchsize;
-            StepMass = Feeder?.Flow * OneSecond;
-            PendingMass += RequiredMass;
-
-
-
-        }
-        public Amount RequiredMass = new Amount(0, MassUnits.KiloGram);
-        public Amount PendingMass = new Amount(0, MassUnits.KiloGram);
-        Amount StepMass = new Amount(0, MassUnits.KiloGram);
-        public bool IsMassStepFinalized()
-        {
-            if (PendingMass <= ZeroMass)
+            var next = feeder.WaitingQueue.First!.Value;
+            feeder.WaitingQueue.RemoveFirst();
+            if (next is ProcessMixer mixer)
             {
-                RequiredMass = new Amount(0, MassUnits.KiloGram);
-                PendingMass = new Amount(0, MassUnits.KiloGram);
-                StepMass = new Amount(0, MassUnits.KiloGram);
-                ReleseCurrentMassStep();
-                return true;
+                OnOperatorMayBeAvailable(mixer, feeder);
+
             }
-            return false;
+
+
+
         }
-        public void CalculateMassStep()
+
+        public bool IsOperatorStarvedAtInit { get; set; } = false;
+        public Amount OperatorStarvedTime = new Amount(0, TimeUnits.Second);
+        public Amount OperatorStarvedCurrenTime = new Amount(0, TimeUnits.Second);
+        public Amount OperatorStarvedPendingTime => OperatorStarvedTime - OperatorStarvedCurrenTime;
+        public void CalculateOperatorStarvedTimeCompleted()
         {
-
-
-            if (Feeder is ProcessOperator)
+            if (OperatorStarvedPendingTime <= ZeroTime)
             {
-                PendingMass -= RequiredMass;
-                CurrentLevel += RequiredMass;
+                if (IsOperatorStarvedAtInit)
+                {
+
+                    OperatorStarvedTime = new Amount(0, TimeUnits.Second);
+                    OperatorStarvedCurrenTime = new Amount(0, TimeUnits.Second);
+                    IsOperatorStarvedAtInit = false;
+                }
+                ReleaseOperator();
+
             }
             else
             {
-                if (PendingMass <= StepMass)
-                {
-                    StepMass = PendingMass;
-                }
-                PendingMass -= StepMass;
-                CurrentLevel += StepMass;
+                OperatorStarvedCurrenTime += OneSecond;
             }
 
-            CurrentManufactureOrder.CurrentBatchTime += OneSecond;
-        }
 
-        public void ReleseCurrentMassStep()
-        {
-            if (Feeder != null)
-            {
-               
-                ReleaseFeeder(Feeder);
-            
-
-            }
         }
     }
 

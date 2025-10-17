@@ -21,6 +21,7 @@ namespace Simulator.Shared.Models.HCs.BackBoneSteps
         public Guid? RawMaterialId => StepRawMaterial == null ? null : StepRawMaterial.Id;
         public MaterialDTO StepRawMaterial { get; set; } = null!;
 
+        
 
         public BackBoneStepType BackBoneStepType { get; set; } = BackBoneStepType.None;
         public double Percentage { get; set; }

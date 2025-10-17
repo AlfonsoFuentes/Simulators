@@ -1,0 +1,138 @@
+﻿@* MixerUtilizationTable.razor *@
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
+
+@* <MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
+    <MudText Typo="Typo.h5" Class="mb-4">Mixer Utilization Summary</MudText>
+
+    <MudTable Items="@_sortedMixers"
+              Hover="true"
+              Dense="true"
+              Breakpoint="Breakpoint.Sm"
+        
+              LoadingProgressColor="Color.Info">
+
+        <HeaderContent>
+            <MudTh>Mixer</MudTh>
+            <MudTh>Utilization</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Production</MudTh>
+            <MudTh>Wash</MudTh>
+            <MudTh>No Batch</MudTh>
+            <MudTh>No Feeder</MudTh>
+            <MudTh>No Operator</MudTh>
+            <MudTh>Transfer</MudTh>
+            <MudTh>Other</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            @{
+                var util = GetUtilization(context);
+                var status = GetCurrentStatus(context);
+            }
+            <MudTd DataLabel="Mixer"><MudText Typo="Typo.subtitle2">@context.Name</MudText></MudTd>
+            <MudTd DataLabel="Utilization" Class="@GetUtilizationClass(util)">@($"{util}%")</MudTd>
+            <MudTd DataLabel="Status">@status</MudTd>
+            <MudTd DataLabel="Production">@($"{context.Metrics.GetPercentageTime(MixerTimeType.Batching)}%")</MudTd>
+            <MudTd DataLabel="Wash">@($"{context.Metrics.GetPercentageTime(MixerTimeType.Washing)}%")</MudTd>
+            <MudTd DataLabel="No Batch" Class="@GetStarvedClass(context.Metrics.GetPercentageTime(MixerTimeType.NoBatchAssigned))">
+                @($"{context.Metrics.GetPercentageTime(MixerTimeType.NoBatchAssigned)}%")
+            </MudTd>
+            <MudTd DataLabel="No Feeder" Class="@GetStarvedClass(context.Metrics.GetPercentageTime(MixerTimeType.StarvedByFeeder))">
+                @($"{context.Metrics.GetPercentageTime(MixerTimeType.StarvedByFeeder)}%")
+            </MudTd>
+            <MudTd DataLabel="No Operator" Class="@GetStarvedClass(context.Metrics.GetPercentageTime(MixerTimeType.StarvedByOperator))">
+                @($"{context.Metrics.GetPercentageTime(MixerTimeType.StarvedByOperator)}%")
+            </MudTd>
+            <MudTd DataLabel="Transfer">@($"{context.Metrics.GetPercentageTime(MixerTimeType.TransferToWIP)}%")</MudTd>
+            <MudTd DataLabel="Other">
+                @($"{GetOtherTime(context)}%")
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudContainer> *@
+
+<style>
+    .util-high {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .util-medium {
+        background-color: #fff8e1;
+        color: #f57f17;
+        font-weight: bold;
+    }
+
+    .util-low {
+        background-color: #ffebee;
+        color: #c62828;
+        font-weight: bold;
+    }
+
+    .starved-cell {
+        background-color: #ffecb3;
+        color: #e65100;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+   
+    // private IEnumerable<ProcessMixer> Mixers =>
+    //      Simulation.Equipments
+    //                .OfType<ProcessMixer>()
+    //                .OrderBy(m => m.Name);
+
+
+
+
+    // private List<ProcessMixer> _sortedMixers =>
+    //     Mixers.OrderByDescending(m =>
+    //         m.Metrics.GetPercentageTime(MixerTimeType.StarvedByFeeder) +
+    //         m.Metrics.GetPercentageTime(MixerTimeType.StarvedByOperator) +
+    //         m.Metrics.GetPercentageTime(MixerTimeType.NoBatchAssigned)
+    //     ).ToList();
+
+    // [Parameter] public GeneralSimulation Simulation { get; set; } = null!;
+
+    // private double GetUtilization(ProcessMixer mixer) =>
+    //     mixer.Metrics.GetPercentageTime(MixerTimeType.Batching) +
+    //     mixer.Metrics.GetPercentageTime(MixerTimeType.Washing);
+
+    // private double GetOtherTime(ProcessMixer mixer)
+    // {
+    //     var total =
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.Batching) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.Washing) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.NoBatchAssigned) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByFeeder) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByOperator) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.TransferToWIP) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByWashoutPump) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.StarvedByTransferToWIP) +
+    //         mixer.Metrics.GetPercentageTime(MixerTimeType.PlannedDowntime);
+    //     return Math.Round(Math.Max(0, 100 - total), 2);
+    // }
+
+    // private string GetUtilizationClass(double util) => util switch
+    // {
+    //     >= 80 => "util-high",
+    //     >= 60 => "util-medium",
+    //     _ => "util-low"
+    // };
+
+    // private string GetStarvedClass(double pct) =>
+    //     pct > 10 ? "starved-cell" : "";
+
+    // private string GetCurrentStatus(ProcessMixer mixer)
+    // {
+    //     var state = mixer.InletState?.StateLabel ?? "Unknown";
+    //     if (state.Contains("Starved", StringComparison.OrdinalIgnoreCase)) return "Starved";
+    //     if (state.Contains("Washing", StringComparison.OrdinalIgnoreCase)) return "Washing";
+    //     if (state.Contains("Waiting", StringComparison.OrdinalIgnoreCase)) return "Idle";
+    //     if (state.Contains("Production", StringComparison.OrdinalIgnoreCase)) return "Running";
+    //     if (state.Contains("Transfer", StringComparison.OrdinalIgnoreCase)) return "Transferring";
+    //     return "Other";
+    // }
+}

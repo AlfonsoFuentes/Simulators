@@ -95,7 +95,9 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
                     case ProccesEquipmentType.Line:
                         Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
-                    
+                    case ProccesEquipmentType.StreamJoiner:
+                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
+                        break;
                     default:
                         Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;

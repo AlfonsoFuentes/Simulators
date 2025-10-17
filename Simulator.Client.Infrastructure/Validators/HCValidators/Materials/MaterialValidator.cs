@@ -18,11 +18,12 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
             RuleFor(x => x.CommonName).NotEmpty().WithMessage("Common Name must be defined!");
 
             RuleFor(x => x.MaterialType).NotEqual(MaterialType.None).WithMessage("Material Type must be defined!");
-          
+            RuleFor(x => x.FocusFactory).NotEqual(FocusFactory.None).WithMessage("Focus Factory must be defined!");
+
             RuleFor(x => x.PhysicalState).NotEqual(MaterialPhysicState.None).WithMessage("Physical State must be defined!");
             RuleFor(x => x.ProductCategory)
                 .NotEqual(ProductCategory.None)
-                .When(x =>x.MaterialType == MaterialType.RawMaterialBackBone||x.MaterialType== MaterialType.ProductBackBone)
+                .When(x => x.MaterialType == MaterialType.RawMaterialBackBone || x.MaterialType == MaterialType.ProductBackBone)
                 .WithMessage("Product Category must be defined!");
 
             RuleFor(x => x.BackBoneSteps.Count)
@@ -50,7 +51,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
             ValidateMaterialNameRequest validate = new()
             {
                 SapName = name,
-
+                FocusFactory = request.FocusFactory,
 
                 Id = request.Id
 
@@ -64,7 +65,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
             {
                 MNumber = name,
 
-
+                FocusFactory = request.FocusFactory,
                 Id = request.Id
 
             };
@@ -76,7 +77,7 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
             ValidateMaterialCommonNameRequest validate = new()
             {
                 CommonName = name,
-
+                FocusFactory = request.FocusFactory,
 
                 Id = request.Id
 

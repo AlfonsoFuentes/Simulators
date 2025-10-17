@@ -10,17 +10,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
 
     }
-    public class MixerOuletInitialState : MixerOuletState
-    {
-        public MixerOuletInitialState(ProcessMixer wip) : base(wip)
-        {
-            //Sirve para identificar en el constructor por cual via iniciara el calculo por tanques wips conectados a mixers o tanques wips conectados a SKID
-            StateLabel = $"Initiating Calculation for Mixer outlet";
-            AddTransition<MixerOuletWaitingState>();
-        }
 
-
-    }
 
     public class MixerOuletWaitingState : MixerOuletState
     {
@@ -29,9 +19,9 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
         public MixerOuletWaitingState(ProcessMixer mixer) : base(mixer)
         {
             StateLabel = $"Waiting for Receive Transfer Request";
-            AddTransition<MixerOuletTransferingToWIPState>(mixer => mixer.IsTransferRequestReceived());
 
-            
+
+
         }
 
 
@@ -44,34 +34,58 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
 
         public MixerOuletTransferingToWIPState(ProcessMixer mixer) : base(mixer)
         {
-            if(mixer.CurrentTransferRequest!=null)
+            if (mixer.CurrentTransferRequest != null)
             {
                 StateLabel = $"Transfering to {mixer.CurrentTransferRequest.DestinationWip.Name}";
             }
-            
-            AddTransition<MixerOuletTransferingToWIPStarvedState>(mixer => mixer.IsTransferStarved());
-            AddTransition<MixerOuletWaitingState>(mixer => mixer.IsOutletTransferFinished());
 
-           
+
+            AddTransition<MixerOuletTransferingToWIPStarvedState>(mixer =>
+            {
+                if (mixer.CurrentTransferRequest?.IsTransferStarved == true)
+                {
+
+                    return true;
+                }
+                return false;
+            });
+
+
+
+        }
+        public override void Run(DateTime currentdate)
+        {
+            Context.CurrentBatchReport.RecordTime(MixerTimeType.TransferToWIP);
         }
 
 
 
-
     }
-    public class MixerOuletTransferingToWIPStarvedState : MixerOuletState
+    public class MixerOuletTransferingToWIPStarvedState : MixerOuletState, IMixerStarved
     {
 
 
         public MixerOuletTransferingToWIPStarvedState(ProcessMixer mixer) : base(mixer)
         {
             StateLabel = $"Transfering to WIP Starved";
-            AddTransition<MixerOuletTransferingToWIPState>(mixer => mixer.IsTranferStarvedReleased());
-    
-           
-        }
+            AddTransition<MixerOuletTransferingToWIPState>(mixer =>
+            {
+                if (mixer.CurrentTransferRequest?.IsTransferAvailable == true)
+                {
 
+
+                    return true;
+                }
+                return false;
+            });
+
+
+        }
+        public override void Run(DateTime currentdate)
+        {
+            Context.CurrentBatchReport.RecordTime(MixerTimeType.StarvedByTransferToWIP);
+        }
     }
-    
-    
+
+
 }

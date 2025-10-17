@@ -16,11 +16,12 @@
         <PropertyColumn Property="x => x.M_Number" Title="M-Number" TProperty="string" T="MaterialDTO" />
         <PropertyColumn Property="x => x.SAPName" Title="SAP Name" TProperty="string" T="MaterialDTO" />
         <PropertyColumn Property="x => x.CommonName" Title="Common Name" TProperty="string" T="MaterialDTO" />
-        <PropertyColumn Property="x => x.SumOfPercentage.ToString()" Title="Sum Percentage" TProperty="string" T="MaterialDTO" />
-        <PropertyColumn Property="x => x.ProductCategory.ToString()" Title="Category" TProperty="string" T="MaterialDTO" Groupable="true" Filterable="true" />
-        
+        <PropertyColumn Property="x => x.FocusFactory.ToString()" Title="Focus Factory" TProperty="string" T="MaterialDTO" Groupable="true" Filterable="true" />
         <PropertyColumn Property="x => x.MaterialType.ToString()" Title="Type" TProperty="string" T="MaterialDTO" Groupable="true" Filterable="true" />
-        <PropertyColumn Property="x => x.PhysicalState.ToString()" Title="Physical state" TProperty="string" T="MaterialDTO" Groupable="true" Filterable="true" />
+        <PropertyColumn Property="x => x.ProductCategory.ToString()" Title="Category" TProperty="string" T="MaterialDTO" />        
+      
+        <PropertyColumn Property="x => x.PhysicalState.ToString()" Title="Physical state" TProperty="string" T="MaterialDTO"  />
+        <PropertyColumn Property="x => x.SumOfPercentage.ToString()" Title="Sum Percentage" TProperty="string" T="MaterialDTO" />
         <TemplateColumn CellClass="d-flex justify-end" T="MaterialDTO">
             <CellTemplate Context="template">
                 <MudStack Row=true Spacing="2">

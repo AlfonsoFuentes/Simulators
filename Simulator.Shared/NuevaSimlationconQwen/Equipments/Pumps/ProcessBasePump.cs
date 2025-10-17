@@ -2,6 +2,7 @@
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Skids;
 using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks;
+using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks.States;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
 {
@@ -16,7 +17,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
         public List<ManufaturingEquipment> InletManufacturingEquipments => InletEquipments.OfType<ManufaturingEquipment>().ToList();
         public List<ProcessWipTankForLine> InletWipTanks => InletEquipments.OfType<ProcessWipTankForLine>().ToList();
         public ProcessWipTankForLine? WipTank => InletWipTanks.FirstOrDefault();
-        public List<ProcessRecipedRawMaterialTank> RecipedRawMaterialTank => OutletEquipments.OfType<ProcessRecipedRawMaterialTank>().ToList();
+        public List<ProcessRecipedTank> RecipedRawMaterialTank => OutletEquipments.OfType<ProcessRecipedTank>().ToList();
         public List<ProcessWipTankForLine> WIPTanksForLines => OutletEquipments.OfType<ProcessWipTankForLine>().ToList();
         public List<ProcessLine> Lines => OutletEquipments.OfType<ProcessLine>().ToList();
         public ProcessLine? Line => Lines.FirstOrDefault();
@@ -34,7 +35,32 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Pumps
 
         public override bool IsAnyTankInletStarved()
         {
-            return InletTanks.Any(x => x.OutletState is ITankOuletStarved);
+            if (Name.Contains("Agua"))
+            {
+
+            }
+            if (InletTanks.Any(x => x.OutletState is ITankOuletStarved))
+            {
+                StarvedByInletState = true;
+                return true;
+            }
+            return false;
+        }
+        public override bool IsAnyTankInletStarvedRealesed()
+        {
+            
+            if (InletTanks.All(x => x.OutletState is TankOutletAvailableState))
+            {
+                if (Name.Contains("B-Agua#1") || Name.Contains("B-Agua#2"))
+                {
+
+                }
+                StarvedByInletState = false;
+               
+                return true;
+            }
+            return false;
+
         }
     }
 }

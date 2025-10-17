@@ -13,7 +13,7 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
             Func<IQueryable<SKU>, IIncludableQueryable<SKU, object>> includes = x => x
                    .Include(y => y.Material!);
 
-            string CacheKey = StaticClass.SKUs.Cache.GetAll;
+            string CacheKey = StaticClass.SKUs.Cache.GetAll(simulation.FocusFactory);
             var rows = await Repository.GetAllAsync<SKU>(Cache: CacheKey, Includes: includes);
 
             if (rows != null && rows.Count > 0)

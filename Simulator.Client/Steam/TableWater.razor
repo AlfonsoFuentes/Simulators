@@ -1,0 +1,19 @@
+﻿
+<MudStack Spacing="3">
+    <div>
+        <b>@Compound.Name</b>
+    </div>
+    <MudStack Row=true Spacing="2">
+        <UnitField Label="Temperature">@Compound.Temperature.ToString() </UnitField>
+        <UnitField Label="Pressure (a)">@Compound.Pressure.ToString() </UnitField>
+        <UnitField Label="Mass Flow">@Compound.MassFlow.ToString() </UnitField>
+        <UnitField Label="Volemtric Flow">@Compound.VolumetricFlow.ToString() </UnitField>
+        <UnitField Label="Mass Entalpy">@Compound.MassEntalpy.ToString() </UnitField>
+        <UnitField Label="Enthalpy Flow">@Compound.EnthalpyFlow.ToString() </UnitField>
+        
+    </MudStack>
+ 
+</MudStack>
+@code {
+
+}

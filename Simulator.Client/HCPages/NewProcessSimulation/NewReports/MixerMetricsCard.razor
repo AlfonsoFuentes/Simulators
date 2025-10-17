@@ -1,0 +1,121 @@
+﻿@* MixerMetricsCard.razor *@
+@using Simulator.Shared.NuevaSimlationconQwen.Equipments.Mixers
+
+@* <MudPaper Elevation="1" Class="pa-4 mb-4" Style="@($"border-left: 4px solid {GetBorderColor()};")">
+    <MudText Typo="Typo.h6" Class="mb-2">@Mixer.Name</MudText>
+
+    <!-- Utilización y estado actual -->
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudText Typo="Typo.body2">Utilization</MudText>
+            <MudText Typo="Typo.h6" Color="GetUtilizationColor()">
+                @_utilization %
+            </MudText>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudText Typo="Typo.body2">Current State</MudText>
+            <MudText Typo="Typo.subtitle1" Color="GetCurrentStateColor()">
+                @_currentState
+            </MudText>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Barras de tiempo por categoría -->
+    <div class="mt-3">
+        @foreach (var entry in _timeCategories)
+        {
+            if (entry.Percentage > 0)
+            {
+                <div class="d-flex align-center mb-1">
+                    <MudIcon Icon="@entry.Icon" Size="Size.Small" Class="mr-2" />
+                    <MudText Typo="Typo.body2" Style="width: 120px;">@entry.Label</MudText>
+                    <MudProgressLinear Value="@entry.Percentage"
+                                       Color="@entry.Color"
+                                       Style="flex-grow: 1; margin: 0 8px;" />
+                    <MudText Typo="Typo.body2" Style="width: 50px; text-align: right;">@entry.Percentage %</MudText>
+                </div>
+            }
+        }
+    </div>
+</MudPaper> *@
+
+@code {
+    // [Parameter] public ProcessMixer Mixer { get; set; } = null!;
+
+    // private double _utilization =>
+    //     Mixer.Metrics.GetPercentageTime(MixerTimeType.Batching) +
+    //     Mixer.Metrics.GetPercentageTime(MixerTimeType.Washing);
+
+    // private string _currentState => Mixer.InletState?.StateLabel ?? Mixer.InletState?.StateLabel ?? "UnkNown";
+
+    // private Color GetUtilizationColor() => _utilization switch
+    // {
+    //     >= 80 => Color.Success,
+    //     >= 60 => Color.Warning,
+    //     _ => Color.Error
+    // };
+
+    // private Color GetCurrentStateColor()
+    // {
+    //     if (_currentState.Contains("Starved", StringComparison.OrdinalIgnoreCase))
+    //         return Color.Warning;
+    //     if (_currentState.Contains("Washing", StringComparison.OrdinalIgnoreCase))
+    //         return Color.Tertiary;
+    //     if (_currentState.Contains("Waiting", StringComparison.OrdinalIgnoreCase))
+    //         return Color.Default;
+    //     return Color.Primary;
+    // }
+
+    // private string GetBorderColor() => GetUtilizationColor() switch
+    // {
+    //     Color.Success => "#4caf50",
+    //     Color.Warning => "#ff9800",
+    //     Color.Error => "#f44336",
+    //     _ => "#9e9e9e"
+    // };
+
+    // private readonly List<TimeCategory> _timeCategories = new();
+
+    // protected override void OnParametersSet()
+    // {
+    //     LoadTimeCategories();
+    // }
+
+    // private void LoadTimeCategories()
+    // {
+    //     _timeCategories.Clear();
+    //     AddCategory(MixerTimeType.Batching, "Production", Icons.Material.Filled.PlayCircle, Color.Success);
+    //     AddCategory(MixerTimeType.Washing, "Washout", Icons.Material.Filled.CleaningServices, Color.Tertiary);
+    //     AddCategory(MixerTimeType.StarvedByFeeder, "No Feeder", Icons.Material.Filled.Inventory, Color.Error);
+    //     AddCategory(MixerTimeType.StarvedByOperator, "No Operator", Icons.Material.Filled.Person, Color.Warning);
+    //     AddCategory(MixerTimeType.StarvedByWashoutPump, "No Washout pump", Icons.Material.Filled.WaterDrop, Color.Warning);
+    //     AddCategory(MixerTimeType.NoBatchAssigned, "No Manufacture Order", Icons.Material.Filled.List, Color.Default);
+    //     AddCategory(MixerTimeType.TransferToWIP, "Transfer to WIP", Icons.Material.Filled.TravelExplore, Color.Info);
+    //     AddCategory(MixerTimeType.StarvedByTransferToWIP, "Transfer to WIP Starved", Icons.Material.Filled.Timer, Color.Warning);
+    //     AddCategory(MixerTimeType.PlannedDowntime, "Planned Downtime", Icons.Material.Filled.Schedule, Color.Default);
+    //     AddCategory(MixerTimeType.Other, "Other", Icons.Material.Filled.More, Color.Default);
+    // }
+
+    // private void AddCategory(MixerTimeType type, string label, string icon, Color color)
+    // {
+    //     var pct = Mixer.Metrics.GetPercentageTime(type);
+    //     if (pct > 0 || type == MixerTimeType.Batching)
+    //     {
+    //         _timeCategories.Add(new TimeCategory
+    //         {
+    //             Label = label,
+    //             Percentage = pct,
+    //             Icon = icon,
+    //             Color = color
+    //         });
+    //     }
+    // }
+
+    // private class TimeCategory
+    // {
+    //     public string Label { get; init; } = string.Empty;
+    //     public double Percentage { get; init; }
+    //     public string Icon { get; init; } = string.Empty;
+    //     public Color Color { get; init; }
+    // }
+}

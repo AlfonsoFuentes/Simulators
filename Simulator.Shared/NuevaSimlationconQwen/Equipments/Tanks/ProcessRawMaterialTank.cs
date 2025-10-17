@@ -1,5 +1,4 @@
-﻿
-using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks.ProcessWipTankForLines.States.InletStates.StatesForTankSKIDs;
+﻿using Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks.States;
 
 namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 {
@@ -13,6 +12,10 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Equipments.Tanks
 
         public bool FillingRawMaterialTank()
         {
+            if (Name.Contains("Agua"))
+            {
+
+            }
             CurrentLevel += (Capacity - CurrentLevel);
             return true;
         }

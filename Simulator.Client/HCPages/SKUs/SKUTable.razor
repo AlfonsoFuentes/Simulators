@@ -15,13 +15,15 @@
         <SelectColumn T="SKUDTO" />
         <PropertyColumn Property="x => x.SkuCode" Title="Code" TProperty="string" T="SKUDTO" />
         <PropertyColumn Property="x => x.Name" Title="Name" TProperty="string" T="SKUDTO" />
-        <PropertyColumn Property="x => x.BackBoneM_Number" Title="Backbone Code" TProperty="string" T="SKUDTO" Groupable="true" Filterable="true" />
+        <PropertyColumn Property="x => x.BackBoneM_Number" Title="Backbone Code" TProperty="string" T="SKUDTO" />
+        <PropertyColumn Property="x => x.FocusFactory.ToString()" Title="Focus Factory" TProperty="string" T="SKUDTO" Groupable="true" Filterable="true" />
+        <PropertyColumn Property="x => x.ProductCategory.ToString()" Title="Category" TProperty="string" T="SKUDTO" Groupable="true" Filterable="true" />
         <PropertyColumn Property="x => x.PackageType.ToString()" Title="Type" TProperty="string" T="SKUDTO" Groupable="true" Filterable="true" />
         <PropertyColumn Property="x => x.Size.ToString()" Title="Size" TProperty="string" T="SKUDTO" />
         <PropertyColumn Property="x => x.Weigth.ToString()" Title="Weight" TProperty="string" T="SKUDTO" />
         <PropertyColumn Property="x => x.EA_Case.ToString()" Title="EA/case" TProperty="string" T="SKUDTO" />
        
-        <PropertyColumn Property="x => x.ProductCategory.ToString()" Title="Category" TProperty="string" T="SKUDTO" />
+      
         <TemplateColumn CellClass="d-flex justify-end" T="SKUDTO">
             <CellTemplate Context="template">
                 <MudStack Row=true Spacing="2">

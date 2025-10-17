@@ -14,6 +14,7 @@
                     </TextField>
                 
                 </MudStack>
+                <Select For="() => Model.FocusFactory" @bind-Value="Model.FocusFactory" Label="Focus Factory" Items="Enum.GetValues<FocusFactory>().ToList()" ValidateAsync="ValidateAsync"></Select>
 
             </MudStack>
             

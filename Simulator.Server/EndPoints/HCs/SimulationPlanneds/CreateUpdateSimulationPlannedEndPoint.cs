@@ -55,6 +55,9 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds
             row.PlannedHours = request.Hours;
             row.EndDate = request.EndDate;
             row.InitSpam = request.InitSpam;
+            row.MaxRestrictionTimeValue = request.MaxRestrictionTimeValue;
+            row.MaxRestrictionTimeUnit = request.MaxRestrictionTimeUnit;
+            row.OperatorHasNotRestrictionToInitBatch = request.OperatorHasNotRestrictionToInitBatch;
 
             return row;
         }
@@ -180,7 +183,7 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds
                 });
             }
         }
-        
+
         public static SimulationPlannedDTO Map(this SimulationPlanned row)
         {
             //Se debe crear relacion to base equipment para mapear estos equipos
@@ -192,7 +195,9 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds
                 InitDate = row.InitDate,
                 InitSpam = row.InitSpam,
                 Name = row.Name,
-
+                MaxRestrictionTimeValue = row.MaxRestrictionTimeValue,
+                MaxRestrictionTimeUnit = row.MaxRestrictionTimeUnit,
+                OperatorHasNotRestrictionToInitBatch = row.OperatorHasNotRestrictionToInitBatch,
                 Order = row.Order,
             };
         }

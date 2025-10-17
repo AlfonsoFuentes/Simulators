@@ -1,3 +1,4 @@
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Lines;
 
 namespace Simulator.Client.HCPages.Lines;
@@ -10,6 +11,9 @@ public partial class LineTable
         Items.Where(Criteria).ToList();
     [Parameter]
     public Guid MainProcessId { get; set; }
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
     protected override async Task OnParametersSetAsync()
     {
         await GetAll();
@@ -26,12 +30,16 @@ public partial class LineTable
         if (result.Succeeded)
         {
             Items = result.Data.Items;
-         
+
         }
     }
     public async Task AddNew()
     {
-        LineDTO response = new() { MainProcessId = MainProcessId };
+        LineDTO response = new()
+        {
+            MainProcessId = MainProcessId,
+            FocusFactory = FocusFactory
+        };
 
         var parameters = new DialogParameters<LineDialog>
         {

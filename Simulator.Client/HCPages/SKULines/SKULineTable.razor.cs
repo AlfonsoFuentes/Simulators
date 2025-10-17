@@ -31,6 +31,8 @@ namespace Simulator.Client.HCPages.SKULines
         bool DisableAdd = false;
         [Parameter]
         public PackageType PackageType { get; set; } = PackageType.None;
+        [Parameter]
+        public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -66,6 +68,7 @@ namespace Simulator.Client.HCPages.SKULines
             {
                 { x => x.Model, response },
                  { x => x.PackageType, PackageType },
+                {x=>x.FocusFactory,FocusFactory }
 
             };
 
@@ -94,6 +97,7 @@ namespace Simulator.Client.HCPages.SKULines
 
                 { x => x.Model, response },
                 { x => x.PackageType, PackageType },
+                   {x=>x.FocusFactory,FocusFactory }
 
         };
             var options = new DialogOptions() { MaxWidth = MaxWidth.Small };

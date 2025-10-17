@@ -21,5 +21,6 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 
 
         }
+        
     }
 }

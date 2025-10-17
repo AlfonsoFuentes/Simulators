@@ -1,4 +1,5 @@
 ﻿@using Simulator.Client.HCPages.NewProcessSimulation
+@using Simulator.Client.HCPages.StreamJoiners
 @using Simulator.Shared.NuevaSimlationconQwen
 <MudTabs>
     <MudTabPanel Text="PFD">
@@ -7,23 +8,29 @@
     <MudTabPanel Text="Simulation">
         <SimulationTabs Simulation="@Simulation"></SimulationTabs>
     </MudTabPanel>
+    <MudTabPanel Text="Mixer Capacity">
+        <NewProductionCapacityReport Simulation=@Simulation />
+    </MudTabPanel>
     <MudTabPanel Text="Tanks">
-        <TankTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></TankTable>
+        <TankTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></TankTable>
     </MudTabPanel>
     <MudTabPanel Text="Pumps">
-        <PumpTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></PumpTable>
+        <PumpTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></PumpTable>
     </MudTabPanel>
     <MudTabPanel Text="Operators">
-        <OperatorTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></OperatorTable>
+        <OperatorTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></OperatorTable>
     </MudTabPanel>
     <MudTabPanel Text="Mixers">
-        <MixerTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></MixerTable>
+        <MixerTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></MixerTable>
     </MudTabPanel>
     <MudTabPanel Text="SKIDs">
-        <ContinuousSystemTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></ContinuousSystemTable>
+        <ContinuousSystemTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></ContinuousSystemTable>
+    </MudTabPanel>
+    <MudTabPanel Text="StreanJoiners">
+        <StreamJoinerTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></StreamJoinerTable>
     </MudTabPanel>
     <MudTabPanel Text="Lines">
-        <LineTable MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></LineTable>
+        <LineTable FocusFactory=@FocusFactory MainProcessId="@MainProcessId" RefreshProcessFlowDiagram="GetAll"></LineTable>
     </MudTabPanel>
   
 </MudTabs>
@@ -31,7 +38,9 @@
 @code {
     [Parameter]
     public GeneralSimulation Simulation { get; set; } = null!;
-
+    [Parameter]
+    [EditorRequired]
+    public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
 
     [Parameter]
     public Guid MainProcessId { get; set; }

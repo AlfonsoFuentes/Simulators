@@ -30,6 +30,7 @@
                 <MudTabPanel Text="Materials">
                     <EquipmentMaterialTable EquipmentId="Model.Id"
                                             MainProcessId="@Model.MainProcessId"
+                                            FocusFactory="Model.FocusFactory"
                                             EquipmentName="@Model.Name"
                                             IsStorageForOneFluid=@Model.IsStorageForOneFluid
                                             @bind-Items=@Model.MaterialEquipments ValidateAsync="ValidateAsync"

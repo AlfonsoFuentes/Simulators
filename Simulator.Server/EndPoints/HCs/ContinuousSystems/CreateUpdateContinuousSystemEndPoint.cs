@@ -37,7 +37,7 @@ namespace Simulator.Server.EndPoints.HCs.ContinuousSystems
 
                     Data.Map(row);
                     cache.AddRange(StaticClass.ContinuousSystems.Cache.Key(row.Id, row.MainProcessId));
-        
+
 
                     var result = await Repository.Context.SaveChangesAndRemoveCacheAsync(cache.ToArray());
 
@@ -61,7 +61,7 @@ namespace Simulator.Server.EndPoints.HCs.ContinuousSystems
             row.ProccesEquipmentType = ProccesEquipmentType.ContinuousSystem;
             row.Name = request.Name;
 
-
+            row.FocusFactory = request.FocusFactory;
 
             return row;
         }
@@ -199,7 +199,7 @@ namespace Simulator.Server.EndPoints.HCs.ContinuousSystems
                 FlowUnitName = row.FlowUnit,
                 EquipmentType = row.ProccesEquipmentType,
                 Name = row.Name,
-                 
+                FocusFactory = row.FocusFactory,
                 Order = row.Order,
             };
         }
@@ -215,7 +215,7 @@ namespace Simulator.Server.EndPoints.HCs.ContinuousSystems
                 {
                     Expression<Func<ContinuousSystem, bool>> CriteriaId = x => x.MainProcessId == Data.MainProcessId;
                     Func<ContinuousSystem, bool> CriteriaExist = x => Data.Id == null ?
-                    x.Name.Equals(Data.Name)  : x.Id != Data.Id.Value && x.Name.Equals(Data.Name);
+                    x.Name.Equals(Data.Name) : x.Id != Data.Id.Value && x.Name.Equals(Data.Name);
                     string CacheKey = StaticClass.ContinuousSystems.Cache.GetAll(Data.MainProcessId);
 
                     return await Repository.AnyAsync(Cache: CacheKey, CriteriaExist: CriteriaExist, CriteriaId: CriteriaId);

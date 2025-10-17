@@ -1,0 +1,34 @@
+﻿@* Components/Reports/LinePerformanceDataGrid.razor *@
+@using MudBlazor
+@using Simulator.Shared.NuevaSimlationconQwen.ManufacturingOrders
+
+<MudDataGrid T="FromLineToWipProductionOrder"
+             Items="@Runs"
+             ReadOnly="true"
+             ExpandSingleRow="false">
+    <Columns>
+        <HierarchyColumn T="FromLineToWipProductionOrder" />
+        <PropertyColumn Property="r => r.SKU.Material.CommonName" Title="Material" TProperty="string" T="FromLineToWipProductionOrder" />
+        <PropertyColumn Property="r => r.SKU.SkuName" Title="SKU" TProperty="string" T="FromLineToWipProductionOrder" />
+        <PropertyColumn Property="r => Math.Round(r.ProducedCases.GetValue(CaseUnits.Case),1)" Title="Cases Produced" TProperty="double" T="FromLineToWipProductionOrder" />
+        <PropertyColumn Property="r => r.PlannedCases.GetValue(CaseUnits.Case)" Title="Cases Planned" TProperty="double" T="FromLineToWipProductionOrder" />
+        <PropertyColumn Property="r => Math.Round(r.ProducedMass.GetValue(MassUnits.KiloGram), 1)" Title="Mass Produced" TProperty="double" T="FromLineToWipProductionOrder" />
+        <PropertyColumn Property="r => r.PlannedMass.GetValue(MassUnits.KiloGram)" Title="Mass Planned" TProperty="double" T="FromLineToWipProductionOrder" /> @* *@
+    </Columns>
+
+    <ChildRowContent>
+        <MudText Typo="Typo.subtitle1" Class="mb-2 mt-3">WIP Tanks</MudText>
+        <RunWipsDataGrid WipReports="@context.Item.WipTankReports" />
+    </ChildRowContent>
+</MudDataGrid>
+
+@code {
+    [Parameter] public List<FromLineToWipProductionOrder> Runs { get; set; } = new();
+
+    private Color GetEfficiencyColor(double efficiency) => efficiency switch
+    {
+        >= 90 => Color.Success,
+        >= 75 => Color.Warning,
+        _ => Color.Error
+    };
+}

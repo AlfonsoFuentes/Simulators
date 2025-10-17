@@ -1,0 +1,38 @@
+﻿@* Components/Reports/AllLinesPerformanceReport.razor *@
+@using MudBlazor
+
+<link href="Styles/LinePerformanceReport.css" rel="stylesheet" />
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-4">
+    <MudText Typo="Typo.h3" Class="mb-6">Production Performance — All Lines</MudText>
+
+    @if (!LineReports.Any())
+    {
+        <MudAlert Severity="Severity.Info">No production lines found.</MudAlert>
+    }
+    else
+    {
+        <MudDataGrid T="ProcessLine"
+                     Items="@LineReports"
+                     ReadOnly="true"
+                     ExpandSingleRow="false">
+            <Columns>
+                <HierarchyColumn T="ProcessLine" />
+                <PropertyColumn Property="l => l.Name" Title="Line Name" TProperty="string" T="ProcessLine" />
+           
+            </Columns>
+
+            <ChildRowContent>
+                <LinePerformanceDataGrid Runs="@context.Item.ScheduledProductionOrders.ToList()" />
+            </ChildRowContent>
+        </MudDataGrid>
+    }
+</MudContainer>
+
+
+@code {
+    List<ProcessLine> LineReports =>
+     Simulation.Equipments.OfType<ProcessLine>().ToList();
+
+    [Parameter] public GeneralSimulation Simulation { get; set; } = null!;
+}
