@@ -1,55 +1,55 @@
 ﻿@using Simulator.Shared.Models.CompoundProperties
 <MudGrid>
     <MudItem xs="12" sm="6">
-        <DoubleNumericField Label="Critical Z" @bind-Value=@Model.Critical_Z For="() => Model.Critical_Z"
+        <DoubleNumericField Label="Critical Z" @bind-Value=@Model.Critical_Z For="() => Model.Critical_Z" Change=OnModelChanged
                             ValidateAsync="ValidateAsync"></DoubleNumericField>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <DoubleNumericField Label="Acentric Factor" @bind-Value=@Model.Acentric_Factor For="() => Model.Acentric_Factor"
+        <DoubleNumericField Label="Acentric Factor" @bind-Value=@Model.Acentric_Factor For="() => Model.Acentric_Factor" Change=OnModelChanged
                             ValidateAsync="ValidateAsync"></DoubleNumericField>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <DoubleNumericField Label="Acentric Factor SRK" @bind-Value=@Model.Acentric_Factor_SRK For="() => Model.Acentric_Factor_SRK"
+        <DoubleNumericField Label="Acentric Factor SRK" @bind-Value=@Model.Acentric_Factor_SRK For="() => Model.Acentric_Factor_SRK" Change=OnModelChanged
                             ValidateAsync="ValidateAsync"></DoubleNumericField>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Critical Temperature" @bind-Value=@Model.Critical_Temperature For="() => Model.Critical_Temperature.Value"
+        <SelectUnit Label="Critical Temperature" @bind-Value=@Model.Critical_Temperature For="() => Model.Critical_Temperature.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Boiling Point" @bind-Value=@Model.Boiling_Temperature For="() => Model.Boiling_Temperature.Value"
+        <SelectUnit Label="Boiling Point" @bind-Value=@Model.Boiling_Temperature For="() => Model.Boiling_Temperature.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Melting Point" @bind-Value=@Model.Melting_Temperature For="() => Model.Melting_Temperature.Value"
+        <SelectUnit Label="Melting Point" @bind-Value=@Model.Melting_Temperature For="() => Model.Melting_Temperature.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Critical Pressure" @bind-Value=@Model.Critical_Pressure For="() => Model.Critical_Pressure.Value"
+        <SelectUnit Label="Critical Pressure" @bind-Value=@Model.Critical_Pressure For="() => Model.Critical_Pressure.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Critical Volume" @bind-Value=@Model.Critical_Volume For="() => Model.Critical_Volume.Value"
+        <SelectUnit Label="Critical Volume" @bind-Value=@Model.Critical_Volume For="() => Model.Critical_Volume.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Asterisk Volume" @bind-Value=@Model.Asterisk_Volume For="() => Model.Asterisk_Volume.Value"
+        <SelectUnit Label="Asterisk Volume" @bind-Value=@Model.Asterisk_Volume For="() => Model.Asterisk_Volume.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Gibbs Energy formation" @bind-Value=@Model.Gibbs_Energy_Formation For="() => Model.Gibbs_Energy_Formation.Value"
+        <SelectUnit Label="Gibbs Energy formation" @bind-Value=@Model.Gibbs_Energy_Formation For="() => Model.Gibbs_Energy_Formation.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Enthalpy formation" @bind-Value=@Model.Enthalpy_Formation For="() => Model.Enthalpy_Formation.Value"
+        <SelectUnit Label="Enthalpy formation" @bind-Value=@Model.Enthalpy_Formation For="() => Model.Enthalpy_Formation.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Enthalpy combustion" @bind-Value=@Model.Enthalpy_Combustion For="() => Model.Enthalpy_Combustion.Value"
+        <SelectUnit Label="Enthalpy combustion" @bind-Value=@Model.Enthalpy_Combustion For="() => Model.Enthalpy_Combustion.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
     <MudItem xs="12" sm="6">
-        <SelectUnit Label="Entropy formation" @bind-Value=@Model.Entropy_Formation For="() => Model.Entropy_Formation.Value"
+        <SelectUnit Label="Entropy formation" @bind-Value=@Model.Entropy_Formation For="() => Model.Entropy_Formation.Value" Change=OnModelChanged
                     ValidateAsync="ValidateAsync"></SelectUnit>
     </MudItem>
 
@@ -61,15 +61,20 @@
     [Parameter]
     public CompoundPropertyDTO Model { get; set; } = null!;
     [Parameter]
-    public EventCallback<CompoundPropertyDTO> ModelChanged{ get; set; }
+    public EventCallback<CompoundPropertyDTO> ModelChanged { get; set; }
 
     [Parameter]
     public EventCallback ValidateAsync { get; set; }
 
-    protected override void OnParametersSet()
+    async Task OnModelChanged()
     {
-        base.OnParametersSet();
-        StateHasChanged();
+        await ModelChanged.InvokeAsync(Model);
+    }
+   
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await OnModelChanged();
     }
 
 }

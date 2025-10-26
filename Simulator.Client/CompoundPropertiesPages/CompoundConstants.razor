@@ -34,4 +34,9 @@
     {
         await ModelChanged.InvokeAsync(Model);
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await OnModelChanged();
+    }
 }
