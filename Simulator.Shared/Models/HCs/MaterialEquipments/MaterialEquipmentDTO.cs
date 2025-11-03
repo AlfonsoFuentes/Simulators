@@ -13,6 +13,9 @@ namespace Simulator.Shared.Models.HCs.MaterialEquipments
         public string CapacityUnitName { get; set; } = string.Empty;
         [JsonIgnore]
         public Amount Capacity => new Amount(CapacityValue, CapacityUnitName);
+
+        public string EquipmentName { get; set; } = string.Empty;
+        public string MaterialName { get; set; }= string.Empty;
     }
     public class MaterialEquipmentDTO : Dto   
     {

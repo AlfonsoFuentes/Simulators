@@ -93,10 +93,10 @@ namespace Simulator.Server.Databases.Entities.HC
         }
         static Expression<Func<MaterialEquipment, object>> IQueryHandler<MaterialEquipment>.GetOrderBy(IDto dto)
         {
-            if (dto is RawMaterialDto)
-            {
+            //if (dto is RawMaterialDto)
+            //{
 
-            }
+            //}
             return null!;
 
         }
@@ -104,7 +104,7 @@ namespace Simulator.Server.Databases.Entities.HC
         {
             if (dto is MaterialEquipmentDTO material)
             {
-                return x => material.ProccesEquipmentId == Guid.Empty ? true : x.ProccesEquipmentId == material.ProccesEquipmentId;
+                return x => x.MainProcessId == material.MainProcessId ;
             }
             return null!;
 
@@ -113,7 +113,7 @@ namespace Simulator.Server.Databases.Entities.HC
         {
             return dto switch
             {
-              
+
                 MaterialEquipmentDTO materialDto => validationKey switch
                 {
                     MaterialEquipmentDTO.MaterialEquipmentCombination =>

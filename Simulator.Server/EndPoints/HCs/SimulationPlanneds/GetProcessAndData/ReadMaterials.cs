@@ -10,9 +10,10 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
     {
         public static async Task ReadSimulationMaterials(this NewSimulationDTO simulation, IServerCrudService service)
         {
-            var dto = new BackBoneDto()
+            var dto = new CompletedMaterialDTO()
             {
-                FocusFactory = simulation.FocusFactory
+                FocusFactory = simulation.FocusFactory,
+                
             };
             var query = await service.GetAllAsync<Material>(dto, querysuffix: $"{dto.FocusFactory}");
             if (query != null && query.Count > 0)

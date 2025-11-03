@@ -92,14 +92,14 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
             Column1Items = wrappers
                 .Where(x => x.Column == ReportColumn.Column1_OperatorsAndRawMaterialTanks)
                 .OrderBy(x => x.Priority)
-                .ThenBy(x => x.GetType().Name)
+                .ThenBy(x => x.EquipmentName)
                 .ToList();
 
             // Columna 2: SKIDs y Mezcladores
             Column2Items = wrappers
                 .Where(x => x.Column == ReportColumn.Column2_SkidsAndMixers)
                 .OrderBy(x => x.Priority)
-                .ThenBy(x => x.GetType().Name)
+                .ThenBy(x => x.EquipmentName)
                 .ToList();
 
             // Columna 3: WIPs y Líneas
@@ -107,11 +107,12 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
             var wipWrappers = wrappers
                 .Where(x => x.Column == ReportColumn.Column3_WipTanks)
                 .OrderByDescending(x => x.Priority == ReportPriorityInColumn.High)
-                .ThenBy(x => x.Equipment.GetType().Name)
+                .ThenBy(x => x.EquipmentName)
                 .ToList();
 
             var lineWrappers = wrappers
                 .Where(x => x.Column == ReportColumn.Column4_Lines)
+                .OrderBy(x => x.EquipmentName)
                 .ToList();
 
             // Mapear: Línea -> Lista de WIPs

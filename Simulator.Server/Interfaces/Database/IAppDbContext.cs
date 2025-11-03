@@ -33,8 +33,8 @@ namespace Simulator.Server.Interfaces.Database
         DbSet<CompoundProperty> CompoundProperties { get; set; }
         DbSet<StreamJoiner> StreamJoiners { get; set; }
 
-        Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys);
-        Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory);
+        //Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys);
+        //Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory);
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

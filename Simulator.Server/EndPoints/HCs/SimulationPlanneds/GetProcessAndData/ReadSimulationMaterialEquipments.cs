@@ -14,14 +14,14 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
             };
             var rows = await service.GetAllAsync<MaterialEquipment>(dto, parentId: $"{dto.MainProcessId}");
 
-           
+
             if (rows != null && rows.Count > 0)
             {
                 rows = rows.Where(x => x.ProccesEquipmentId != Guid.Empty && x.MaterialId != Guid.Empty).ToList();
                 simulation.MaterialEquipments = rows.Select(x => x.Map(simulation)).ToList();
             }
         }
-        public static MaterialEquipmentRecord Map(this Databases.Entities.HC.MaterialEquipment entity, NewSimulationDTO simulation)
+        public static MaterialEquipmentRecord Map(this MaterialEquipment entity, NewSimulationDTO simulation)
         {
             return new MaterialEquipmentRecord()
             {
@@ -29,6 +29,9 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
                 EquipmentId = entity.ProccesEquipmentId,
                 CapacityValue = entity.CapacityValue,
                 CapacityUnitName = entity.CapacityUnit,
+                EquipmentName = entity.ProccesEquipment == null ? string.Empty : entity.ProccesEquipment.Name,
+                MaterialName = entity.Material == null ? string.Empty : entity.Material.CommonName,
+
             };
 
         }

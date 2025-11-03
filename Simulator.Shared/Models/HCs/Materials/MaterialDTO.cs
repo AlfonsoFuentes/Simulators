@@ -19,9 +19,12 @@ namespace Simulator.Shared.Models.HCs.Materials
     {
        
     }
+    public class CompletedMaterialDTO : MaterialDTO
+    {
+
+    }
 
 
-    
     public class MaterialDTO : Dto 
     {
         public FocusFactory FocusFactory { get; set; } = FocusFactory.None;

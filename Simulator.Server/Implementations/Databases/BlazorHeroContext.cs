@@ -108,33 +108,33 @@ namespace Simulator.Server.Implementations.Databases
             }
         }
 
-        public async Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys)
-        {
-            var result = await SaveChangesAsync();
+        //public async Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys)
+        //{
+        //    var result = await SaveChangesAsync();
 
-            if (cacheKeys == null) return result;
+        //    if (cacheKeys == null) return result;
 
-            if (result > 0)
-            {
-                foreach (var cacheKey in cacheKeys)
-                {
-                    var key = $"{cacheKey}-{_tenantId}";
-                    _cache.Remove(key);
-                }
-            }
+        //    if (result > 0)
+        //    {
+        //        foreach (var cacheKey in cacheKeys)
+        //        {
+        //            var key = $"{cacheKey}-{_tenantId}";
+        //            _cache.Remove(key);
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory)
-        {
-            if (_cache == null)
-            {
-                throw new ArgumentNullException("cache");
-            }
-            key = $"{key}";
-            return _cache.GetOrAddAsync(key, addItemFactory);
-        }
+        //public Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory)
+        //{
+        //    if (_cache == null)
+        //    {
+        //        throw new ArgumentNullException("cache");
+        //    }
+        //    key = $"{key}";
+        //    return _cache.GetOrAddAsync(key, addItemFactory);
+        //}
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
 

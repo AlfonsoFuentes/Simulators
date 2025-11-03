@@ -452,6 +452,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Reports
         public ReportPriorityInColumn Priority { get; }
         public List<LiveReportItem> Items { get; set; }
         public ILiveReportable Equipment { get; } // ← Nueva propiedad
+        public string EquipmentName => Equipment is IEquipment eq ? eq.Name : "Unknown";
 
         public LiveReportableWrapper(ILiveReportable equipment, EquipmentReportMetadata metadata)
         {

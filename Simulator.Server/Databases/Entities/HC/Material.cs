@@ -163,7 +163,7 @@ namespace Simulator.Server.Databases.Entities.HC
         }
         static Func<IQueryable<Material>, IIncludableQueryable<Material, object>> IQueryHandler<Material>.GetIncludesBy(IDto dto)
         {
-            if (dto is RawMaterialDto || dto is ProductBackBoneDto || dto is BackBoneDto)
+            if (dto is RawMaterialDto || dto is ProductBackBoneDto || dto is BackBoneDto||dto is CompletedMaterialDTO)
             {
                 return x => x
                  .Include(y => y.BackBoneSteps).ThenInclude(x => x.RawMaterial!);
