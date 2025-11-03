@@ -1,19 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Simulator.Server.Databases.Entities.Identity;
 using Simulator.Server.Exceptions;
-using Simulator.Server.ExtensionsMethods.Others;
-using Simulator.Server.Implementations.Identities.Specifications;
 using Simulator.Server.Interfaces.Identity;
 using Simulator.Server.Interfaces.Storage;
-using Simulator.Server.Interfaces.UserServices;
-using Simulator.Shared.Commons;
 using Simulator.Shared.Commons.IdentityModels.Requests.Identity;
 using Simulator.Shared.Commons.IdentityModels.Requests.Mail;
 using Simulator.Shared.Commons.IdentityModels.Responses.Identity;
 using Simulator.Shared.Constants.Role;
-using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
 using IResult = Simulator.Shared.Commons.IResult;
@@ -28,7 +22,7 @@ namespace Simulator.Server.Implementations.Identities
         //private readonly IMailService _mailService;
 
         private readonly IExcelService _excelService;
-        private readonly ICurrentUserService _currentUserService;
+
         //private readonly IMapper _mapper;
 
         public UserService(
@@ -37,8 +31,7 @@ namespace Simulator.Server.Implementations.Identities
             RoleManager<IdentityRole> roleManager,
             //IMailService mailService,
 
-            IExcelService excelService,
-            ICurrentUserService currentUserService)
+            IExcelService excelService)
         {
             _userManager = userManager;
             //_mapper = mapper;
@@ -46,7 +39,7 @@ namespace Simulator.Server.Implementations.Identities
             //_mailService = mailService;
 
             _excelService = excelService;
-            _currentUserService = currentUserService;
+   
         }
 
         public async Task<Result<List<UserResponse>>> GetAllAsync()
@@ -203,17 +196,6 @@ namespace Simulator.Server.Implementations.Identities
             var roles = await _userManager.GetRolesAsync(user);
             var selectedRoles = request.UserRoles.Where(x => x.Selected).ToList();
 
-            var currentUser = await _userManager.FindByIdAsync(_currentUserService.UserId);
-            if (!await _userManager.IsInRoleAsync(currentUser!, RoleConstants.AdministratorRole))
-            {
-                var tryToAddAdministratorRole = selectedRoles
-                    .Any(x => x.RoleName == RoleConstants.AdministratorRole);
-                var userHasAdministratorRole = roles.Any(x => x == RoleConstants.AdministratorRole);
-                if (tryToAddAdministratorRole && !userHasAdministratorRole || !tryToAddAdministratorRole && userHasAdministratorRole)
-                {
-                    return await Result.FailAsync("Not Allowed to add or delete Administrator Role if you have not this role.");
-                }
-            }
 
             var result = await _userManager.RemoveFromRolesAsync(user, roles);
             result = await _userManager.AddToRolesAsync(user, selectedRoles.Select(y => y.RoleName));
@@ -286,31 +268,31 @@ namespace Simulator.Server.Implementations.Identities
             return count;
         }
 
-        public async Task<string> ExportToExcelAsync(string searchString = "")
-        {
-            var userSpec = new UserFilterSpecification(searchString);
-            var users = await _userManager.Users
-                .Specify(userSpec)
-                .OrderByDescending(a => a.CreatedOn)
-                .ToListAsync();
-            var result = await _excelService.ExportAsync(users, sheetName: "Users",
-                mappers: new Dictionary<string, Func<BlazorHeroUser, object>>
-                {
-                    { "Id", item => item.Id },
-                    { "FirstName", item => item.FirstName! },
-                    { "LastName", item => item.LastName! },
-                    { "UserName", item => item.UserName! },
-                    { "Email", item => item.Email! },
-                    { "EmailConfirmed", item => item.EmailConfirmed },
-                    { "PhoneNumber", item => item.PhoneNumber! },
-                    { "PhoneNumberConfirmed", item => item.PhoneNumberConfirmed },
-                    { "IsActive", item => item.IsActive },
-                    { "CreatedOn (Local)", item => DateTime.SpecifyKind(item.CreatedOn, DateTimeKind.Utc).ToLocalTime().ToString("G", CultureInfo.CurrentCulture) },
-                    { "CreatedOn (UTC)", item => item.CreatedOn.ToString("G", CultureInfo.CurrentCulture) },
-                    { "ProfilePictureDataUrl", item => item.ProfilePictureDataUrl! },
-                });
+        //public async Task<string> ExportToExcelAsync(string searchString = "")
+        //{
+        //    var userSpec = new UserFilterSpecification(searchString);
+        //    var users = await _userManager.Users
+        //        .Specify(userSpec)
+        //        .OrderByDescending(a => a.CreatedOn)
+        //        .ToListAsync();
+        //    var result = await _excelService.ExportAsync(users, sheetName: "Users",
+        //        mappers: new Dictionary<string, Func<BlazorHeroUser, object>>
+        //        {
+        //            { "Id", item => item.Id },
+        //            { "FirstName", item => item.FirstName! },
+        //            { "LastName", item => item.LastName! },
+        //            { "UserName", item => item.UserName! },
+        //            { "Email", item => item.Email! },
+        //            { "EmailConfirmed", item => item.EmailConfirmed },
+        //            { "PhoneNumber", item => item.PhoneNumber! },
+        //            { "PhoneNumberConfirmed", item => item.PhoneNumberConfirmed },
+        //            { "IsActive", item => item.IsActive },
+        //            { "CreatedOn (Local)", item => DateTime.SpecifyKind(item.CreatedOn, DateTimeKind.Utc).ToLocalTime().ToString("G", CultureInfo.CurrentCulture) },
+        //            { "CreatedOn (UTC)", item => item.CreatedOn.ToString("G", CultureInfo.CurrentCulture) },
+        //            { "ProfilePictureDataUrl", item => item.ProfilePictureDataUrl! },
+        //        });
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }

@@ -39,19 +39,15 @@ namespace Simulator.Client.HCPages.SKULines
                 MudDialog.Close(DialogResult.Ok(true));
                 return;
             }
-            var result = await GenericService.Post(Model);
+            var result = await ClientService.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+              
                 MudDialog.Close(DialogResult.Ok(true));
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
-
+          
         }
 
 
@@ -65,10 +61,7 @@ namespace Simulator.Client.HCPages.SKULines
             {
                 return;
             }
-            var result = await GenericService.GetById<SKULineDTO, GetSKULineByIdRequest>(new()
-            {
-                Id = Model.Id
-            });
+            var result = await ClientService.GetById(Model);
             if (result.Succeeded)
             {
                 Model = result.Data;
@@ -83,7 +76,7 @@ namespace Simulator.Client.HCPages.SKULines
              x.BackBoneCommonName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
              x.BackBoneM_Number.Contains(value, StringComparison.InvariantCultureIgnoreCase)
             ;
-            var Skufiltered = SKUResponseList.Items.Where(x => x.PackageType == PackageType);
+            var Skufiltered = SKUResponseList.  Where(x => x.PackageType == PackageType);
             IEnumerable<SKUDTO> FilteredItems = string.IsNullOrEmpty(value) ? Skufiltered :
                  Skufiltered.Where(Criteria);
             return Task.FromResult(FilteredItems);
@@ -113,10 +106,10 @@ namespace Simulator.Client.HCPages.SKULines
 
             }
         }
-        SKUResponseList SKUResponseList { get; set; } = new();
+        List<SKUDTO> SKUResponseList { get; set; } = new();
         async Task GetAllSkUs()
         {
-            var result = await GenericService.GetAll<SKUResponseList, SKUGetAll>(new SKUGetAll()
+            var result = await ClientService.GetAll(new SKUDTO()
             {
                  FocusFactory= FocusFactory,
             });

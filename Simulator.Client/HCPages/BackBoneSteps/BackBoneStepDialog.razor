@@ -1,10 +1,4 @@
-﻿@using Simulator.Client.Services.Authentications
-@using Simulator.Client.Services.Identities.Accounts
-@using Simulator.Client.Services.Identities.Authentications
-@using Simulator.Client.Services.Identities.Users
-@using Simulator.Client.Services.Interceptor
-@using Simulator.Client.Services.Navigations
-@using Simulator.Client.Services.SnackBars
+﻿
 @using Simulator.Shared.Enums.HCEnums.Enums
 @using Simulator.Shared.Models.HCs.Materials
 <EditForm Model="@Model" OnValidSubmit="Submit">
@@ -20,7 +14,7 @@
             {
 
                 <AutoCompleteIconButton @bind-Value="@Model.StepRawMaterial"
-                                        TValue="MaterialDTO"
+                                        TValue="RawMaterialDto"
                                         Label="Raw Material"
                                         ValidateAsync="ValidateAsync"
                                         For="()=>Model.StepRawMaterial"

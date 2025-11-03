@@ -36,18 +36,15 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
                 MudDialog.Close(DialogResult.Ok(true));
                 return;
             }
-            var result = await GenericService.Post(Model);
+            var result = await ClientService.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+               
                 MudDialog.Close(DialogResult.Ok(true));
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
+          
 
         }
 
@@ -62,20 +59,17 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
             {
                 return;
             }
-            var result = await GenericService.GetById<InletConnectorDTO, GetInletConectorByIdRequest>(new()
-            {
-                Id = Model.Id
-            });
+            var result = await ClientService.GetById(Model);
             if (result.Succeeded)
             {
                 Model = result.Data;
             }
         }
 
-        List<BaseEquipmentDTO?> Items { get; set; } = new();
+        List<BaseEquipmentDTO> Items { get; set; } = new();
         async Task GetAllEquipments()
         {
-            var result = await GenericService.GetAll<BaseEquipmentList, BaseEquipmentGetAll>(new BaseEquipmentGetAll()
+            var result = await ClientService.GetAll(new BaseEquipmentDTO()
             {
                 MainProcessId = MainProcessId,
             });
@@ -84,22 +78,22 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
                 switch (EquipmentType)
                 {
                     case ProccesEquipmentType.Pump:
-                        Items = result.Data.Items.Where(x => 
+                        Items = result.Data.Where(x => 
                         x!.EquipmentType == ProccesEquipmentType.Tank ||
                         x!.EquipmentType == ProccesEquipmentType.Mixer).ToList();
                         break;
                     case ProccesEquipmentType.Mixer:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump || x.EquipmentType == ProccesEquipmentType.Operator).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump || x.EquipmentType == ProccesEquipmentType.Operator).ToList();
                         break;
                     case ProccesEquipmentType.Tank:
                     case ProccesEquipmentType.Line:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
                     case ProccesEquipmentType.StreamJoiner:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
                     default:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
 
                 }
@@ -107,27 +101,6 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
             }
 
         }
-        //private Task<IEnumerable<BaseEquipmentDTO?>> SearchEquipment(string value, CancellationToken token)
-        //{
-        //    Func<BaseEquipmentDTO, bool> Criteria = x =>
-        //    x!.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
-        //    ;
-        //    var items = Items;
-        //    if (EquipmentType == ProccesEquipmentType.Pump)
-        //    {
-        //        items = items.Where(x => x.EquipmentType != ProccesEquipmentType.Pump).ToList();
-        //    }
-        //    else if (EquipmentType == ProccesEquipmentType.Mixer)
-        //    {
-        //        items = items.Where(x => x.EquipmentType == ProccesEquipmentType.Pump || x.EquipmentType == ProccesEquipmentType.Operator).ToList();
-        //    }
-        //    else
-        //    {
-        //        items = items.Where(x => x.EquipmentType == ProccesEquipmentType.Pump).ToList();
-        //    }
-        //    IEnumerable<BaseEquipmentDTO?> FilteredItems = string.IsNullOrEmpty(value) ? items.AsEnumerable() :
-        //         items.Where(Criteria);
-        //    return Task.FromResult(FilteredItems);
-        //}
+        
     }
 }

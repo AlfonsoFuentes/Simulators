@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.PlannedSKUs;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.PlannedSKUs;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.PlannedSKUs
@@ -6,9 +7,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.PlannedSKUs
 
     public class PlannedSKUValidator : AbstractValidator<PlannedSKUDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public PlannedSKUValidator(IGenericService service)
+        public PlannedSKUValidator(IClientCRUDService service)
         {
             Service = service;
 

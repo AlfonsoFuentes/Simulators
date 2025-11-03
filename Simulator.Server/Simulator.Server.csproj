@@ -48,4 +48,8 @@
     <ProjectReference Include="..\UnitSystem\UnitSystem.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Implementations\Identities\Specifications\" />
+  </ItemGroup>
+
 </Project>

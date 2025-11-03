@@ -23,18 +23,15 @@ public partial class SKUDialog
 
     private async Task Submit()
     {
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
             MudDialog.Close(DialogResult.Ok(true));
+
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+        
 
     }
 
@@ -49,10 +46,7 @@ public partial class SKUDialog
         {
             return;
         }
-        var result = await GenericService.GetById<SKUDTO, GetSKUByIdRequest>(new()
-        {
-            Id = Model.Id
-        });
+        var result = await ClientService.GetById(Model);
         if (result.Succeeded)
         {
             Model = result.Data;
@@ -67,7 +61,7 @@ public partial class SKUDialog
          x.M_Number.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
          x.CommonName.Contains(value, StringComparison.InvariantCultureIgnoreCase)
         ;
-        var backbonesByCategory = ProductBackBones.Items.Where(x => x.ProductCategory == Model.ProductCategory);
+        var backbonesByCategory = ProductBackBones.Where(x => x.ProductCategory == Model.ProductCategory);
         IEnumerable<MaterialDTO> FilteredItems = string.IsNullOrEmpty(value) ? backbonesByCategory.AsEnumerable() :
              backbonesByCategory.Where(Criteria);
         return Task.FromResult(FilteredItems);
@@ -95,12 +89,12 @@ public partial class SKUDialog
 
         }
     }
-    MaterialResponseList ProductBackBones { get; set; } = new();
+    List<ProductBackBoneDto> ProductBackBones { get; set; } = new();
     async Task GetAllMaterials()
     {
-        var result = await GenericService.GetAll<MaterialResponseList, ProductBackBoneGetAll>(new ProductBackBoneGetAll()
+        var result = await ClientService.GetAll(new ProductBackBoneDto()
         {
-            FocusFactory= Model.FocusFactory,   
+            FocusFactory=Model.FocusFactory,
         });
         if (result.Succeeded)
         {

@@ -1,21 +1,12 @@
-﻿using Simulator.Shared.Models.HCs.BaseEquipments;
+﻿using Simulator.Shared.Intefaces;
+using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.Mixers;
 
 namespace Simulator.Shared.Models.HCs.PreferedMixers
 {
-    public class PreferedMixerDTO: BaseDTO, IMessageResponse, IRequest
+    public class PreferedMixerDTO: Dto
     {
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.CreateUpdate;
-
-        public string Legend => Name;
-
-        public string ActionType => Id == Guid.Empty ? "created" : "updated";
-        public string ClassName => StaticClass.PreferedMixers.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
-        
-       
+        public string Name { get; set; } = string.Empty;
         public Guid LinePlannedId {  get; set; }
         
         public MixerDTO? Mixer { get; set; } = null!;
@@ -24,106 +15,106 @@ namespace Simulator.Shared.Models.HCs.PreferedMixers
         
 
     }
-    public class DeletePreferedMixerRequest : DeleteMessageResponse, IRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public override string Legend => Name;
+    //public class DeletePreferedMixerRequest : DeleteMessageResponse, IRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PreferedMixers.ClassName;
+    //    public override string ClassName => StaticClass.PreferedMixers.ClassName;
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.Delete;
-    }
-    public class GetPreferedMixerByIdRequest : GetByIdMessageResponse, IGetById
-    {
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.Delete;
+    //}
+    //public class GetPreferedMixerByIdRequest : GetByIdMessageResponse, IGetById
+    //{
 
-        public Guid Id { get; set; }
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.GetById;
-        public override string ClassName => StaticClass.PreferedMixers.ClassName;
-    }
-    public class PreferedMixerGetAll : IGetAll
-    {
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.GetAll;
-        public Guid LinePlannedId {  get; set; }
-    }
-    public class PreferedMixerResponseList : IResponseAll
-    {
-        public List<PreferedMixerDTO> Items { get; set; } = new();
-    }
-    public class ValidatePreferedMixerNameRequest : ValidateMessageResponse, IRequest
-    {
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+    //    public Guid Id { get; set; }
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.GetById;
+    //    public override string ClassName => StaticClass.PreferedMixers.ClassName;
+    //}
+    //public class PreferedMixerGetAll : IGetAll
+    //{
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.GetAll;
+    //    public Guid LinePlannedId {  get; set; }
+    //}
+    //public class PreferedMixerResponseList : IResponseAll
+    //{
+    //    public List<PreferedMixerDTO> Items { get; set; } = new();
+    //}
+    //public class ValidatePreferedMixerNameRequest : ValidateMessageResponse, IRequest
+    //{
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
 
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.Validate;
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.Validate;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PreferedMixers.ClassName;
-    }
-    public class DeleteGroupPreferedMixerRequest : DeleteMessageResponse, IRequest
-    {
+    //    public override string ClassName => StaticClass.PreferedMixers.ClassName;
+    //}
+    //public class DeleteGroupPreferedMixerRequest : DeleteMessageResponse, IRequest
+    //{
 
-        public override string Legend => "Group of PreferedMixer";
+    //    public override string Legend => "Group of PreferedMixer";
 
-        public override string ClassName => StaticClass.PreferedMixers.ClassName;
+    //    public override string ClassName => StaticClass.PreferedMixers.ClassName;
 
-        public HashSet<PreferedMixerDTO> SelecteItems { get; set; } = null!;
+    //    public HashSet<PreferedMixerDTO> SelecteItems { get; set; } = null!;
 
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.DeleteGroup;
-        public Guid LinePlannedId { get; set; }
-    }
-    public class ChangePreferedMixerOrderDowmRequest : UpdateMessageResponse, IRequest
-    {
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.DeleteGroup;
+    //    public Guid LinePlannedId { get; set; }
+    //}
+    //public class ChangePreferedMixerOrderDowmRequest : UpdateMessageResponse, IRequest
+    //{
 
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Guid LinePlannedId { get; set; }
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.UpdateDown;
-        public int Order { get; set; }
-        public override string Legend => Name;
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public Guid LinePlannedId { get; set; }
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.UpdateDown;
+    //    public int Order { get; set; }
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PreferedMixers.ClassName;
-    }
-    public class ChangePreferedMixerOrderUpRequest : UpdateMessageResponse, IRequest
-    {
-        public Guid LinePlannedId { get; set; }
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Order { get; set; }
-        public string EndPointName => StaticClass.PreferedMixers.EndPoint.UpdateUp;
+    //    public override string ClassName => StaticClass.PreferedMixers.ClassName;
+    //}
+    //public class ChangePreferedMixerOrderUpRequest : UpdateMessageResponse, IRequest
+    //{
+    //    public Guid LinePlannedId { get; set; }
+    //    public Guid Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public int Order { get; set; }
+    //    public string EndPointName => StaticClass.PreferedMixers.EndPoint.UpdateUp;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PreferedMixers.ClassName;
-    }
-    public static class PreferedMixerMapper
-    {
-        public static ChangePreferedMixerOrderDowmRequest ToDown(this PreferedMixerDTO response)
-        {
-            return new()
-            {
-                Id = response.Id,
-                Name = response.Name,
+    //    public override string ClassName => StaticClass.PreferedMixers.ClassName;
+    //}
+    //public static class PreferedMixerMapper
+    //{
+    //    public static ChangePreferedMixerOrderDowmRequest ToDown(this PreferedMixerDTO response)
+    //    {
+    //        return new()
+    //        {
+    //            Id = response.Id,
+    //            Name = response.Name,
              
-                Order = response.Order,
-                LinePlannedId = response.LinePlannedId, 
+    //            Order = response.Order,
+    //            LinePlannedId = response.LinePlannedId, 
 
 
-            };
-        }
-        public static ChangePreferedMixerOrderUpRequest ToUp(this PreferedMixerDTO response)
-        {
-            return new()
-            {
+    //        };
+    //    }
+    //    public static ChangePreferedMixerOrderUpRequest ToUp(this PreferedMixerDTO response)
+    //    {
+    //        return new()
+    //        {
           
-                Id = response.Id,
-                Name = response.Name,
-                Order = response.Order,
-                LinePlannedId = response.LinePlannedId,
-            };
-        }
+    //            Id = response.Id,
+    //            Name = response.Name,
+    //            Order = response.Order,
+    //            LinePlannedId = response.LinePlannedId,
+    //        };
+    //    }
 
-    }
+    //}
 }

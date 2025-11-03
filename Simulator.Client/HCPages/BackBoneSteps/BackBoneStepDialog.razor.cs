@@ -17,22 +17,22 @@ public partial class BackBoneStepDialog
 
 
     FluentValidationValidator _fluentValidationValidator = null!;
-    List<MaterialDTO> RawMaterials = new();
+    List<RawMaterialDto> RawMaterials = new();
     protected override async Task OnInitializedAsync()
     {
         await GetAllMaterials();
     }
     async Task GetAllMaterials()
     {
-        var result = await GenericService.GetAll<MaterialResponseList, RawMaterialGetAll>(new RawMaterialGetAll()
+        var result = await ClientService.GetAll(new RawMaterialDto()
         {
-            FocusFactory = FocusFactory
+            FocusFactory = FocusFactory,
         });
         if (result.Succeeded)
         {
 
 
-            RawMaterials = result.Data.Items.ToList();
+            RawMaterials = result.Data;
         }
     }
     [Parameter]
@@ -45,18 +45,15 @@ public partial class BackBoneStepDialog
 
             return;
         }
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
+           
             MudDialog.Close(DialogResult.Ok(true));
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+        
 
     }
 
@@ -66,14 +63,14 @@ public partial class BackBoneStepDialog
     [Parameter]
     public BackBoneStepDTO Model { get; set; } = new();
 
-    private Task<IEnumerable<MaterialDTO>> SearchRawMaterial(string value, CancellationToken token)
+    private Task<IEnumerable<RawMaterialDto>> SearchRawMaterial(string value, CancellationToken token)
     {
-        Func<MaterialDTO, bool> Criteria = x =>
+        Func<RawMaterialDto, bool> Criteria = x =>
         x.SAPName.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
          x.M_Number.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
          x.CommonName.Contains(value, StringComparison.InvariantCultureIgnoreCase)
         ;
-        IEnumerable<MaterialDTO> FilteredItems = string.IsNullOrEmpty(value) ? RawMaterials.AsEnumerable() :
+        IEnumerable<RawMaterialDto> FilteredItems = string.IsNullOrEmpty(value) ? RawMaterials.AsEnumerable() :
              RawMaterials.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }

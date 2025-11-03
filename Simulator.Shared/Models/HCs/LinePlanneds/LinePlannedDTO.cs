@@ -1,4 +1,5 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Intefaces;
 using Simulator.Shared.Models.HCs.Lines;
 using Simulator.Shared.Models.HCs.PlannedSKUs;
 using Simulator.Shared.Models.HCs.PreferedMixers;
@@ -6,17 +7,10 @@ using System.Text.Json.Serialization;
 
 namespace Simulator.Shared.Models.HCs.LinePlanneds
 {
-    public class LinePlannedDTO : BaseResponse, IMessageResponse, IRequest
+    public class LinePlannedDTO :Dto
     {
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.CreateUpdate;
-
-        public string Legend => Name;
-
-        public string ActionType => Id == Guid.Empty ? "created" : "updated";
-        public string ClassName => StaticClass.LinePlanneds.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
+        public string Name => LineDTO == null ? string.Empty : LineDTO.Name;
+       
 
         public Guid SimulationPlannedId { get; set; }
         public Guid MainProcesId { get; set; }
@@ -28,16 +22,16 @@ namespace Simulator.Shared.Models.HCs.LinePlanneds
         public List<PreferedMixerDTO> PreferedMixerDTOs { get; set; } = new();
         public ShiftType ShiftType { get; set; }
 
-        public PlannedSKUDTO LastPlannedSKU(PlannedSKUDTO plannedSKUDTO)
-        {
+        //public PlannedSKUDTO LastPlannedSKU(PlannedSKUDTO plannedSKUDTO)
+        //{
 
-            return PlannedSKUDTOs.Count == 0 ? null! :
-                plannedSKUDTO.IsExisting == false ? PlannedSKUDTOs.MaxBy(x => x.Order)! :
-                PlannedSKUDTOs.Any(x => x.Order == plannedSKUDTO.Order - 1) ?
-                 PlannedSKUDTOs.First(x => x.Order == plannedSKUDTO.Order - 1) :
-                 null!;
+        //    return PlannedSKUDTOs.Count == 0 ? null! :
+        //        plannedSKUDTO.IsExisting == false ? PlannedSKUDTOs.MaxBy(x => x.Order)! :
+        //        PlannedSKUDTOs.Any(x => x.Order == plannedSKUDTO.Order - 1) ?
+        //         PlannedSKUDTOs.First(x => x.Order == plannedSKUDTO.Order - 1) :
+        //         null!;
 
-        }
+        //}
         double _WIPLevelValue;
         string _WIPLevelUnitName = MassUnits.KiloGram.Name;
         public double WIPLevelValue
@@ -69,104 +63,104 @@ namespace Simulator.Shared.Models.HCs.LinePlanneds
         public Amount WIPLevel { get; set; } = new Amount(MassUnits.KiloGram);
 
     }
-    public class DeleteLinePlannedRequest : DeleteMessageResponse, IRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public override string Legend => Name;
+    //public class DeleteLinePlannedRequest : DeleteMessageResponse, IRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.LinePlanneds.ClassName;
+    //    public override string ClassName => StaticClass.LinePlanneds.ClassName;
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.Delete;
-    }
-    public class GetLinePlannedByIdRequest : GetByIdMessageResponse, IGetById
-    {
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.Delete;
+    //}
+    //public class GetLinePlannedByIdRequest : GetByIdMessageResponse, IGetById
+    //{
 
-        public Guid Id { get; set; }
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.GetById;
-        public override string ClassName => StaticClass.LinePlanneds.ClassName;
-    }
-    public class LinePlannedGetAll : IGetAll
-    {
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.GetAll;
-        public Guid SimulationPlannedId { get; set; }
-    }
-    public class LinePlannedResponseList : IResponseAll
-    {
-        public List<LinePlannedDTO> Items { get; set; } = new();
-    }
-    public class ValidateLinePlannedNameRequest : ValidateMessageResponse, IRequest
-    {
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+    //    public Guid Id { get; set; }
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.GetById;
+    //    public override string ClassName => StaticClass.LinePlanneds.ClassName;
+    //}
+    //public class LinePlannedGetAll : IGetAll
+    //{
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.GetAll;
+    //    public Guid SimulationPlannedId { get; set; }
+    //}
+    //public class LinePlannedResponseList : IResponseAll
+    //{
+    //    public List<LinePlannedDTO> Items { get; set; } = new();
+    //}
+    //public class ValidateLinePlannedNameRequest : ValidateMessageResponse, IRequest
+    //{
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
 
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.Validate;
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.Validate;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.LinePlanneds.ClassName;
-    }
-    public class DeleteGroupLinePlannedRequest : DeleteMessageResponse, IRequest
-    {
+    //    public override string ClassName => StaticClass.LinePlanneds.ClassName;
+    //}
+    //public class DeleteGroupLinePlannedRequest : DeleteMessageResponse, IRequest
+    //{
 
-        public override string Legend => "Group of LinePlanned";
+    //    public override string Legend => "Group of LinePlanned";
 
-        public override string ClassName => StaticClass.LinePlanneds.ClassName;
+    //    public override string ClassName => StaticClass.LinePlanneds.ClassName;
 
-        public HashSet<LinePlannedDTO> SelecteItems { get; set; } = null!;
+    //    public HashSet<LinePlannedDTO> SelecteItems { get; set; } = null!;
 
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.DeleteGroup;
-        public Guid SimulationPlannedId { get; set; }
-    }
-    public class ChangeLinePlannedOrderDowmRequest : UpdateMessageResponse, IRequest
-    {
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.DeleteGroup;
+    //    public Guid SimulationPlannedId { get; set; }
+    //}
+    //public class ChangeLinePlannedOrderDowmRequest : UpdateMessageResponse, IRequest
+    //{
 
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Guid ProductionLineAssignmentId { get; set; }
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.UpdateDown;
-        public int Order { get; set; }
-        public override string Legend => Name;
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public Guid ProductionLineAssignmentId { get; set; }
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.UpdateDown;
+    //    public int Order { get; set; }
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.LinePlanneds.ClassName;
-    }
-    public class ChangeLinePlannedOrderUpRequest : UpdateMessageResponse, IRequest
-    {
-        public Guid ProductionLineAssignmentId { get; set; }
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Order { get; set; }
-        public string EndPointName => StaticClass.LinePlanneds.EndPoint.UpdateUp;
+    //    public override string ClassName => StaticClass.LinePlanneds.ClassName;
+    //}
+    //public class ChangeLinePlannedOrderUpRequest : UpdateMessageResponse, IRequest
+    //{
+    //    public Guid ProductionLineAssignmentId { get; set; }
+    //    public Guid Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public int Order { get; set; }
+    //    public string EndPointName => StaticClass.LinePlanneds.EndPoint.UpdateUp;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.LinePlanneds.ClassName;
-    }
-    public static class LinePlannedMapper
-    {
-        public static ChangeLinePlannedOrderDowmRequest ToDown(this LinePlannedDTO response)
-        {
-            return new()
-            {
-                Id = response.Id,
-                Name = response.Name,
+    //    public override string ClassName => StaticClass.LinePlanneds.ClassName;
+    //}
+    //public static class LinePlannedMapper
+    //{
+    //    public static ChangeLinePlannedOrderDowmRequest ToDown(this LinePlannedDTO response)
+    //    {
+    //        return new()
+    //        {
+    //            Id = response.Id,
+    //            Name = response.Name,
 
-                Order = response.Order,
+    //            Order = response.Order,
 
 
-            };
-        }
-        public static ChangeLinePlannedOrderUpRequest ToUp(this LinePlannedDTO response)
-        {
-            return new()
-            {
+    //        };
+    //    }
+    //    public static ChangeLinePlannedOrderUpRequest ToUp(this LinePlannedDTO response)
+    //    {
+    //        return new()
+    //        {
 
-                Id = response.Id,
-                Name = response.Name,
-                Order = response.Order,
-            };
-        }
+    //            Id = response.Id,
+    //            Name = response.Name,
+    //            Order = response.Order,
+    //        };
+    //    }
 
-    }
+    //}
 }

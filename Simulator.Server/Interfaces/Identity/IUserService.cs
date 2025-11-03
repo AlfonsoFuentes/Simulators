@@ -27,6 +27,6 @@ namespace Simulator.Server.Interfaces.Identity
 
         Task<Shared.Commons.IResult> ResetPasswordAsync(ResetPasswordRequest request);
 
-        Task<string> ExportToExcelAsync(string searchString = "");
+        //Task<string> ExportToExcelAsync(string searchString = "");
     }
 }

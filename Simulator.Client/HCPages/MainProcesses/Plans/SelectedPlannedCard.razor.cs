@@ -47,33 +47,32 @@ namespace Simulator.Client.HCPages.MainProcesses.Plans
 
             if (!result!.Canceled)
             {
-                DeleteSimulationPlannedRequest request = new()
+                SimulationPlannedDTO request = new()
                 {
                     Id = Model.Id,
                     Name = Model.Name,
 
                 };
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.Delete(request);
                 if (resultDelete.Succeeded)
                 {
                     await GetAll.InvokeAsync();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+               
 
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+        
             }
 
         }
         async Task LoadPlann()
         {
-            var result = await GenericService.GetById<SimulationPlannedDTO, GetPlannedByIdRequest>(new()
+            CompletedSimulationPlannedDTO model = new CompletedSimulationPlannedDTO()
             {
+                MainProcessId = Model.MainProcessId,
                 Id = Model.Id
-            });
+            };
+            var result = await ClientService.GetById(model);
             if (result.Succeeded)
             {
 

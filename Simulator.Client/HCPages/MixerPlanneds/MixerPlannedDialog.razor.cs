@@ -1,5 +1,3 @@
-using Simulator.Client.HCPages.Materials;
-using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.BackBoneSteps;
 using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.Conectors;
@@ -7,9 +5,6 @@ using Simulator.Shared.Models.HCs.MaterialEquipments;
 using Simulator.Shared.Models.HCs.Materials;
 using Simulator.Shared.Models.HCs.MixerPlanneds;
 using Simulator.Shared.Models.HCs.Mixers;
-using Simulator.Shared.Models.HCs.Tanks;
-using static MudBlazor.CategoryTypes;
-using static Simulator.Shared.StaticClasses.StaticClass;
 
 namespace Simulator.Client.HCPages.MixerPlanneds;
 public partial class MixerPlannedDialog
@@ -30,10 +25,10 @@ public partial class MixerPlannedDialog
 
 
     }
-    MixerResponseList MixerResponseList = new();
+    List<MixerDTO> MixerResponseList = new();
     async Task GetAllMixers()
     {
-        var result = await GenericService.GetAll<MixerResponseList, MixerGetAll>(new MixerGetAll()
+        var result = await ClientService.GetAll(new MixerDTO()
         {
             MainProcessId = Model.MainProcesId,
 
@@ -53,18 +48,15 @@ public partial class MixerPlannedDialog
             MudDialog.Close(DialogResult.Ok(true));
             return;
         }
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
+          
             MudDialog.Close(DialogResult.Ok(true));
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+   
 
     }
 
@@ -79,10 +71,7 @@ public partial class MixerPlannedDialog
         {
             return;
         }
-        var result = await GenericService.GetById<MixerPlannedDTO, GetMixerPlannedByIdRequest>(new()
-        {
-            Id = Model.Id
-        });
+        var result = await ClientService.GetById(Model);
         if (result.Succeeded)
         {
             Model = result.Data;
@@ -97,17 +86,17 @@ public partial class MixerPlannedDialog
         Func<MixerDTO, bool> Criteria = x =>
         x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
         ;
-        IEnumerable<MixerDTO?> FilteredItems = string.IsNullOrEmpty(value) ? MixerResponseList.Items.AsEnumerable() :
-             MixerResponseList.Items.Where(Criteria);
+        IEnumerable<MixerDTO?> FilteredItems = string.IsNullOrEmpty(value) ? MixerResponseList.AsEnumerable() :
+             MixerResponseList.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }
-    MaterialEquipmentResponseList MaterialEquipmentResponseList = new();
-    List<MaterialDTO> Materials => MaterialEquipmentResponseList.Items.Count == 0 ? new() : MaterialEquipmentResponseList.Items.Select(x => x.Material!).ToList();
+    List<MaterialEquipmentDTO> MaterialEquipmentResponseList = new();
+    List<MaterialDTO> Materials => MaterialEquipmentResponseList.       Count == 0 ? new() : MaterialEquipmentResponseList.Select(x => x.Material!).ToList();
     private async Task ChangeMixer()
     {
-        var result = await GenericService.GetAll<MaterialEquipmentResponseList, MaterialEquipmentGetAll>(new MaterialEquipmentGetAll()
+        var result = await ClientService.GetAll(new MaterialEquipmentDTO()
         {
-            EquipmentId = Model.MixerId,
+            ProccesEquipmentId = Model.MixerId,
         });
         if (result.Succeeded)
         {
@@ -128,23 +117,23 @@ public partial class MixerPlannedDialog
              Materials.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }
-    BackBoneStepResponseList BackBoneStepResponseList = new();
+    List<BackBoneStepDTO> BackBoneStepResponseList = new();
     private async Task ChangeBackBone()
     {
-        var selectedmaterialEquipment = MaterialEquipmentResponseList.Items.FirstOrDefault(x => x.MaterialId == Model.BackBone.Id && x.ProccesEquipmentId == Model.MixerId);
+        var selectedmaterialEquipment = MaterialEquipmentResponseList.  FirstOrDefault(x => x.MaterialId == Model.BackBone.Id && x.ProccesEquipmentId == Model.MixerId);
         if (selectedmaterialEquipment != null)
         {
             Model.Capacity = selectedmaterialEquipment.Capacity;
             Model.ChangeCapacity();
         }
-        var result = await GenericService.GetAll<BackBoneStepResponseList, BackBoneStepGetAll>(new BackBoneStepGetAll()
+        var result = await ClientService.GetAll(new BackBoneStepDTO()
         {
             MaterialId = Model.BackBone.Id,
         });
         if (result.Succeeded)
         {
             BackBoneStepResponseList = result.Data;
-            Model.BackBoneSteps = result.Data.Items;
+            Model.BackBoneSteps = result.Data;
 
         }
     }
@@ -154,8 +143,8 @@ public partial class MixerPlannedDialog
         Func<BackBoneStepDTO, bool> Criteria = x =>
         x.StepName.Contains(value, StringComparison.InvariantCultureIgnoreCase)
         ;
-        IEnumerable<BackBoneStepDTO> FilteredItems = string.IsNullOrEmpty(value) ? BackBoneStepResponseList.Items.AsEnumerable() :
-             BackBoneStepResponseList.Items.Where(Criteria);
+        IEnumerable<BackBoneStepDTO> FilteredItems = string.IsNullOrEmpty(value) ? BackBoneStepResponseList.AsEnumerable() :
+             BackBoneStepResponseList.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }
     private Task<IEnumerable<BaseEquipmentDTO?>> SearchWipTank(string value, CancellationToken token)
@@ -168,20 +157,20 @@ public partial class MixerPlannedDialog
              WipTanks.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }
-    OutletConnectorResponseList OutletConnectorResponseList = new();
-    public List<BaseEquipmentDTO> WipTanks => OutletConnectorResponseList.Items.Count == 0 ? new() : OutletConnectorResponseList.Items.Select(x => x.To!).ToList();
+    List<OutletConnectorDTO> OutletConnectorResponseList = new();
+    public List<BaseEquipmentDTO> WipTanks => OutletConnectorResponseList.Count == 0 ? new() : OutletConnectorResponseList.Select(x => x.To!).ToList();
     async Task GetAllWipsTanks()
     {
-        var result = await GenericService.GetAll<OutletConnectorResponseList, OutletsConnectorGetAll>(new OutletsConnectorGetAll()
+        var result = await ClientService.GetAll(new OutletConnectorDTO()
         {
             FromId = Model.MixerId,
         });
         if (result.Succeeded)
         {
-            var MixerPump = result.Data.Items.FirstOrDefault();
+            var MixerPump = result.Data.FirstOrDefault();
             if (MixerPump != null)
             {
-                var resultWips = await GenericService.GetAll<OutletConnectorResponseList, OutletsConnectorGetAll>(new OutletsConnectorGetAll()
+                var resultWips = await ClientService.GetAll(new OutletConnectorDTO()
                 {
                     FromId = MixerPump.ToId,
                 });

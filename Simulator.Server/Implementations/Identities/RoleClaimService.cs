@@ -14,18 +14,15 @@ namespace Simulator.Server.Implementations.Identities
     {
 
       
-        private readonly ICurrentUserService _currentUserService;
+       
         private readonly BlazorHeroContext _db;
 
         public RoleClaimService(
-
-          
-            ICurrentUserService currentUserService,
             BlazorHeroContext db)
         {
 
             
-            _currentUserService = currentUserService;
+         
             _db = db;
         }
 

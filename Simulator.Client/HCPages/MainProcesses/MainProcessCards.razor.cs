@@ -9,10 +9,10 @@ namespace Simulator.Client.HCPages.MainProcesses
 {
     public partial class MainProcessCards
     {
-        public List<MainProcessDTO> Items { get; set; } = new();
+        public List<ProcessFlowDiagramDTO> Items { get; set; } = new();
         string nameFilter = string.Empty;
-        public Func<MainProcessDTO, bool> Criteria => x => x.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
-        public List<MainProcessDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
+        public Func<ProcessFlowDiagramDTO, bool> Criteria => x => x.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
+        public List<ProcessFlowDiagramDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
             Items.Where(Criteria).ToList();
         protected override async Task OnInitializedAsync()
         {
@@ -20,10 +20,10 @@ namespace Simulator.Client.HCPages.MainProcesses
         }
         async Task GetAll()
         {
-            var result = await GenericService.GetAll<MainProcessResponseList, MainProcessGetAll>(new MainProcessGetAll());
+            var result = await ClientService.GetAll(new ProcessFlowDiagramDTO());
             if (result.Succeeded)
             {
-                Items = result.Data.Items;
+                Items = result.Data;
             }
         }
         public async Task AddNew()
@@ -34,7 +34,7 @@ namespace Simulator.Client.HCPages.MainProcesses
 
             };
 
-            var options = new DialogOptions() { MaxWidth = MaxWidth.Medium };
+            var options = new DialogOptions() { MaxWidth = MaxWidth.Small };
 
             var dialog = await DialogService.ShowAsync<MainProcessDialog>("MainProcess", parameters, options);
             var result = await dialog.Result;
@@ -44,7 +44,7 @@ namespace Simulator.Client.HCPages.MainProcesses
                 StateHasChanged();
             }
         }
-        async Task Edit(MainProcessDTO response)
+        async Task Edit(ProcessFlowDiagramDTO response)
         {
 
 
@@ -63,7 +63,7 @@ namespace Simulator.Client.HCPages.MainProcesses
                 await GetAll();
             }
         }
-        public async Task Delete(MainProcessDTO response)
+        public async Task Delete(ProcessFlowDiagramDTO response)
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
@@ -80,28 +80,20 @@ namespace Simulator.Client.HCPages.MainProcesses
 
             if (!result!.Canceled)
             {
-                DeleteMainProcessRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
-                var resultDelete = await GenericService.Post(request);
+               
+                var resultDelete = await ClientService.Delete(response);
                 if (resultDelete.Succeeded)
                 {
                     await GetAll();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+                   
 
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+                
             }
 
         }
-        HashSet<MainProcessDTO> SelecteItems = null!;
+        HashSet<ProcessFlowDiagramDTO> SelecteItems = null!;
         public async Task DeleteGroup()
         {
             if (SelecteItems == null) return;
@@ -120,23 +112,16 @@ namespace Simulator.Client.HCPages.MainProcesses
 
             if (!result!.Canceled)
             {
-                DeleteGroupMainProcessRequest request = new()
-                {
-                    SelecteItems = SelecteItems,
-
-                };
-                var resultDelete = await GenericService.Post(request);
+                
+                var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                 if (resultDelete.Succeeded)
                 {
                     await GetAll();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+                 
                     SelecteItems = null!;
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+               
             }
 
         }
@@ -179,9 +164,10 @@ namespace Simulator.Client.HCPages.MainProcesses
         {
             SimulationLoading = true;
             Simulation = null!;
-            var result = await GenericService.GetById<NewSimulationDTO, GetProcessByIdRequest>(new GetProcessByIdRequest()
+            var result = await ClientService.GetById(new NewSimulationDTO()
             {
-                MainProcessId = MainProcessId,
+                 Id = MainProcessId,
+              
                 FocusFactory= FocusFactory,
 
 
@@ -190,7 +176,7 @@ namespace Simulator.Client.HCPages.MainProcesses
             if (result.Succeeded)
             {
 
-                _snackBar.ShowSuccess("Process flow digram was loaded succesfully");
+              
                 SimulationDTO = result.Data;
 
                 if (SimulationDTO != null)
@@ -202,24 +188,21 @@ namespace Simulator.Client.HCPages.MainProcesses
                         Simulation.SetPlanned(SelectedPlanned);
                     SimulationLoading = false;
                     StateHasChanged();
-
+              
                 }
 
 
 
 
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
+           
         }
 
         public List<SimulationPlannedDTO> PlannedItems { get; set; } = new();
-        SimulationPlannedResponseList SimulationPlannedResponseList = null!;
+     
         async Task GetAllPlanneds(Guid _MainProcessId)
         {
-            var result = await GenericService.GetAll<SimulationPlannedResponseList, SimulationPlannedGetAll>(new SimulationPlannedGetAll()
+            var result = await ClientService.GetAll(new SimulationPlannedDTO()
             {
                 MainProcessId = MainProcessId,
 
@@ -227,7 +210,7 @@ namespace Simulator.Client.HCPages.MainProcesses
             });
             if (result.Succeeded)
             {
-                SimulationPlannedResponseList = result.Data;
+                PlannedItems = result.Data;
                 StateHasChanged();
             }
         }

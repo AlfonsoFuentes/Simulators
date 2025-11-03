@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.PreferedMixers;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.PreferedMixers;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.PreferedMixers
@@ -6,9 +7,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.PreferedMixers
 
     public class PreferedMixerValidator : AbstractValidator<PreferedMixerDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public PreferedMixerValidator(IGenericService service)
+        public PreferedMixerValidator(IClientCRUDService service)
         {
             Service = service;
 

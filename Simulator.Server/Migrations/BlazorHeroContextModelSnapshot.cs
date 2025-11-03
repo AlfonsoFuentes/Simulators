@@ -194,12 +194,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<double>("Maximum_Temperature")
                         .HasColumnType("float");
 
@@ -219,7 +213,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CompoundConstants");
+                    b.ToTable("CompoundConstants", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.Equilibrio.CompoundProperty", b =>
@@ -328,12 +322,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("LiquidCpId")
                         .HasColumnType("uniqueidentifier");
 
@@ -403,7 +391,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("VapourPressureId");
 
-                    b.ToTable("CompoundProperties");
+                    b.ToTable("CompoundProperties", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.BackBoneStep", b =>
@@ -426,12 +414,6 @@ namespace Simulator.Server.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("MaterialId")
                         .HasColumnType("uniqueidentifier");
@@ -458,7 +440,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("RawMaterialId");
 
-                    b.ToTable("BackBoneSteps");
+                    b.ToTable("BackBoneSteps", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.BaseEquipment", b =>
@@ -481,12 +463,6 @@ namespace Simulator.Server.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("MainProcessId")
                         .HasColumnType("uniqueidentifier");
@@ -537,12 +513,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("MainProcessId")
                         .HasColumnType("uniqueidentifier");
 
@@ -558,7 +528,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("ToId");
 
-                    b.ToTable("Conectors");
+                    b.ToTable("Conectors", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.EquipmentPlannedDownTime", b =>
@@ -585,12 +555,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -605,7 +569,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("BaseEquipmentId");
 
-                    b.ToTable("EquipmentPlannedDownTimes");
+                    b.ToTable("EquipmentPlannedDownTimes", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.LinePlanned", b =>
@@ -625,12 +589,6 @@ namespace Simulator.Server.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("LineId")
                         .HasColumnType("uniqueidentifier");
@@ -657,7 +615,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("SimulationPlannedId");
 
-                    b.ToTable("LinePlanneds");
+                    b.ToTable("LinePlanneds", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Material", b =>
@@ -688,12 +646,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsForWashing")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("M_Number")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -716,7 +668,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Materials");
+                    b.ToTable("Materials", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.MaterialEquipment", b =>
@@ -747,12 +699,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsMixer")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("MainProcessId")
                         .HasColumnType("uniqueidentifier");
 
@@ -771,7 +717,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("ProccesEquipmentId");
 
-                    b.ToTable("MaterialEquipments");
+                    b.ToTable("MaterialEquipments", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.MixerPlanned", b =>
@@ -800,12 +746,6 @@ namespace Simulator.Server.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("MixerCapacityUnit")
                         .IsRequired()
@@ -845,7 +785,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("SimulationPlannedId");
 
-                    b.ToTable("MixerPlanneds");
+                    b.ToTable("MixerPlanneds", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.PlannedSKU", b =>
@@ -865,12 +805,6 @@ namespace Simulator.Server.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("LinePlannedId")
                         .HasColumnType("uniqueidentifier");
@@ -904,7 +838,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("SKUId");
 
-                    b.ToTable("PlannedSKUs");
+                    b.ToTable("PlannedSKUs", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.PreferedMixer", b =>
@@ -925,12 +859,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("LinePlannedId")
                         .HasColumnType("uniqueidentifier");
 
@@ -946,7 +874,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("MixerId");
 
-                    b.ToTable("PreferedMixer");
+                    b.ToTable("PreferedMixer", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.ProcessFlowDiagram", b =>
@@ -970,12 +898,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -985,7 +907,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MainProceses");
+                    b.ToTable("MainProceses", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.SKU", b =>
@@ -1011,12 +933,6 @@ namespace Simulator.Server.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("MaterialId")
                         .HasColumnType("uniqueidentifier");
@@ -1056,7 +972,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("MaterialId");
 
-                    b.ToTable("HCSKUs");
+                    b.ToTable("HCSKUs", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.SKULine", b =>
@@ -1080,12 +996,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("LineId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1108,7 +1018,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("SKUId");
 
-                    b.ToTable("SKULines");
+                    b.ToTable("SKULines", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.SimulationPlanned", b =>
@@ -1138,12 +1048,6 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("MainProcessId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1171,7 +1075,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("MainProcessId");
 
-                    b.ToTable("SimulationPlanneds");
+                    b.ToTable("SimulationPlanneds", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Washout", b =>
@@ -1189,14 +1093,11 @@ namespace Simulator.Server.Migrations
                     b.Property<DateTime?>("DeletedOnUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FocusFactory")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("LineWashoutTimeUnit")
                         .IsRequired()
@@ -1223,7 +1124,7 @@ namespace Simulator.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Washouts");
+                    b.ToTable("Washouts", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.Identity.BlazorHeroUser", b =>
@@ -1347,7 +1248,7 @@ namespace Simulator.Server.Migrations
                     b.Property<double>("FlowValue")
                         .HasColumnType("float");
 
-                    b.ToTable("ContinuousSystems");
+                    b.ToTable("ContinuousSystems", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Line", b =>
@@ -1364,7 +1265,7 @@ namespace Simulator.Server.Migrations
                     b.Property<double>("TimeToReviewAUValue")
                         .HasColumnType("float");
 
-                    b.ToTable("Lines");
+                    b.ToTable("Lines", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Mixer", b =>
@@ -1376,14 +1277,14 @@ namespace Simulator.Server.Migrations
 
                     b.HasIndex("LinePlannedId");
 
-                    b.ToTable("HCMixers");
+                    b.ToTable("HCMixers", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Operator", b =>
                 {
                     b.HasBaseType("Simulator.Server.Databases.Entities.HC.BaseEquipment");
 
-                    b.ToTable("Operators");
+                    b.ToTable("Operators", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Pump", b =>
@@ -1400,14 +1301,14 @@ namespace Simulator.Server.Migrations
                     b.Property<bool>("IsForWashing")
                         .HasColumnType("bit");
 
-                    b.ToTable("Pumps");
+                    b.ToTable("Pumps", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.StreamJoiner", b =>
                 {
                     b.HasBaseType("Simulator.Server.Databases.Entities.HC.BaseEquipment");
 
-                    b.ToTable("StreamJoiners");
+                    b.ToTable("StreamJoiners", (string)null);
                 });
 
             modelBuilder.Entity("Simulator.Server.Databases.Entities.HC.Tank", b =>
@@ -1458,7 +1359,7 @@ namespace Simulator.Server.Migrations
                     b.Property<int>("TankCalculationType")
                         .HasColumnType("int");
 
-                    b.ToTable("Tanks");
+                    b.ToTable("Tanks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

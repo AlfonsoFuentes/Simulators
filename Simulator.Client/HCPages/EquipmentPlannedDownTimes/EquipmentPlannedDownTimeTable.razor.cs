@@ -17,7 +17,7 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
         public List<EquipmentPlannedDownTimeDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
             Items.Where(Criteria).ToList();
 
-        EquipmentPlannedDownTimeResponseList EquipmentPlannedDownTimeResponseList { get; set; } = new();
+        List<EquipmentPlannedDownTimeDTO> EquipmentPlannedDownTimeResponseList { get; set; } = new();
         [Parameter]
         public Guid EquipmentId { get; set; }
         [Parameter]
@@ -41,14 +41,14 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
         {
             if (EquipmentId != Guid.Empty)
             {
-                var result = await GenericService.GetAll<EquipmentPlannedDownTimeResponseList, EquipmentPlannedDownTimeGetAll>(new EquipmentPlannedDownTimeGetAll()
+                var result = await ClientService.GetAll(new EquipmentPlannedDownTimeDTO()
                 {
-                    EquipmentId = EquipmentId,
+                    BaseEquipmentId = EquipmentId,
                 });
                 if (result.Succeeded)
                 {
                     EquipmentPlannedDownTimeResponseList = result.Data;
-                    Items = EquipmentPlannedDownTimeResponseList.Items;
+                    Items = EquipmentPlannedDownTimeResponseList;
                     await ItemsChanged.InvokeAsync(Items);
 
                 }
@@ -112,7 +112,7 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete this row? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -125,31 +125,23 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
 
             if (!result!.Canceled)
             {
-                DeleteEquipmentPlannedDownTimeRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
+               
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.Delete(response);
                     if (resultDelete.Succeeded)
                     {
-
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                          await GetAll();
+                    
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+               
                 }
                 else
                 {
                     Items.Remove(response);
                 }
-                await GetAll();
+       
                 await ValidateAsync.InvokeAsync();
 
             }
@@ -174,27 +166,19 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
 
             if (!result!.Canceled)
             {
-                DeleteGroupEquipmentPlannedDownTimeRequest request = new()
-                {
-                    SelecteItems = SelecteItems,
-                    EquipmentId = EquipmentId,
-
-                };
+              
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                     if (resultDelete.Succeeded)
                     {
+                        await GetAll();
 
-
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+          
                         SelecteItems = null!;
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                    
                 }
                 else
                 {
@@ -202,7 +186,7 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
                 }
 
 
-                await GetAll();
+              
                 await ValidateAsync.InvokeAsync();
 
             }

@@ -10,28 +10,29 @@ namespace Simulator.Server.Implementations.Databases
 {
     public class BlazorHeroContext : AuditableContext, IAppDbContext
     {
-        private readonly ICurrentUserService _currentUserService;
+        private readonly ICache _cache2;
+        string _tenantId => _cache2._tenantId;
+
 
         private readonly IAppCache _cache;
-        public string _tenantId { get; set; }
 
-        public BlazorHeroContext(DbContextOptions<BlazorHeroContext> options, ICurrentUserService currentUserService, IAppCache cache)
+
+        public BlazorHeroContext(DbContextOptions<BlazorHeroContext> options, IAppCache cache, ICache  cache2)
             : base(options)
         {
-            _currentUserService = currentUserService;
 
-            _tenantId = currentUserService.Email;
             _cache = cache;
+            _cache2 = cache2;
         }
-       
-     
+
+
         public DbSet<Material> Materials { get; set; }
         public DbSet<BackBoneStep> BackBoneSteps { get; set; }
         public DbSet<SKU> HCSKUs { get; set; }
         public DbSet<Washout> Washouts { get; set; }
         public DbSet<Conector> Conectors { get; set; }
         public DbSet<ProcessFlowDiagram> MainProceses { get; set; }
-  
+
         public DbSet<ContinuousSystem> ContinuousSystems { get; set; }
         public DbSet<Line> Lines { get; set; }
         public DbSet<Mixer> HCMixers { get; set; }
@@ -51,9 +52,9 @@ namespace Simulator.Server.Implementations.Databases
         public DbSet<CompoundConstant> CompoundConstants { get; set; }
         void ConfiguerQueryFilters(ModelBuilder builder)
         {
-           
 
-            
+
+
 
             builder.Entity<Material>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<BackBoneStep>().HasQueryFilter(p => p.IsDeleted == false);
@@ -61,9 +62,9 @@ namespace Simulator.Server.Implementations.Databases
             builder.Entity<Washout>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<Conector>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<ProcessFlowDiagram>().HasQueryFilter(p => p.IsDeleted == false);
-       
+
             builder.Entity<BaseEquipment>().HasQueryFilter(p => p.IsDeleted == false);
-         
+
             builder.Entity<MaterialEquipment>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<SKULine>().HasQueryFilter(p => p.IsDeleted == false);
             builder.Entity<EquipmentPlannedDownTime>().HasQueryFilter(p => p.IsDeleted == false);
@@ -113,7 +114,7 @@ namespace Simulator.Server.Implementations.Databases
 
             if (cacheKeys == null) return result;
 
-            if(result>0 )
+            if (result > 0)
             {
                 foreach (var cacheKey in cacheKeys)
                 {
@@ -121,7 +122,7 @@ namespace Simulator.Server.Implementations.Databases
                     _cache.Remove(key);
                 }
             }
-            
+
             return result;
         }
 
@@ -139,40 +140,28 @@ namespace Simulator.Server.Implementations.Databases
 
             try
             {
-                if (string.IsNullOrWhiteSpace(_tenantId))
-                {
-                    return await base.SaveChangesAsync();
-                }
-                var AddedEntities = ChangeTracker.Entries().Where(e => e.State == EntityState.Added && e.Entity is ITenantEntity);
-                foreach (var item in AddedEntities)
-                {
-                    var entity = item.Entity as ITenantEntity;
-                    entity!.TenantId = _tenantId;
 
-                }
-                var entittes = ChangeTracker.Entries<IAuditableEntity>().Where(x => x.State == EntityState.Added || x.State == EntityState.Modified).ToList();
+                var entittes = ChangeTracker.Entries<IEntity>().Where(x => x.State == EntityState.Added || x.State == EntityState.Modified).ToList();
 
 
                 foreach (var row in entittes)
                 {
                     if (row.State == EntityState.Added)
                     {
-                        row.Entity.CreatedOn = DateTime.Now;
-                        row.Entity.CreatedBy = _tenantId;
+                        if (row.Entity.IsTenanted)
+                        {
+                            var entity = row.Entity as ITennant;
+                            entity!.TenantId = _tenantId;
+                        }
 
-                    }
-
-                    if (row.State == EntityState.Modified)
-                    {
-                        row.Entity.LastModifiedOn = DateTime.Now;
-                        row.Entity.LastModifiedBy = _tenantId;
                     }
 
                 }
 
 
-                return await base.SaveChangesAsync();
+                var result = await base.SaveChangesAsync();
 
+                return result; // ✅ devuelve el valor real
             }
             catch (Exception ex)
             {
@@ -181,6 +170,53 @@ namespace Simulator.Server.Implementations.Databases
 
             return 0;
         }
+        //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+
+        //    try
+        //    {
+        //        if (string.IsNullOrWhiteSpace(_tenantId))
+        //        {
+        //            return await base.SaveChangesAsync();
+        //        }
+        //        var AddedEntities = ChangeTracker.Entries().Where(e => e.State == EntityState.Added && e.Entity is ITennant);
+        //        foreach (var item in AddedEntities)
+        //        {
+        //            var entity = item.Entity as ITennant;
+        //            entity!.TenantId = _tenantId;
+
+        //        }
+        //        var entittes = ChangeTracker.Entries<IEntity>().Where(x => x.State == EntityState.Added || x.State == EntityState.Modified).ToList();
+
+
+        //        foreach (var row in entittes)
+        //        {
+        //            if (row.State == EntityState.Added)
+        //            {
+        //                row.Entity.CreatedOn = DateTime.Now;
+        //                row.Entity.CreatedBy = _tenantId;
+
+        //            }
+
+        //            //if (row.State == EntityState.Modified)
+        //            //{
+        //            //    row.Entity.LastModifiedOn = DateTime.Now;
+        //            //    row.Entity.LastModifiedBy = _tenantId;
+        //            //}
+
+        //        }
+
+
+        //        return await base.SaveChangesAsync();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string exm = ex.Message;
+        //    }
+
+        //    return 0;
+        //}
 
 
     }

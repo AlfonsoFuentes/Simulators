@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Enums.HCEnums.Enums;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.MixerPlanneds;
 using Web.Infrastructure.Managers.Generic;
 
@@ -7,9 +8,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.MixerPlanneds
 
     public class MixerPlannedValidator : AbstractValidator<MixerPlannedDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public MixerPlannedValidator(IGenericService service)
+        public MixerPlannedValidator(IClientCRUDService service)
         {
             Service = service;
 

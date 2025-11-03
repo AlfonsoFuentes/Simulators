@@ -130,7 +130,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
                 }
             }
         }
-   
+
 
         private string GetEquipmentType(IEquipment equipment)
         {
@@ -482,9 +482,9 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
                     }
                 }
             }
-            
+
         }
-       
+
         private void PositionUnpositionedEquipment(List<IEquipment> equipmentList, Dictionary<Guid, (double X, double Y)> positionedEquipment)
         {
             const int verticalSpacing = 85;
@@ -565,7 +565,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdateTank(Guid Id)
         {
-            TankDTO response = new() { Id = Id };
+            TankDTO response = new() { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<TankDialog>
         {
 
@@ -584,7 +584,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdateLine(Guid Id)
         {
-            LineDTO response = new() { Id = Id };
+            LineDTO response = new() { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<LineDialog>
         {
 
@@ -603,7 +603,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdatePump(Guid Id)
         {
-            PumpDTO response = new() { Id = Id };
+            PumpDTO response = new() { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<PumpDialog>
         {
 
@@ -622,7 +622,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdateMixer(Guid Id)
         {
-            MixerDTO response = new() { Id = Id };
+            MixerDTO response = new() { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<MixerDialog>
         {
            { x => x.Model, response },
@@ -640,7 +640,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdateStreamJoiner(Guid Id)
         {
-            var response = new StreamJoinerDTO { Id = Id };
+            var response = new StreamJoinerDTO { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<StreamJoinerDialog>
     {
         { x => x.Model, response }
@@ -652,7 +652,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdateContinuousSystem(Guid Id)
         {
-            ContinuousSystemDTO response = new() { Id = Id };
+            ContinuousSystemDTO response = new() { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<ContinuousSystemDialog>
         {
 
@@ -671,7 +671,7 @@ namespace Simulator.Client.HCPages.MainProcesses.Process
         }
         async Task<bool> UpdateOperator(Guid Id)
         {
-            OperatorDTO response = new() { Id = Id };
+            OperatorDTO response = new() { Id = Id, MainProcessId = Simulation.MainProcessId };
             var parameters = new DialogParameters<OperatorDialog>
         {
 

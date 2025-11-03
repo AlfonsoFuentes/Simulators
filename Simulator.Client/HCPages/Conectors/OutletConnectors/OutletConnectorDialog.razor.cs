@@ -33,18 +33,15 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
                 MudDialog.Close(DialogResult.Ok(true));
                 return;
             }
-            var result = await GenericService.Post(Model);
+            var result = await ClientService.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+                
                 MudDialog.Close(DialogResult.Ok(true));
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
+           
 
         }
 
@@ -59,20 +56,17 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
             {
                 return;
             }
-            var result = await GenericService.GetById<OutletConnectorDTO, GetOutletConectorByIdRequest>(new()
-            {
-                Id = Model.Id
-            });
+            var result = await ClientService.GetById(Model);
             if (result.Succeeded)
             {
                 Model = result.Data;
             }
         }
 
-        List<BaseEquipmentDTO?> Items { get; set; } = new();
+        List<BaseEquipmentDTO> Items { get; set; } = new();
         async Task GetAllEquipments()
         {
-            var result = await GenericService.GetAll<BaseEquipmentList, BaseEquipmentGetAll>(new BaseEquipmentGetAll()
+            var result = await ClientService.GetAll(new BaseEquipmentDTO()
             {
                 MainProcessId = MainProcessId,
             });
@@ -81,7 +75,7 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
                 switch (EquipmentType)
                 {
                     case ProccesEquipmentType.Pump:
-                        Items = result.Data.Items.Where(x =>
+                        Items = result.Data.Where(x =>
                         x!.EquipmentType == ProccesEquipmentType.Tank ||
                         x!.EquipmentType == ProccesEquipmentType.Mixer ||
                         x!.EquipmentType == ProccesEquipmentType.Line ||
@@ -89,20 +83,20 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
                         break;
                     case ProccesEquipmentType.Mixer:
                     case ProccesEquipmentType.Tank:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
                     case ProccesEquipmentType.Operator:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Mixer
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Mixer
                         || x!.EquipmentType == ProccesEquipmentType.ContinuousSystem).ToList();
                         break;
                     case ProccesEquipmentType.ContinuousSystem:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Tank).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Tank).ToList();
                         break;
                     case ProccesEquipmentType.StreamJoiner:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Line).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Line).ToList();
                         break;
                     default:
-                        Items = result.Data.Items.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
+                        Items = result.Data.Where(x => x!.EquipmentType == ProccesEquipmentType.Pump).ToList();
                         break;
 
                 }

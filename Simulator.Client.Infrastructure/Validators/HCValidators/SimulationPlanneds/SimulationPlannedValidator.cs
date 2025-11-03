@@ -1,4 +1,6 @@
-﻿using Simulator.Shared.Models.HCs.SimulationPlanneds;
+﻿using Simulator.Client.Infrastructure.ExtensionMethods;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.SimulationPlanneds;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.SimulationPlanneds
@@ -6,9 +8,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.SimulationPlanneds
 
     public class SimulationPlannedValidator : AbstractValidator<SimulationPlannedDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public SimulationPlannedValidator(IGenericService service)
+        public SimulationPlannedValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -16,29 +18,13 @@ namespace Web.Infrastructure.Validators.FinishinLines.SimulationPlanneds
             RuleFor(x => x.InitDate).NotNull().WithMessage("Init date must be defined!");
             RuleFor(x => x.InitSpam).NotNull().WithMessage("Init Hour must be defined!");
             RuleFor(x => x.Hours).NotEqual(0).WithMessage("Hours must be defined!");
-         
+
             RuleFor(x => x.PlannedLines.Count).NotEqual(0).WithMessage("Lines must be defined!");
-            RuleFor(x => x.Name).MustAsync(ReviewIfNameExist)
-                .When(x => !string.IsNullOrEmpty(x.Name))
-                .WithMessage(x => $"{x.Name} already exist");
-
-
-
+            RuleFor(x => x.Name).MustBeUnique(service, x => x.Name)
+      .WithMessage(x => $"{x.Name} already exists");
         }
 
-        async Task<bool> ReviewIfNameExist(SimulationPlannedDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateSimulationPlannedNameRequest validate = new()
-            {
-                Name = name,
-
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
+       
 
     }
 }

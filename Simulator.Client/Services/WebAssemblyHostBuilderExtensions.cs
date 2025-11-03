@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
 using Simulator.Client.Services.Authentications;
 using Simulator.Client.Services.CurrencyServices;
 using Simulator.Client.Services.Https;
@@ -55,13 +56,10 @@ namespace Simulator.Client.Services
       
             builder.Services.CurrencyService();
             builder.Services.AddScoped<ISnackBarService, SnackBarService>();
-
-            //builder.Services.AddLogging(logging =>
-            //{
-         
-           
-            //    logging.AddDebug();
-            //});
+            builder.Services.AddScoped<ISnackBarService2, SnackBarService2>();
+            builder.Services.AddScoped<IClientCRUDService, ClientCRUDService>();
+            // En Program.cs del Client
+            builder.Logging.SetMinimumLevel(LogLevel.Information);
             return builder;
         }
 

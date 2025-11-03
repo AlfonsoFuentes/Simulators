@@ -29,7 +29,7 @@ public partial class LinePlannedDialog
     {
         if (Model.Id != Guid.Empty)
         {
-            var result = await GenericService.GetAll<PreferedMixerResponseList, PreferedMixerGetAll>(new PreferedMixerGetAll()
+            var result = await ClientService.GetAll(new PreferedMixerDTO()
             {
                 LinePlannedId = Model.Id,
 
@@ -37,7 +37,7 @@ public partial class LinePlannedDialog
             });
             if (result.Succeeded)
             {
-                Model.PreferedMixerDTOs = result.Data.Items;
+                Model.PreferedMixerDTOs = result.Data;
         
             }
 
@@ -48,7 +48,7 @@ public partial class LinePlannedDialog
     {
         if (Model.Id != Guid.Empty)
         {
-            var result = await GenericService.GetAll<PlannedSKUResponseList, PlannedSKUGetAll>(new PlannedSKUGetAll()
+            var result = await ClientService.GetAll( new  PlannedSKUDTO()
             {
                 LinePlannedId = Model.Id,
 
@@ -56,17 +56,17 @@ public partial class LinePlannedDialog
             });
             if (result.Succeeded)
             {
-                Model.PlannedSKUDTOs = result.Data.Items;
+                Model.PlannedSKUDTOs = result.Data;
 
             }
 
         }
 
     }
-    LineResponseList LineResponseList = new();
+    List<LineDTO> LineResponseList = new();
     async Task GetAllLines()
     {
-        var result = await GenericService.GetAll<LineResponseList, LineGetAll>(new LineGetAll()
+        var result = await ClientService.GetAll(new LineDTO()
         {
             MainProcessId = Model.MainProcesId,
 
@@ -87,18 +87,15 @@ public partial class LinePlannedDialog
             MudDialog.Close(DialogResult.Ok(true));
             return;
         }
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
+   
             MudDialog.Close(DialogResult.Ok(true));
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+       
 
     }
 
@@ -113,10 +110,7 @@ public partial class LinePlannedDialog
         {
             return;
         }
-        var result = await GenericService.GetById<LinePlannedDTO, GetLinePlannedByIdRequest>(new()
-        {
-            Id = Model.Id
-        });
+        var result = await ClientService.GetById(Model);
         if (result.Succeeded)
         {
             Model = result.Data;
@@ -129,8 +123,8 @@ public partial class LinePlannedDialog
         Func<LineDTO, bool> Criteria = x =>
         x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)
         ;
-        IEnumerable<LineDTO> FilteredItems = string.IsNullOrEmpty(value) ? LineResponseList.Items.AsEnumerable() :
-             LineResponseList.Items.Where(Criteria);
+        IEnumerable<LineDTO> FilteredItems = string.IsNullOrEmpty(value) ? LineResponseList.AsEnumerable() :
+             LineResponseList.Where(Criteria);
         return Task.FromResult(FilteredItems);
     }
 

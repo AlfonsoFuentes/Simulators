@@ -5,12 +5,15 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 {
     public static class ReadSimulationConnectors
     {
-        public static async Task ReadConnectors(this NewSimulationDTO simulation, Guid MainProcessId, IQueryRepository Repository)
+        public static async Task ReadConnectors(this NewSimulationDTO simulation, IServerCrudService service)
         {
+            ConectorDTO dto = new ConectorDTO()
+            {
+                MainProcessId = simulation.Id
+            };
 
-            Expression<Func<Conector, bool>> Criteria = x => x.MainProcessId == MainProcessId;
-            string CacheKey = StaticClass.Conectors.Cache.GetAll(MainProcessId);
-            var rows = await Repository.GetAllAsync<Conector>(Cache: CacheKey, Criteria: Criteria);
+            var rows= await service.GetAllAsync<Conector>(dto, parentId: $"{simulation.Id}");
+          
             if (rows != null && rows.Count > 0)
             {
                 simulation.Connectors = rows.Select(x => x.Map(simulation)).ToList();

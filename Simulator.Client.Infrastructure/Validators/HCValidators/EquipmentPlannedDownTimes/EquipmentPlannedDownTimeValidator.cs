@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.EquipmentPlannedDownTimes;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.EquipmentPlannedDownTimes;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.EquipmentPlannedDownTimes
@@ -6,9 +7,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.EquipmentPlannedDownTimes
 
     public class EquipmentPlannedDownTimeValidator : AbstractValidator<EquipmentPlannedDownTimeDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public EquipmentPlannedDownTimeValidator(IGenericService service)
+        public EquipmentPlannedDownTimeValidator(IClientCRUDService service)
         {
             Service = service;
 

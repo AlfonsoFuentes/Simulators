@@ -6,6 +6,8 @@
             <FluentValidationValidator @ref="_fluentValidationValidator" />
 
             <MudStack>
+                <Select For="() => Model.FocusFactory" @bind-Value="Model.FocusFactory" 
+                    Label="Focus Factory" Items="Enum.GetValues<FocusFactory>().ToList()" ValidateAsync="ValidateAsync"></Select>
 
                 <MudStack Row=true Spacing="2">
                     <Select For="() => Model.ProductCategoryCurrent" @bind-Value="Model.ProductCategoryCurrent" Label="Initial Backbone" Items="Enum.GetValues<ProductCategory>().ToList()" ValidateAsync="ValidateAsync"></Select>

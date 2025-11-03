@@ -21,18 +21,15 @@ public partial class MainProcessDialog
 
     private async Task Submit()
     {
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
+          
             MudDialog.Close(DialogResult.Ok(true));
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+        
 
     }
 
@@ -40,17 +37,14 @@ public partial class MainProcessDialog
     private void Cancel() => MudDialog.Cancel();
 
     [Parameter]
-    public MainProcessDTO Model { get; set; } = new();
+    public ProcessFlowDiagramDTO Model { get; set; } = new();
     async Task getById()
     {
         if (Model.Id == Guid.Empty)
         {
             return;
         }
-        var result = await GenericService.GetById<MainProcessDTO, GetMainProcessByIdRequest>(new()
-        {
-            Id = Model.Id
-        });
+        var result = await ClientService.GetById(Model);
         if (result.Succeeded)
         {
             Model = result.Data;

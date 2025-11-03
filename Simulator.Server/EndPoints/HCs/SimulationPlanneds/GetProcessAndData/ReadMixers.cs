@@ -1,20 +1,24 @@
 ﻿
 using Simulator.Server.Databases.Entities.HC;
-using Simulator.Shared.Simulations;
 using Simulator.Server.EndPoints.HCs.Mixers;
+using Simulator.Shared.Models.HCs.Lines;
+using Simulator.Shared.Models.HCs.Mixers;
+using Simulator.Shared.Simulations;
 namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 {
     public static class ReadSimulationMixers
     {
-        public static async Task ReadMixers(this NewSimulationDTO simulation, Guid MainProcessId, IQueryRepository Repository)
+        public static async Task ReadMixers(this NewSimulationDTO simulation, IServerCrudService service)
         {
-            Expression<Func<Mixer, bool>> Criteria = x => x.MainProcessId == MainProcessId;
-            string CacheKey = StaticClass.Mixers.Cache.GetAll(MainProcessId);
-            var rows = await Repository.GetAllAsync<Mixer>(Cache: CacheKey, Criteria: Criteria);
+            MixerDTO dto = new ()
+            {
+                MainProcessId = simulation.Id
+            };
+            var rows = await service.GetAllAsync<Mixer>(dto, parentId: $"{dto.MainProcessId}");
 
             if (rows != null && rows.Count > 0)
             {
-                simulation.Mixers = rows.OrderBy(x => x.Name).Select(x => x.Map()).ToList();
+                simulation.Mixers = rows.Select(x => x.MapToDto<MixerDTO>()).ToList();
 
             }
 

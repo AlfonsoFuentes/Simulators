@@ -6,17 +6,9 @@ using System.Text.Json.Serialization;
 namespace Simulator.Shared.Models.HCs.Tanks
 {
 
-    public class TankDTO : BaseEquipmentDTO, IMessageResponse, IRequest
+    public class TankDTO : BaseEquipmentDTO
     {
-        public string EndPointName => StaticClass.Tanks.EndPoint.CreateUpdate;
-
-        public string Legend => Name;
-
-        public string ActionType => Id == Guid.Empty ? "created" : "updated";
-        public string ClassName => StaticClass.Tanks.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
+       
         public override ProccesEquipmentType EquipmentType { get; set; } = ProccesEquipmentType.Tank;
         double _CapacityValue;
         string _CapacityUnitName = MassUnits.KiloGram.Name;
@@ -189,106 +181,106 @@ namespace Simulator.Shared.Models.HCs.Tanks
 
 
     }
-    public class DeleteTankRequest : DeleteMessageResponse, IRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public override string Legend => Name;
+    //public class DeleteTankRequest : DeleteMessageResponse, IRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.Tanks.ClassName;
+    //    public override string ClassName => StaticClass.Tanks.ClassName;
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string EndPointName => StaticClass.Tanks.EndPoint.Delete;
-    }
-    public class GetTankByIdRequest : GetByIdMessageResponse, IGetById
-    {
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.Delete;
+    //}
+    //public class GetTankByIdRequest : GetByIdMessageResponse, IGetById
+    //{
 
-        public Guid Id { get; set; }
-        public string EndPointName => StaticClass.Tanks.EndPoint.GetById;
-        public override string ClassName => StaticClass.Tanks.ClassName;
-    }
-    public class TankGetAll : IGetAll
-    {
-        public string EndPointName => StaticClass.Tanks.EndPoint.GetAll;
-        public Guid MainProcessId { get; set; }
+    //    public Guid Id { get; set; }
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.GetById;
+    //    public override string ClassName => StaticClass.Tanks.ClassName;
+    //}
+    //public class TankGetAll : IGetAll
+    //{
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.GetAll;
+    //    public Guid MainProcessId { get; set; }
 
-    }
-    public class TankResponseList : IResponseAll
-    {
-        public List<TankDTO> Items { get; set; } = new();
-    }
-    public class ValidateTankNameRequest : ValidateMessageResponse, IRequest
-    {
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+    //}
+    //public class TankResponseList : IResponseAll
+    //{
+    //    public List<TankDTO> Items { get; set; } = new();
+    //}
+    //public class ValidateTankNameRequest : ValidateMessageResponse, IRequest
+    //{
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
 
-        public string EndPointName => StaticClass.Tanks.EndPoint.Validate;
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.Validate;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.Tanks.ClassName;
-        public Guid MainProcessId { get; set; }
-    }
-    public class DeleteGroupTankRequest : DeleteMessageResponse, IRequest
-    {
+    //    public override string ClassName => StaticClass.Tanks.ClassName;
+    //    public Guid MainProcessId { get; set; }
+    //}
+    //public class DeleteGroupTankRequest : DeleteMessageResponse, IRequest
+    //{
 
-        public override string Legend => "Group of Tank";
+    //    public override string Legend => "Group of Tank";
 
-        public override string ClassName => StaticClass.Tanks.ClassName;
+    //    public override string ClassName => StaticClass.Tanks.ClassName;
 
-        public HashSet<TankDTO> SelecteItems { get; set; } = null!;
+    //    public HashSet<TankDTO> SelecteItems { get; set; } = null!;
 
-        public string EndPointName => StaticClass.Tanks.EndPoint.DeleteGroup;
-        public Guid MainProcessId { get; set; }
-    }
-    public class ChangeTankOrderDowmRequest : UpdateMessageResponse, IRequest
-    {
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.DeleteGroup;
+    //    public Guid MainProcessId { get; set; }
+    //}
+    //public class ChangeTankOrderDowmRequest : UpdateMessageResponse, IRequest
+    //{
 
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Guid ProductionLineAssignmentId { get; set; }
-        public string EndPointName => StaticClass.Tanks.EndPoint.UpdateDown;
-        public int Order { get; set; }
-        public override string Legend => Name;
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public Guid ProductionLineAssignmentId { get; set; }
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.UpdateDown;
+    //    public int Order { get; set; }
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.Tanks.ClassName;
-    }
-    public class ChangeTankOrderUpRequest : UpdateMessageResponse, IRequest
-    {
-        public Guid ProductionLineAssignmentId { get; set; }
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Order { get; set; }
-        public string EndPointName => StaticClass.Tanks.EndPoint.UpdateUp;
+    //    public override string ClassName => StaticClass.Tanks.ClassName;
+    //}
+    //public class ChangeTankOrderUpRequest : UpdateMessageResponse, IRequest
+    //{
+    //    public Guid ProductionLineAssignmentId { get; set; }
+    //    public Guid Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public int Order { get; set; }
+    //    public string EndPointName => StaticClass.Tanks.EndPoint.UpdateUp;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.Tanks.ClassName;
-    }
-    public static class TankMapper
-    {
-        public static ChangeTankOrderDowmRequest ToDown(this TankDTO response)
-        {
-            return new()
-            {
-                Id = response.Id,
-                Name = response.Name,
+    //    public override string ClassName => StaticClass.Tanks.ClassName;
+    //}
+    //public static class TankMapper
+    //{
+    //    public static ChangeTankOrderDowmRequest ToDown(this TankDTO response)
+    //    {
+    //        return new()
+    //        {
+    //            Id = response.Id,
+    //            Name = response.Name,
 
-                Order = response.Order,
+    //            Order = response.Order,
 
 
-            };
-        }
-        public static ChangeTankOrderUpRequest ToUp(this TankDTO response)
-        {
-            return new()
-            {
+    //        };
+    //    }
+    //    public static ChangeTankOrderUpRequest ToUp(this TankDTO response)
+    //    {
+    //        return new()
+    //        {
 
-                Id = response.Id,
-                Name = response.Name,
-                Order = response.Order,
-            };
-        }
+    //            Id = response.Id,
+    //            Name = response.Name,
+    //            Order = response.Order,
+    //        };
+    //    }
 
-    }
+    //}
 }

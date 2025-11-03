@@ -1,24 +1,17 @@
-﻿using System.Text.Json.Serialization;
+﻿using Simulator.Shared.Intefaces;
+using System.Text.Json.Serialization;
 
 namespace Simulator.Shared.Models.CompoundProperties
 {
-    public class CompoundPropertyDTO : BaseResponse, IMessageResponse, IRequest
+    public class CompoundPropertyDTO : Dto
     {
         public CompoundPropertyDTO()
         {
 
-          
+
 
         }
-        public string EndPointName => StaticClass.CompoundPropertys.EndPoint.CreateUpdate;
-
-        public string Legend => Name;
-
-        public string ActionType => Id == Guid.Empty ? "created" : "updated";
-        public string ClassName => StaticClass.CompoundPropertys.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
+        public string Name { get; set; } = string.Empty;
         public string Formula { get; set; } = string.Empty;
         public string StructuralFormula { get; set; } = string.Empty;
         public string MainFamily { get; set; } = string.Empty;
@@ -395,54 +388,54 @@ namespace Simulator.Shared.Models.CompoundProperties
         }
 
     }
-    public class DeleteCompoundPropertyRequest : DeleteMessageResponse, IRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public override string Legend => Name;
+    //public class DeleteCompoundPropertyRequest : DeleteMessageResponse, IRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.CompoundPropertys.ClassName;
+    //    public override string ClassName => StaticClass.CompoundPropertys.ClassName;
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string EndPointName => StaticClass.CompoundPropertys.EndPoint.Delete;
-    }
-    public class GetCompoundPropertyByIdRequest : GetByIdMessageResponse, IGetById
-    {
+    //    public string EndPointName => StaticClass.CompoundPropertys.EndPoint.Delete;
+    //}
+    //public class GetCompoundPropertyByIdRequest : GetByIdMessageResponse, IGetById
+    //{
 
-        public Guid Id { get; set; }
-        public string EndPointName => StaticClass.CompoundPropertys.EndPoint.GetById;
-        public override string ClassName => StaticClass.CompoundPropertys.ClassName;
-    }
-    public class CompoundPropertyGetAll : IGetAll
-    {
-        public string EndPointName => StaticClass.CompoundPropertys.EndPoint.GetAll;
-        public Guid MaterialId { get; set; }
-    }
-    public class CompoundPropertyResponseList : IResponseAll
-    {
-        public List<CompoundPropertyDTO> Items { get; set; } = new();
-    }
-    public class ValidateCompoundPropertyNameRequest : ValidateMessageResponse, IRequest
-    {
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+    //    public Guid Id { get; set; }
+    //    public string EndPointName => StaticClass.CompoundPropertys.EndPoint.GetById;
+    //    public override string ClassName => StaticClass.CompoundPropertys.ClassName;
+    //}
+    //public class CompoundPropertyGetAll : IGetAll
+    //{
+    //    public string EndPointName => StaticClass.CompoundPropertys.EndPoint.GetAll;
 
-        public string EndPointName => StaticClass.CompoundPropertys.EndPoint.Validate;
+    //}
+    //public class CompoundPropertyResponseList : IResponseAll
+    //{
+    //    public List<CompoundPropertyDTO> Items { get; set; } = new();
+    //}
+    //public class ValidateCompoundPropertyNameRequest : ValidateMessageResponse, IRequest
+    //{
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
 
-        public override string Legend => Name;
+    //    public string EndPointName => StaticClass.CompoundPropertys.EndPoint.Validate;
 
-        public override string ClassName => StaticClass.CompoundPropertys.ClassName;
-    }
-    public class DeleteGroupCompoundPropertyRequest : DeleteMessageResponse, IRequest
-    {
+    //    public override string Legend => Name;
 
-        public override string Legend => "Group of CompoundProperty";
+    //    public override string ClassName => StaticClass.CompoundPropertys.ClassName;
+    //}
+    //public class DeleteGroupCompoundPropertyRequest : DeleteMessageResponse, IRequest
+    //{
 
-        public override string ClassName => StaticClass.CompoundPropertys.ClassName;
+    //    public override string Legend => "Group of CompoundProperty";
 
-        public HashSet<CompoundPropertyDTO> SelecteItems { get; set; } = null!;
+    //    public override string ClassName => StaticClass.CompoundPropertys.ClassName;
 
-        public string EndPointName => StaticClass.CompoundPropertys.EndPoint.DeleteGroup;
-        public Guid MaterialId { get; set; }
-    }
+    //    public HashSet<CompoundPropertyDTO> SelecteItems { get; set; } = null!;
+
+    //    public string EndPointName => StaticClass.CompoundPropertys.EndPoint.DeleteGroup;
+    //    public Guid MaterialId { get; set; }
+    //}
 }

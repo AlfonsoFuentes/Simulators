@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Simulator.Server.Databases.Entities.Identity
 {
 
-    public class BlazorHeroUser : IdentityUser<string>, IAuditableEntity<string>
+    public class BlazorHeroUser : IdentityUser<string>
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

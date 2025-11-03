@@ -8,7 +8,7 @@ public partial class BackBoneStepTable
     public MaterialDTO Material { get; set; } = null!;
     public List<BackBoneStepDTO> Items => Material == null ? new() : Material.BackBoneSteps;
     string nameFilter = string.Empty;
-    public Func<BackBoneStepDTO, bool> Criteria => x => x.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
+    public Func<BackBoneStepDTO, bool> Criteria => x => x.StepName.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
     public List<BackBoneStepDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
         Items.Where(Criteria).ToList();
     public List<BackBoneStepDTO> OrderedItems => Items.OrderBy(x => x.Order).ToList();
@@ -35,13 +35,14 @@ public partial class BackBoneStepTable
         if (MaterialId != Guid.Empty)
         {
 
-            var result = await GenericService.GetAll<BackBoneStepResponseList, BackBoneStepGetAll>(new BackBoneStepGetAll()
+            var result = await ClientService.GetAll(new BackBoneStepDTO()
             {
+
                 MaterialId = MaterialId,
             });
             if (result.Succeeded)
             {
-                Material.BackBoneSteps = result.Data.Items;
+                Material.BackBoneSteps = result.Data;
                 
             }
         }
@@ -114,7 +115,7 @@ public partial class BackBoneStepTable
     {
         var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete {response.StepName}? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -127,25 +128,16 @@ public partial class BackBoneStepTable
 
         if (!result!.Canceled)
         {
-            DeleteBackBoneStepRequest request = new()
-            {
-                Id = response.Id,
-                Name = response.Name,
-
-            };
+           
             if (MaterialId != Guid.Empty)
             {
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.Delete(response);
                 if (resultDelete.Succeeded)
                 {
                     await GetAll();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
-
+                  
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+                
             }
             else
             {
@@ -176,27 +168,19 @@ public partial class BackBoneStepTable
 
         if (!result!.Canceled)
         {
-            DeleteGroupBackBoneStepRequest request = new()
-            {
-                SelecteItems = SelecteItems,
-                MaterialId = MaterialId,
-
-            };
+           
             if (MaterialId != Guid.Empty)
             {
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                 if (resultDelete.Succeeded)
                 {
                     await GetAll();
 
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+                    
                     SelecteItems = null!;
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+                
             }
             else
             {
@@ -225,7 +209,7 @@ public partial class BackBoneStepTable
 
         if (MaterialId != Guid.Empty)
         {
-            var result = await GenericService.Update(SelectedRow.ToUp());
+            var result = await ClientService.OrderUp(SelectedRow);
             if (result.Succeeded)
             {
                 await GetAll();
@@ -250,7 +234,7 @@ public partial class BackBoneStepTable
         if (SelectedRow == null) return;
         if (MaterialId != Guid.Empty)
         {
-            var result = await GenericService.Update(SelectedRow.ToDown());
+            var result = await ClientService.OrderDown(SelectedRow);
 
             if (result.Succeeded)
             {

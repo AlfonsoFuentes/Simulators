@@ -13,6 +13,7 @@
                TableTitle="Washouts List">
     <ColumnsTemplate>
         <SelectColumn T="WashoutDTO" />
+        <PropertyColumn Property="x => x.FocusFactory.ToString()" Title="Focus Factory" TProperty="string" T="WashoutDTO" Groupable="true" />
         <PropertyColumn Property="x => x.ProductCategoryCurrent.ToString()" Title="Backbone current" TProperty="string" T="WashoutDTO" />
         <PropertyColumn Property="x => x.ProductCategoryNext.ToString()" Title="Backbone next" TProperty="string" T="WashoutDTO" />
         <PropertyColumn Property="x => x.MixerWashoutTime.ToString()" Title="Mixer washout time" TProperty="string" T="WashoutDTO" />

@@ -1,4 +1,6 @@
-﻿using Simulator.Shared.Enums.HCEnums.Enums;
+﻿using Simulator.Client.Infrastructure.ExtensionMethods;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Materials;
 using Web.Infrastructure.Managers.Generic;
 
@@ -7,9 +9,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
 
     public class MaterialValidator : AbstractValidator<MaterialDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public MaterialValidator(IGenericService service)
+        public MaterialValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -21,6 +23,17 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
             RuleFor(x => x.FocusFactory).NotEqual(FocusFactory.None).WithMessage("Focus Factory must be defined!");
 
             RuleFor(x => x.PhysicalState).NotEqual(MaterialPhysicState.None).WithMessage("Physical State must be defined!");
+
+            RuleFor(x => x.SAPName).MustBeUnique(service, x => x.SAPName)
+            .WithMessage("SAPName already exists");
+
+            RuleFor(x => x.M_Number).MustBeUnique(service, x => x.M_Number)
+                .WithMessage("M_Number already exists");
+
+            RuleFor(x => x.CommonName).MustBeUnique(service, x => x.CommonName)
+                .WithMessage("CommonName already exists");
+
+
             RuleFor(x => x.ProductCategory)
                 .NotEqual(ProductCategory.None)
                 .When(x => x.MaterialType == MaterialType.RawMaterialBackBone || x.MaterialType == MaterialType.ProductBackBone)
@@ -32,58 +45,8 @@ namespace Web.Infrastructure.Validators.FinishinLines.Materials
                 .WithMessage("Back Bone Steps must be defined!");
 
 
-            RuleFor(x => x.SAPName).MustAsync(ReviewIfNameExist)
-                .When(x => !string.IsNullOrEmpty(x.SAPName))
-                .WithMessage(x => $"{x.SAPName} already exist");
-
-            RuleFor(x => x.M_Number).MustAsync(ReviewIfMNumberExist)
-               .When(x => !string.IsNullOrEmpty(x.M_Number))
-               .WithMessage(x => $"{x.M_Number} already exist");
-
-            RuleFor(x => x.CommonName).MustAsync(ReviewIfCommonNameExist)
-              .When(x => !string.IsNullOrEmpty(x.CommonName))
-              .WithMessage(x => $"{x.CommonName} already exist");
-
         }
-
-        async Task<bool> ReviewIfNameExist(MaterialDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateMaterialNameRequest validate = new()
-            {
-                SapName = name,
-                FocusFactory = request.FocusFactory,
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
-        async Task<bool> ReviewIfMNumberExist(MaterialDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateMaterialMNumberRequest validate = new()
-            {
-                MNumber = name,
-
-                FocusFactory = request.FocusFactory,
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
-        async Task<bool> ReviewIfCommonNameExist(MaterialDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateMaterialCommonNameRequest validate = new()
-            {
-                CommonName = name,
-                FocusFactory = request.FocusFactory,
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
+     
+        
     }
 }

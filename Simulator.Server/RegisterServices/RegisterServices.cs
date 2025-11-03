@@ -10,11 +10,9 @@ using Simulator.Server.Databases.Entities.Identity;
 using Simulator.Server.Implementations.Databases;
 using Simulator.Server.Implementations.Identities;
 using Simulator.Server.Implementations.Storage;
-using Simulator.Server.Implementations.UsersService;
 using Simulator.Server.Interfaces.Database;
 using Simulator.Server.Interfaces.Identity;
 using Simulator.Server.Interfaces.Storage;
-using Simulator.Server.Interfaces.UserServices;
 using Simulator.Server.Services;
 using Simulator.Shared.Constants.Application;
 using System.Net;
@@ -54,8 +52,10 @@ namespace Simulator.Server.RegisterServices
                 config.AssumeDefaultVersionWhenUnspecified = true;
                 config.ReportApiVersions = true;
             });
-            builder.Services.AddLazyCache();
+
             builder.Services.AddTransient<IDatabaseSeeder, DatabaseSeeder>();
+            builder.Services.AddLazyCache();
+            builder.Services.AddSingleton<ICache, Cache>();
             return builder;
         }
         public static IServiceCollection AddEndPoints(this IServiceCollection service)
@@ -111,7 +111,7 @@ namespace Simulator.Server.RegisterServices
         internal static IServiceCollection AddCurrentUserService(this IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
+           
             return services;
         }
         internal static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
@@ -131,15 +131,6 @@ namespace Simulator.Server.RegisterServices
                     .AddInterceptors(
                         sp.GetRequiredService<SoftDeleteInterceptor>()));
 
-    //        builder.Services.AddDbContext<YourDbContext>(options =>
-    //options.UseSqlServer(connectionString,
-    //    sqlServerOptionsAction: sqlOptions =>
-    //    {
-    //        sqlOptions.EnableRetryOnFailure(
-    //            maxRetryCount: 5,
-    //            maxRetryDelay: TimeSpan.FromSeconds(30),
-    //            errorNumbersToAdd: null); // Optional: add specific error numbers to retry
-    //    }));
 
 
             services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<BlazorHeroContext>());
@@ -264,13 +255,7 @@ namespace Simulator.Server.RegisterServices
             });
             return services;
         }
-        //public static void AddApplicationLayer(this IServiceCollection services)
-        //{
 
-        //    services.AddAutoMapper(Assembly.GetExecutingAssembly());
-        //    services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
-
-        //}
         internal static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<MailConfiguration>(configuration.GetSection("MailConfiguration"));
@@ -288,9 +273,10 @@ namespace Simulator.Server.RegisterServices
         }
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IQueryRepository, QueryRepository>();
-            services.AddScoped<IRepository, Repository>();
-            services.AddScoped<IIgnoreQueryFilterRepository, IgnoreQueryFilterRepository>();
+            services.AddScoped<IServerCrudService, ServerCrudService>();
+            //services.AddScoped<IQueryRepository, QueryRepository>();
+            //services.AddScoped<IRepository, Repository>();
+            //services.AddScoped<IIgnoreQueryFilterRepository, IgnoreQueryFilterRepository>();
             return services;
         }
     }

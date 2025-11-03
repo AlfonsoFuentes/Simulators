@@ -1,25 +1,34 @@
-﻿using Simulator.Shared.Models.CompoundProperties;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.CompoundProperties;
+using Simulator.Shared.NewModels.Compounds;
 
 namespace Simulator.Client.CompoundPropertiesPages
 {
     public partial class CompoundPropertyTable
     {
-        public List<CompoundPropertyDTO> Items { get; set; } = new();
+        [Inject]
+        public IClientCRUDService Service { get; set; } = null!;
+        public List<NewCompoundPropertyDTO> Items { get; set; } = new();
         string nameFilter = string.Empty;
-        public Func<CompoundPropertyDTO, bool> Criteria => x =>
+        public Func<NewCompoundPropertyDTO, bool> Criteria => x =>
         x.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase) ;
-        public List<CompoundPropertyDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
+        public List<NewCompoundPropertyDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
             Items.Where(Criteria).ToList();
+
+  
         protected override async Task OnInitializedAsync()
         {
             await GetAll();
         }
         async Task GetAll()
         {
-            var result = await GenericService.GetAll<CompoundPropertyResponseList, CompoundPropertyGetAll>(new CompoundPropertyGetAll());
-            if (result.Succeeded)
+            var resullt = await Service.GetAll(new NewCompoundPropertyDTO()
             {
-                Items = result.Data.Items;
+               
+            });
+            if (resullt.Succeeded)
+            {
+                Items = resullt.Data;
             }
         }
         public async Task AddNew()
@@ -40,7 +49,7 @@ namespace Simulator.Client.CompoundPropertiesPages
                 StateHasChanged();
             }
         }
-        async Task Edit(CompoundPropertyDTO response)
+        async Task Edit(NewCompoundPropertyDTO response)
         {
 
 
@@ -59,7 +68,7 @@ namespace Simulator.Client.CompoundPropertiesPages
                 await GetAll();
             }
         }
-        public async Task Delete(CompoundPropertyDTO response)
+        public async Task Delete(NewCompoundPropertyDTO response)
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
@@ -76,65 +85,20 @@ namespace Simulator.Client.CompoundPropertiesPages
 
             if (!result!.Canceled)
             {
-                DeleteCompoundPropertyRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
-                var resultDelete = await GenericService.Post(request);
+                
+                var resultDelete = await ClientService.Delete(response);
                 if (resultDelete.Succeeded)
                 {
                     await GetAll();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+                  
 
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+               
             }
 
         }
-        HashSet<CompoundPropertyDTO> SelecteItems = null!;
-        public async Task DeleteGroup()
-        {
-            if (SelecteItems == null) return;
-            var parameters = new DialogParameters<DialogTemplate>
-        {
-            { x => x.ContentText, $"Do you really want to delete this {SelecteItems.Count} Items? This process cannot be undone." },
-            { x => x.ButtonText, "Delete" },
-            { x => x.Color, Color.Error }
-        };
+        HashSet<NewCompoundPropertyDTO> SelecteItems = null!;
 
-            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-
-            var dialog = await DialogService.ShowAsync<DialogTemplate>("Delete", parameters, options);
-            var result = await dialog.Result;
-
-
-            if (!result!.Canceled)
-            {
-                DeleteGroupCompoundPropertyRequest request = new()
-                {
-                    SelecteItems = SelecteItems,
-
-                };
-                var resultDelete = await GenericService.Post(request);
-                if (resultDelete.Succeeded)
-                {
-                    await GetAll();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
-                    SelecteItems = null!;
-
-                }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
-            }
-
-        }
     }
 }

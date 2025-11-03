@@ -5,7 +5,7 @@ namespace Simulator.Server.Interfaces.Database
 {
     public interface IAppDbContext
     {
-        string _tenantId { get; set; }
+      
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
       
         DbSet<Material> Materials { get; set; }
@@ -35,5 +35,6 @@ namespace Simulator.Server.Interfaces.Database
 
         Task<int> SaveChangesAndRemoveCacheAsync(params string[] cacheKeys);
         Task<T> GetOrAddCacheAsync<T>(string key, Func<Task<T>> addItemFactory);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

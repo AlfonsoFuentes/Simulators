@@ -16,23 +16,19 @@ namespace Simulator.Server.Implementations.Identities
         private readonly UserManager<BlazorHeroUser> _userManager;
         private readonly IRoleClaimService _roleClaimService;
 
-        private readonly ICurrentUserService _currentUserService;
-        //private readonly IMapper _mapper;
+
 
         public RoleService(
             RoleManager<IdentityRole> roleManager,
             //IMapper mapper,
             UserManager<BlazorHeroUser> userManager,
-            IRoleClaimService roleClaimService,
-
-            ICurrentUserService currentUserService)
+            IRoleClaimService roleClaimService)
         {
             _roleManager = roleManager;
             //_mapper = mapper;
             _userManager = userManager;
             _roleClaimService = roleClaimService;
 
-            _currentUserService = currentUserService;
         }
 
         public async Task<Result<string>> DeleteAsync(string id)
@@ -174,11 +170,7 @@ namespace Simulator.Server.Implementations.Identities
                 var role = await _roleManager.FindByIdAsync(request.RoleId!);
                 if (role!.Name == RoleConstants.AdministratorRole)
                 {
-                    var currentUser = await _userManager.Users.SingleAsync(x => x.Id == _currentUserService.UserId);
-                    if (await _userManager.IsInRoleAsync(currentUser, RoleConstants.AdministratorRole))
-                    {
-                        return await Result<string>.FailAsync("Not allowed to modify Permissions for this Role.");
-                    }
+                    
                 }
 
                 var selectedClaims = request.RoleClaims.Where(a => a.Selected).ToList();

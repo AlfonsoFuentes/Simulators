@@ -22,7 +22,7 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
         public List<MaterialEquipmentDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
             Items.Where(Criteria).ToList();
 
-        MaterialEquipmentResponseList MaterialEquipmentResponseList { get; set; } = new();
+       
         [Parameter]
         public Guid EquipmentId { get; set; }
         [Parameter]
@@ -59,14 +59,14 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
         {
             if (EquipmentId != Guid.Empty)
             {
-                var result = await GenericService.GetAll<MaterialEquipmentResponseList, MaterialEquipmentGetAll>(new MaterialEquipmentGetAll()
+                var result = await ClientService.GetAll(new MaterialEquipmentDTO()
                 {
-                    EquipmentId = EquipmentId,
+                    ProccesEquipmentId = EquipmentId,
                 });
                 if (result.Succeeded)
                 {
-                    MaterialEquipmentResponseList = result.Data;
-                    Items = MaterialEquipmentResponseList.Items;     
+                    Items = result.Data;
+            
                     await ItemsChanged.InvokeAsync(Items);
 
                 }
@@ -136,7 +136,7 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete this row? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -149,31 +149,23 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
 
             if (!result!.Canceled)
             {
-                DeleteMaterialEquipmentRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
+               
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.Delete(response);
                     if (resultDelete.Succeeded)
                     {
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                    
                 }
                 else
                 {
                     Items.Remove(response);
                 }
-                await GetAll();
+              
                 await ValidateAsync.InvokeAsync();
 
             }
@@ -198,28 +190,19 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
 
             if (!result!.Canceled)
             {
-                DeleteGroupMaterialEquipmentRequest request = new()
-                {
-                    SelecteItems = SelecteItems,
-                    EquipmentId = EquipmentId,
-                    MainProcessId = MainProcessId,
-
-                };
+               
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                     if (resultDelete.Succeeded)
                     {
 
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
                         SelecteItems = null!;
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                    
                 }
                 else
                 {
@@ -227,7 +210,7 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
                 }
 
 
-                await GetAll();
+               
                 await ValidateAsync.InvokeAsync();
 
             }

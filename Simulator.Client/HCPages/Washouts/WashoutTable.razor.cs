@@ -5,7 +5,7 @@ public partial class WashoutTable
 {
     public List<WashoutDTO> Items { get; set; } = new();
     string nameFilter = string.Empty;
-    public Func<WashoutDTO, bool> Criteria => x => x.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
+    public Func<WashoutDTO, bool> Criteria => x => x.ProductCategoryCurrent.ToString().Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
     public List<WashoutDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
         Items.Where(Criteria).ToList();
     protected override async Task OnInitializedAsync()
@@ -14,10 +14,10 @@ public partial class WashoutTable
     }
     async Task GetAll()
     {
-        var result = await GenericService.GetAll<WashoutResponseList, WashoutGetAll>(new WashoutGetAll());
+        var result = await ClientService.GetAll(new WashoutDTO());
         if (result.Succeeded)
         {
-            Items = result.Data.Items;
+            Items = result.Data;
         }
     }
     public async Task AddNew()
@@ -28,7 +28,7 @@ public partial class WashoutTable
 
         };
 
-        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Small };
 
         var dialog = await DialogService.ShowAsync<WashoutDialog>("Washout Dialog", parameters, options);
         var result = await dialog.Result;
@@ -47,7 +47,7 @@ public partial class WashoutTable
 
              { x => x.Model, response },
         };
-        var options = new DialogOptions() { MaxWidth = MaxWidth.Medium };
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Small };
 
 
         var dialog = await DialogService.ShowAsync<WashoutDialog>("Washout Dialog", parameters, options);
@@ -61,7 +61,7 @@ public partial class WashoutTable
     {
         var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete {response.ProductCategoryCurrent}? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -74,24 +74,16 @@ public partial class WashoutTable
 
         if (!result!.Canceled)
         {
-            DeleteWashoutRequest request = new()
-            {
-                Id = response.Id,
-                Name = response.Name,
-
-            };
-            var resultDelete = await GenericService.Post(request);
+          
+            var resultDelete = await ClientService.Delete(response);
             if (resultDelete.Succeeded)
             {
                 await GetAll();
-                _snackBar.ShowSuccess(resultDelete.Messages);
+   
 
 
             }
-            else
-            {
-                _snackBar.ShowError(resultDelete.Messages);
-            }
+            
         }
 
     }
@@ -114,23 +106,16 @@ public partial class WashoutTable
 
         if (!result!.Canceled)
         {
-            DeleteGroupWashoutRequest request = new()
-            {
-                SelecteItems = SelecteItems,
 
-            };
-            var resultDelete = await GenericService.Post(request);
+            var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
             if (resultDelete.Succeeded)
             {
                 await GetAll();
-                _snackBar.ShowSuccess(resultDelete.Messages);
+            
                 SelecteItems = null!;
 
             }
-            else
-            {
-                _snackBar.ShowError(resultDelete.Messages);
-            }
+           
         }
 
     }

@@ -1,15 +1,15 @@
-﻿using Simulator.Shared.Models.HCs.BackBoneSteps;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.BackBoneSteps;
 using UnitSystem;
-using Web.Infrastructure.Managers.Generic;
 
 namespace Simulator.Client.Infrastructure.Validators.HCValidators.BackBones
 {
 
     public class BackBoneStepValidator : AbstractValidator<BackBoneStepDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public BackBoneStepValidator(IGenericService service)
+        public BackBoneStepValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -35,18 +35,6 @@ namespace Simulator.Client.Infrastructure.Validators.HCValidators.BackBones
 
         }
 
-        async Task<bool> ReviewIfNameExist(BackBoneStepDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateBackBoneStepNameRequest validate = new()
-            {
-                Name = name,
-
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
+       
     }
 }

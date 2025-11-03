@@ -1,9 +1,13 @@
-﻿using Simulator.Shared.Models.CompoundProperties;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.CompoundProperties;
+using Simulator.Shared.NewModels.Compounds;
 
 namespace Simulator.Client.CompoundPropertiesPages
 {
     public partial class CompundPropertyDialog
     {
+        [Inject]
+        public IClientCRUDService Service { get; set; } = null!;
         [CascadingParameter]
         private IMudDialogInstance MudDialog { get; set; } = null!;
         private bool Validated { get; set; } = true;
@@ -23,17 +27,13 @@ namespace Simulator.Client.CompoundPropertiesPages
 
         private async Task Submit()
         {
-            var result = await GenericService.Post(Model);
+            var result = await Service.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+
                 MudDialog.Close(DialogResult.Ok(true));
-            }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
             }
 
         }
@@ -42,21 +42,17 @@ namespace Simulator.Client.CompoundPropertiesPages
         private void Cancel() => MudDialog.Cancel();
 
         [Parameter]
-        public CompoundPropertyDTO Model { get; set; } = null!;
+        public NewCompoundPropertyDTO Model { get; set; } = null!;
         async Task getById()
         {
             if (Model.Id == Guid.Empty)
             {
                 return;
             }
-            var result = await GenericService.GetById<CompoundPropertyDTO, GetCompoundPropertyByIdRequest>(new()
+            var result = await Service.GetById(Model);
+            if (result.Succeeded && result.Data is not null)
             {
-                Id = Model.Id
-            });
-            if (result.Succeeded)
-            {
-                Model = result.Data;
-                StateHasChanged();
+                Model = result.Data as NewCompoundPropertyDTO;
             }
         }
        

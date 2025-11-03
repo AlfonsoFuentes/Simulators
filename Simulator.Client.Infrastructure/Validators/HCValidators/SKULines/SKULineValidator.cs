@@ -1,5 +1,8 @@
-﻿using Simulator.Shared.Models.HCs.SKULines;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Models.HCs.SKULines;
 using Simulator.Shared.Models.HCs.SKUs;
+using Simulator.Shared.Models.HCs.Washouts;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.SKULines
@@ -7,9 +10,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.SKULines
 
     public class SKULineValidator : AbstractValidator<SKULineDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public SKULineValidator(IGenericService service)
+        public SKULineValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -20,28 +23,19 @@ namespace Web.Infrastructure.Validators.FinishinLines.SKULines
 
 
 
-            RuleFor(x => x.SKU).MustAsync(ReviewIfNameExist)
-                .When(x => x.LineId != Guid.Empty && x.SKU != null)
-                .WithMessage(x => $"{x.SKUName} already exist");
 
-           
 
+            RuleFor(x => x.SKU)
+          .MustAsync((dto, _, ct) => ValidateCombination(dto, ct))
+          .When(x => x.LineId != Guid.Empty && x.SKU != null).WithMessage(x => $"{x.SKUName} already exist");
         }
 
-        async Task<bool> ReviewIfNameExist(SKULineDTO request, SKUDTO? name, CancellationToken cancellationToken)
-        {
-            ValidateSKULineNameRequest validate = new()
-            {
-               SKUId = request.SKUId,
-               LineId = request.LineId,
-
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
        
+        private async Task<bool> ValidateCombination(SKULineDTO dto, CancellationToken ct)
+        {
+            dto.ValidationKey = SKULineDTO.ValidationSKUId;
+            var result = await Service.Validate(dto);
+            return result.Succeeded;
+        }
     }
 }

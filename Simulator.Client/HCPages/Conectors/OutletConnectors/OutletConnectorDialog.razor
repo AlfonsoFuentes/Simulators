@@ -11,10 +11,9 @@
                          Items="@Items"
                          @bind-Values=@Model.Tos
                          Property="(p) => p!.Name"
-                        
-                         ></MultiSelect>
+                        ></MultiSelect>
             <ValidationMessage For="() => Model.Tos.Count" style="color:red; font-size:x-small;" />
-           @*  <Autocomplete Label="To Equipment"
+            @*  <Autocomplete Label="To Equipment"
                           @bind-Value=@Model.To
                           For="() => Model.To"
                           SearchFunc="SearchEquipment"
@@ -30,5 +29,5 @@
     </MudCard>
 </EditForm>
 @code {
-   
+
 }

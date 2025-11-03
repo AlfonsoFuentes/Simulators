@@ -1,5 +1,8 @@
 ﻿using FluentValidation;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Conectors;
+using Simulator.Shared.Models.HCs.Washouts;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Web.Infrastructure.Validators.FinishinLines.Conectors
@@ -7,74 +10,56 @@ namespace Web.Infrastructure.Validators.FinishinLines.Conectors
 
     public class InletConectorValidator : AbstractValidator<InletConnectorDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public InletConectorValidator(IGenericService service)
+        public InletConectorValidator(IClientCRUDService service)
         {
             Service = service;
 
             RuleFor(x => x.Froms.Count).NotEqual(0).WithMessage("From equipment must be defined!");
 
 
-            RuleFor(x => x).MustAsync(ReviewIfInletExist)
-               .When(x => x.From != null & x.ToId != Guid.Empty)
-               .WithMessage(x => $"Connection -> From: {x.From!.Name} already exist");
+            RuleFor(x => x.From)
+        .MustAsync((dto, _, ct) => ValidateCombination(dto, ct))
+        .When(x => x.From != null && x.To != null).WithMessage(x => $"Connection -> To: {x.To!.Name} already exist");
 
 
         }
 
 
-        async Task<bool> ReviewIfInletExist(ConectorDTO request, ConectorDTO dto, CancellationToken cancellationToken)
+        private async Task<bool> ValidateCombination(InletConnectorDTO dto, CancellationToken ct)
         {
-            ValidateInletConectorNameRequest validate = new()
-            {
-                FromId = request.FromId,
-                ToId = request.ToId,
-
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
+            dto.ValidationKey = InletConnectorDTO.ConnectorReview;
+            var result = await Service.Validate(dto);
+            return result.Succeeded;
         }
 
     }
     public class OutletConectorValidator : AbstractValidator<OutletConnectorDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public OutletConectorValidator(IGenericService service)
+        public OutletConectorValidator(IClientCRUDService service)
         {
             Service = service;
 
 
             RuleFor(x => x.Tos.Count).NotEqual(0).WithMessage("To equipment must be defined!");
 
+            RuleFor(x => x.To)
+        .MustAsync((dto, _, ct) => ValidateCombination(dto, ct))
+        .When(x => x.From != null && x.To != null).WithMessage(x => $"Connection -> from: {x.From!.Name} already exist");
 
-
-            RuleFor(x => x).MustAsync(ReviewIfOutletExist)
-                .When(x => x.From != null & x.To != null)
-                .WithMessage(x => $"Connection -> To: {x.To!.Name} already exist");
-
+          
 
 
         }
 
-        async Task<bool> ReviewIfOutletExist(ConectorDTO request, ConectorDTO dto, CancellationToken cancellationToken)
+        private async Task<bool> ValidateCombination(OutletConnectorDTO dto, CancellationToken ct)
         {
-
-            ValidateOutletConectorNameRequest validate = new()
-            {
-                FromId = request.FromId,
-                ToId = request.ToId,
-
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
+            dto.ValidationKey = OutletConnectorDTO.ConnectorReview;
+            var result = await Service.Validate(dto);
+            return result.Succeeded;
         }
 
 

@@ -1,21 +1,15 @@
-﻿using Simulator.Shared.Models.HCs.BaseEquipments;
+﻿using Simulator.Shared.Intefaces;
+using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.LinePlanneds;
 using Simulator.Shared.Models.HCs.SKUs;
 using System.Text.Json.Serialization;
 
 namespace Simulator.Shared.Models.HCs.PlannedSKUs
 {
-    public class PlannedSKUDTO: BaseDTO, IMessageResponse, IRequest
+    public class PlannedSKUDTO: Dto
     {
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.CreateUpdate;
-
-        public string Legend => Name;
-
-        public string ActionType => Id == Guid.Empty ? "created" : "updated";
-        public string ClassName => StaticClass.PlannedSKUs.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
+        public string Name { get; set; } = string.Empty;
+       
         public int PlannedCases { get; set; }
         public Guid LineId { get; set; }
         public Guid LinePlannedId {  get; set; }
@@ -96,106 +90,106 @@ namespace Simulator.Shared.Models.HCs.PlannedSKUs
         public Amount TimeToChangeSKU { get; set; } = new Amount(TimeUnits.Minute);
 
     }
-    public class DeletePlannedSKURequest : DeleteMessageResponse, IRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public override string Legend => Name;
+    //public class DeletePlannedSKURequest : DeleteMessageResponse, IRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PlannedSKUs.ClassName;
+    //    public override string ClassName => StaticClass.PlannedSKUs.ClassName;
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.Delete;
-    }
-    public class GetPlannedSKUByIdRequest : GetByIdMessageResponse, IGetById
-    {
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.Delete;
+    //}
+    //public class GetPlannedSKUByIdRequest : GetByIdMessageResponse, IGetById
+    //{
 
-        public Guid Id { get; set; }
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.GetById;
-        public override string ClassName => StaticClass.PlannedSKUs.ClassName;
-    }
-    public class PlannedSKUGetAll : IGetAll
-    {
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.GetAll;
-        public Guid LinePlannedId {  get; set; }
-    }
-    public class PlannedSKUResponseList : IResponseAll
-    {
-        public List<PlannedSKUDTO> Items { get; set; } = new();
-    }
-    public class ValidatePlannedSKUNameRequest : ValidateMessageResponse, IRequest
-    {
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+    //    public Guid Id { get; set; }
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.GetById;
+    //    public override string ClassName => StaticClass.PlannedSKUs.ClassName;
+    //}
+    //public class PlannedSKUGetAll : IGetAll
+    //{
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.GetAll;
+    //    public Guid LinePlannedId {  get; set; }
+    //}
+    //public class PlannedSKUResponseList : IResponseAll
+    //{
+    //    public List<PlannedSKUDTO> Items { get; set; } = new();
+    //}
+    //public class ValidatePlannedSKUNameRequest : ValidateMessageResponse, IRequest
+    //{
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
 
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.Validate;
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.Validate;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PlannedSKUs.ClassName;
-    }
-    public class DeleteGroupPlannedSKURequest : DeleteMessageResponse, IRequest
-    {
+    //    public override string ClassName => StaticClass.PlannedSKUs.ClassName;
+    //}
+    //public class DeleteGroupPlannedSKURequest : DeleteMessageResponse, IRequest
+    //{
 
-        public override string Legend => "Group of PlannedSKU";
+    //    public override string Legend => "Group of PlannedSKU";
 
-        public override string ClassName => StaticClass.PlannedSKUs.ClassName;
+    //    public override string ClassName => StaticClass.PlannedSKUs.ClassName;
 
-        public HashSet<PlannedSKUDTO> SelecteItems { get; set; } = null!;
+    //    public HashSet<PlannedSKUDTO> SelecteItems { get; set; } = null!;
 
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.DeleteGroup;
-        public Guid LinePlannedId { get; set; }
-    }
-    public class ChangePlannedSKUOrderDowmRequest : UpdateMessageResponse, IRequest
-    {
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.DeleteGroup;
+    //    public Guid LinePlannedId { get; set; }
+    //}
+    //public class ChangePlannedSKUOrderDowmRequest : UpdateMessageResponse, IRequest
+    //{
 
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Guid LinePlannedId { get; set; }
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.UpdateDown;
-        public int Order { get; set; }
-        public override string Legend => Name;
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public Guid LinePlannedId { get; set; }
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.UpdateDown;
+    //    public int Order { get; set; }
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PlannedSKUs.ClassName;
-    }
-    public class ChangePlannedSKUOrderUpRequest : UpdateMessageResponse, IRequest
-    {
-        public Guid LinePlannedId { get; set; }
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Order { get; set; }
-        public string EndPointName => StaticClass.PlannedSKUs.EndPoint.UpdateUp;
+    //    public override string ClassName => StaticClass.PlannedSKUs.ClassName;
+    //}
+    //public class ChangePlannedSKUOrderUpRequest : UpdateMessageResponse, IRequest
+    //{
+    //    public Guid LinePlannedId { get; set; }
+    //    public Guid Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public int Order { get; set; }
+    //    public string EndPointName => StaticClass.PlannedSKUs.EndPoint.UpdateUp;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.PlannedSKUs.ClassName;
-    }
-    public static class PlannedSKUMapper
-    {
-        public static ChangePlannedSKUOrderDowmRequest ToDown(this PlannedSKUDTO response)
-        {
-            return new()
-            {
-                Id = response.Id,
-                Name = response.Name,
+    //    public override string ClassName => StaticClass.PlannedSKUs.ClassName;
+    //}
+    //public static class PlannedSKUMapper
+    //{
+    //    public static ChangePlannedSKUOrderDowmRequest ToDown(this PlannedSKUDTO response)
+    //    {
+    //        return new()
+    //        {
+    //            Id = response.Id,
+    //            Name = response.Name,
              
-                Order = response.Order,
-                LinePlannedId = response.LinePlannedId, 
+    //            Order = response.Order,
+    //            LinePlannedId = response.LinePlannedId, 
 
 
-            };
-        }
-        public static ChangePlannedSKUOrderUpRequest ToUp(this PlannedSKUDTO response)
-        {
-            return new()
-            {
+    //        };
+    //    }
+    //    public static ChangePlannedSKUOrderUpRequest ToUp(this PlannedSKUDTO response)
+    //    {
+    //        return new()
+    //        {
           
-                Id = response.Id,
-                Name = response.Name,
-                Order = response.Order,
-                LinePlannedId = response.LinePlannedId,
-            };
-        }
+    //            Id = response.Id,
+    //            Name = response.Name,
+    //            Order = response.Order,
+    //            LinePlannedId = response.LinePlannedId,
+    //        };
+    //    }
 
-    }
+    //}
 }

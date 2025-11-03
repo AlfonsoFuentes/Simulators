@@ -125,7 +125,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen.Materials
 
             foreach (var group in duplicateGroups)
             {
-                var names = string.Join(", ", group.Select(d => $"\"{d.Name}\""));
+                var names = string.Join(", ", group.Select(d => $"\"{d.SAPName}\""));
                 messageService.AddWarning($"Duplicate materials (same ID): {names}. Only the first will be loaded.", "MaterialFactory");
             }
 

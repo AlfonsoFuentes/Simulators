@@ -35,18 +35,15 @@ namespace Simulator.Client.HCPages.PreferedMixers
                 MudDialog.Close(DialogResult.Ok(true));
                 return;
             }
-            var result = await GenericService.Post(Model);
+            var result = await ClientService.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+          
                 MudDialog.Close(DialogResult.Ok(true));
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
+        
 
         }
 
@@ -61,27 +58,24 @@ namespace Simulator.Client.HCPages.PreferedMixers
             {
                 return;
             }
-            var result = await GenericService.GetById<PreferedMixerDTO, GetPreferedMixerByIdRequest>(new()
-            {
-                Id = Model.Id
-            });
+            var result = await ClientService.GetById(Model);
             if (result.Succeeded)
             {
                 Model = result.Data;
 
             }
         }
-        MixerResponseList MixerResponseList = new();
-        List<MixerDTO> Mixers => MixerResponseList.Items.Count == 0 ? new() : MixerResponseList.Items;
+ 
+        List<MixerDTO> Mixers= new();
         async Task GetAllMixers()
         {
-            var result = await GenericService.GetAll<MixerResponseList, MixerGetAll>(new MixerGetAll()
+            var result = await ClientService.GetAll(new MixerDTO()
             {
                 MainProcessId = MainProcessId,
             });
             if (result.Succeeded)
             {
-                MixerResponseList = result.Data;
+                Mixers = result.Data;
 
 
             }

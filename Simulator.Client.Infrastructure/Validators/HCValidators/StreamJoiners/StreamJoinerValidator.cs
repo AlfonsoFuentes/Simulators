@@ -1,13 +1,15 @@
-﻿using Simulator.Shared.Models.HCs.StreamJoiners;
+﻿using Simulator.Client.Infrastructure.ExtensionMethods;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.StreamJoiners;
 using Web.Infrastructure.Managers.Generic;
 
 namespace Simulator.Client.Infrastructure.Validators.HCValidators.StreamJoiners
 {
     public class StreamJoinerValidator : AbstractValidator<StreamJoinerDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public StreamJoinerValidator(IGenericService service)
+        public StreamJoinerValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -15,27 +17,14 @@ namespace Simulator.Client.Infrastructure.Validators.HCValidators.StreamJoiners
 
 
 
-            RuleFor(x => x.Name).MustAsync(ReviewIfNameExist)
-                .When(x => !string.IsNullOrEmpty(x.Name))
-                .WithMessage(x => $"{x.Name} already exist");
+            RuleFor(x => x.Name).MustBeUnique(service, x => x.Name)
+        .WithMessage(x => $"{x.Name} already exists");
 
 
 
         }
 
-        async Task<bool> ReviewIfNameExist(StreamJoinerDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateStreamJoinerNameRequest validate = new()
-            {
-                Name = name,
-                MainProcessId = request.MainProcessId,
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
+        
 
     }
 }

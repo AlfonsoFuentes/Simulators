@@ -13,7 +13,7 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
         public List<OutletConnectorDTO> Items { get; set; } = new();
 
 
-        OutletConnectorResponseList OutletConnectorResponseList { get; set; } = new();
+      
 
         public Guid EquipmentId => Equipment == null ? Guid.Empty : Equipment.Id;
         public Guid MainProcessId => Equipment == null ? Guid.Empty : Equipment.MainProcessId;
@@ -37,14 +37,14 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
         {
             if (EquipmentId != Guid.Empty)
             {
-                var result = await GenericService.GetAll<OutletConnectorResponseList, OutletsConnectorGetAll>(new OutletsConnectorGetAll()
+                var result = await ClientService.GetAll(new OutletConnectorDTO()
                 {
                     FromId = EquipmentId,
                 });
                 if (result.Succeeded)
                 {
-                    OutletConnectorResponseList = result.Data;
-                    Items = OutletConnectorResponseList.Items;
+            
+                    Items = result.Data;
                     await ItemsChanged.InvokeAsync(Items);
 
                 }
@@ -121,7 +121,7 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete this row? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -134,31 +134,24 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
 
             if (!result!.Canceled)
             {
-                DeleteConectorRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
+               
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.Delete(response);
                     if (resultDelete.Succeeded)
                     {
+                        await GetAll();
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                     
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                  
                 }
                 else
                 {
                     Items.Remove(response);
                 }
-                await GetAll();
+               
                 await ValidateAsync.InvokeAsync();
 
             }
@@ -183,27 +176,19 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
 
             if (!result!.Canceled)
             {
-                DeleteGroupConectorRequest request = new()
-                {
-                    SelecteItems = SelecteItems.Select(x => x as ConectorDTO).ToHashSet(),
-
-
-                };
+             
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                     if (resultDelete.Succeeded)
                     {
 
-
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
+                
                         SelecteItems = null!;
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                  
                 }
                 else
                 {
@@ -211,7 +196,7 @@ namespace Simulator.Client.HCPages.Conectors.OutletConnectors
                 }
 
 
-                await GetAll();
+            
                 await ValidateAsync.InvokeAsync();
 
             }

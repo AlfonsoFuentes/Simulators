@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using Simulator.Client.Infrastructure.ExtensionMethods;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
 using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Lines;
 using UnitSystem;
@@ -9,9 +11,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.Lines
 
     public class LineValidator : AbstractValidator<LineDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public LineValidator(IGenericService service)
+        public LineValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -22,27 +24,14 @@ namespace Web.Infrastructure.Validators.FinishinLines.Lines
 
             RuleFor(x => x.TimeToReviewAUValue).NotEqual(0).WithMessage("Time to Review AU must be defined!");
 
-            RuleFor(x => x.Name).MustAsync(ReviewIfNameExist)
-                .When(x => !string.IsNullOrEmpty(x.Name))
-                .WithMessage(x => $"{x.Name} already exist");
+            RuleFor(x => x.Name).MustBeUnique(service, x => x.Name)
+        .WithMessage(x => $"{x.Name} already exists");
 
-           
+
 
         }
 
-        async Task<bool> ReviewIfNameExist(LineDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateLineNameRequest validate = new()
-            {
-                Name = name,
-                MainProcessId = request.MainProcessId,
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
+      
        
     }
 }

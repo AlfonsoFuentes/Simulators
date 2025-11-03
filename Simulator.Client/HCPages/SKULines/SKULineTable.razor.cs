@@ -19,7 +19,7 @@ namespace Simulator.Client.HCPages.SKULines
         public List<SKULineDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
             Items.Where(Criteria).ToList();
 
-        SKULineResponseList SKULineResponseList { get; set; } = new();
+        List<SKULineDTO> SKULineResponseList { get; set; } = new();
         [Parameter]
         public Guid LineId { get; set; }
         [Parameter]
@@ -45,14 +45,14 @@ namespace Simulator.Client.HCPages.SKULines
         {
             if (LineId != Guid.Empty)
             {
-                var result = await GenericService.GetAll<SKULineResponseList, SKULineGetAll>(new SKULineGetAll()
+                var result = await ClientService.GetAll(new SKULineDTO()
                 {
                     LineId = LineId,
                 });
                 if (result.Succeeded)
                 {
                     SKULineResponseList = result.Data;
-                    Items = SKULineResponseList.Items;
+                    Items = SKULineResponseList;
                     await ItemsChanged.InvokeAsync(Items);
                 }
             }
@@ -116,7 +116,7 @@ namespace Simulator.Client.HCPages.SKULines
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete this row? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -129,31 +129,23 @@ namespace Simulator.Client.HCPages.SKULines
 
             if (!result!.Canceled)
             {
-                DeleteSKULineRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
+               
                 if (LineId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.Delete(response);
                     if (resultDelete.Succeeded)
                     {
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                   
                 }
                 else
                 {
                     Items.Remove(response);
                 }
-                await GetAll();
+               
                 await ValidateAsync.InvokeAsync();
 
             }
@@ -178,27 +170,19 @@ namespace Simulator.Client.HCPages.SKULines
 
             if (!result!.Canceled)
             {
-                DeleteGroupSKULineRequest request = new()
-                {
-                    SelecteItems = SelecteItems,
-                    LineId = LineId,
-
-                };
+                
                 if (LineId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                     if (resultDelete.Succeeded)
                     {
 
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
                         SelecteItems = null!;
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                    
                 }
                 else
                 {
@@ -206,7 +190,7 @@ namespace Simulator.Client.HCPages.SKULines
                 }
 
 
-                await GetAll();
+              
                 await ValidateAsync.InvokeAsync();
 
             }

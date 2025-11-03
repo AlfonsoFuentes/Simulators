@@ -20,18 +20,15 @@ public partial class WashoutDialog
 
     private async Task Submit()
     {
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
+       
             MudDialog.Close(DialogResult.Ok(true));
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+      
 
     }
 
@@ -46,10 +43,7 @@ public partial class WashoutDialog
         {
             return;
         }
-        var result = await GenericService.GetById<WashoutDTO, GetWashoutByIdRequest>(new()
-        {
-            Id = Model.Id
-        });
+        var result = await ClientService.GetById(Model);
         if (result.Succeeded)
         {
             Model = result.Data;

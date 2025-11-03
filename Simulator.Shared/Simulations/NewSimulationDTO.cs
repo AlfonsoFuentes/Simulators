@@ -1,4 +1,5 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Intefaces;
 using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.Conectors;
 using Simulator.Shared.Models.HCs.ContinuousSystems;
@@ -16,16 +17,9 @@ using Simulator.Shared.Models.HCs.Washouts;
 
 namespace Simulator.Shared.Simulations
 {
-    public class NewSimulationDTO : BaseResponse, IMessageResponse, IRequest
+    public class NewSimulationDTO : Dto
     {
-        public string EndPointName => StaticClass.SimulationPlanneds.EndPoint.CreateUpdate;
-        public string ActionType => "Get simulation";
-        public string Legend => Name;
-        public string ClassName => StaticClass.SimulationPlanneds.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
-
+        public string Name { get; set; } = string.Empty;
         public FocusFactory FocusFactory { get; set; } = FocusFactory.None;
         public List<MaterialDTO> Materials { get; set; } = new();
         public List<SKUDTO> SKUs { get; set; } = new();
@@ -39,7 +33,7 @@ namespace Simulator.Shared.Simulations
         public List<OperatorDTO> Operators { get; set; } = new();
         public List<MaterialEquipmentRecord> MaterialEquipments { get; set; } = new();
         public List<ConnectorRecord> Connectors { get; set; } = new();
-        public List<BaseEquipmentDTO> AllEquipments => [.. Lines, .. Tanks, .. Mixers, .. Pumps, .. Skids, .. Operators,.. StreamJoiners];
+        public List<BaseEquipmentDTO> AllEquipments => [.. Lines, .. Tanks, .. Mixers, .. Pumps, .. Skids, .. Operators, .. StreamJoiners];
         public List<StreamJoinerDTO> StreamJoiners { get; set; } = new();
 
     }

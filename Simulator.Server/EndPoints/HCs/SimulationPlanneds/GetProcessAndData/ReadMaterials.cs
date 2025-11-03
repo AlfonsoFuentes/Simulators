@@ -1,46 +1,47 @@
 ﻿using Simulator.Server.Databases.Entities.HC;
-using Simulator.Server.EndPoints.HCs.BackBoneSteps;
-using Simulator.Server.EndPoints.HCs.Lines;
-using Simulator.Server.EndPoints.HCs.Materials;
 using Simulator.Shared.Enums.HCEnums.Enums;
-using Simulator.Shared.Models.HCs.ContinuousSystems;
+using Simulator.Shared.Intefaces;
+using Simulator.Shared.Models.HCs.BackBoneSteps;
 using Simulator.Shared.Models.HCs.Materials;
-using Simulator.Shared.Models.HCs.Mixers;
-using Simulator.Shared.Models.HCs.Operators;
-using Simulator.Shared.Models.HCs.Pumps;
-using Simulator.Shared.Models.HCs.Tanks;
 using Simulator.Shared.Simulations;
 namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 {
     public static class ReadMaterials
     {
-        public static async Task ReadSimulationMaterials(this NewSimulationDTO simulation, IQueryRepository Repository)
+        public static async Task ReadSimulationMaterials(this NewSimulationDTO simulation, IServerCrudService service)
         {
-            string CacheKey = StaticClass.Materials.Cache.GetAll(simulation.FocusFactory);
-            var rows = await Repository.GetAllAsync<Material>(CacheKey);
-            if (rows != null && rows.Count > 0)
+            var dto = new BackBoneDto()
             {
-                simulation.Materials = rows.Select(x => x.MapMaterial()).ToList();
-                var productsbackbones = simulation.Materials.Where(x => x.MaterialType == MaterialType.RawMaterialBackBone || x.MaterialType == MaterialType.ProductBackBone).ToList();
+                FocusFactory = simulation.FocusFactory
+            };
+            var query = await service.GetAllAsync<Material>(dto, querysuffix: $"{dto.FocusFactory}");
+            if (query != null && query.Count > 0)
+            {
+                simulation.Materials = query.Select(x => x.MapToDto<MaterialDTO>()).ToList();
+                var productsbackbones = simulation.Materials.Where(x =>
+                x.MaterialType == MaterialType.RawMaterialBackBone || x.MaterialType == MaterialType.ProductBackBone).ToList();
 
                 foreach (var row in productsbackbones)
                 {
-                    await row.ReadBackboneSteps(Repository);
+                    if (query.Any(x => x.Id == row.Id && x.BackBoneSteps != null && x.BackBoneSteps.Count > 0))
+                    {
+                        row.BackBoneSteps = query.First(x => x.Id == row.Id).BackBoneSteps.OrderBy(x => x.Order).Select(x => x.MapToDto<BackBoneStepDTO>()).ToList();
+                    }
+
                 }
 
             }
         }
 
-        static async Task ReadBackboneSteps(this MaterialDTO material, IQueryRepository Repository)
+        static async Task ReadBackboneSteps(this MaterialDTO material, IServerCrudService service)
         {
-            Func<IQueryable<BackBoneStep>, IIncludableQueryable<BackBoneStep, object>> includes = x => x
-                   .Include(y => y.RawMaterial!);
-            string CacheKey = StaticClass.BackBoneSteps.Cache.GetAll(material.Id);
-            Expression<Func<BackBoneStep, bool>> Criteria = x => x.MaterialId == material.Id;
-            var rows = await Repository.GetAllAsync(Cache: CacheKey, Includes: includes, Criteria: Criteria);
+            var stepdto = new BackBoneStepDTO() { MaterialId = material.Id };
+            var rows = await service.GetAllAsync<BackBoneStep>(stepdto, parentId: $"{material.Id}");
+
+
             if (rows != null && rows.Count > 0)
             {
-                material.BackBoneSteps = rows.OrderBy(x => x.Order).Select(x => x.Map()).ToList();
+                material.BackBoneSteps = rows.Select(x => x.MapToDto<BackBoneStepDTO>()).ToList();
 
 
             }

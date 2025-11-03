@@ -31,6 +31,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
     public class GeneralSimulation
     {
 
+        public Guid MainProcessId { get; private set; }
         public CriticalDowntimeReportManager CriticalDowntimeReportManager { get; private set; } = null!;
 
         public ManufacturingSystemAnalizer ManufacturingSystemAnalizer { get; set; } = null!;
@@ -66,7 +67,7 @@ namespace Simulator.Shared.NuevaSimlationconQwen
         public void ReadSimulationDataFromDTO(NewSimulationDTO NewSimulationDTO)
         {
             this.NewSimulationDTO = NewSimulationDTO;
-
+            MainProcessId = NewSimulationDTO.Id;
             ReadMaterials(NewSimulationDTO.Materials);
             ReadPumps(NewSimulationDTO.Pumps);
             ReadTanks(NewSimulationDTO.Tanks);

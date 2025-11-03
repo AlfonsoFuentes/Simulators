@@ -5,7 +5,7 @@ namespace Simulator.Client.HCPages.MainProcesses
     public partial class MainProcessCard
     {
         [Parameter]
-        public MainProcessDTO Model { get; set; } = null!;
+        public ProcessFlowDiagramDTO Model { get; set; } = null!;
         public char FirstLetter => Model.Name.First();
         [Parameter]
         public EventCallback GetAll { get; set; }
@@ -20,11 +20,11 @@ namespace Simulator.Client.HCPages.MainProcesses
 
 
             var parameters = new DialogParameters<MainProcessDialog>
-        {
+            {
 
-             { x => x.Model, Model },
-        };
-            var options = new DialogOptions() { MaxWidth = MaxWidth.Medium };
+                 { x => x.Model, Model },
+            };
+            var options = new DialogOptions() { MaxWidth = MaxWidth.Small };
 
 
             var dialog = await DialogService.ShowAsync<MainProcessDialog>("MainProcess", parameters, options);
@@ -51,24 +51,16 @@ namespace Simulator.Client.HCPages.MainProcesses
 
             if (!result!.Canceled)
             {
-                DeleteMainProcessRequest request = new()
-                {
-                    Id = Model.Id,
-                    Name = Model.Name,
-
-                };
-                var resultDelete = await GenericService.Post(request);
+               
+                var resultDelete = await ClientService.Delete(Model);
                 if (resultDelete.Succeeded)
                 {
                     await GetAll.InvokeAsync();
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+     
 
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+               
             }
 
         }

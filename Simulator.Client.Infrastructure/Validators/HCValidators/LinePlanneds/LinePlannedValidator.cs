@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Enums.HCEnums.Enums;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.LinePlanneds;
 using Web.Infrastructure.Managers.Generic;
 
@@ -7,9 +8,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.LinePlanneds
 
     public class LinePlannedValidator : AbstractValidator<LinePlannedDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public LinePlannedValidator(IGenericService service)
+        public LinePlannedValidator(IClientCRUDService service)
         {
             Service = service;
 

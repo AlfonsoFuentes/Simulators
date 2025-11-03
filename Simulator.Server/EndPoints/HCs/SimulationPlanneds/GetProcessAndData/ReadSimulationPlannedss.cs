@@ -1,34 +1,32 @@
 ﻿using Simulator.Server.Databases.Entities.HC;
 using Simulator.Server.EndPoints.HCs.EquipmentPlannedDownTimes;
-using Simulator.Server.EndPoints.HCs.LinePlanneds;
 using Simulator.Server.EndPoints.HCs.MixerPlanneds;
 using Simulator.Server.EndPoints.HCs.PlannedSKUs;
-using Simulator.Shared.Models.HCs.EquipmentPlannedDownTimes;
+using Simulator.Shared.Intefaces;
 using Simulator.Shared.Models.HCs.LinePlanneds;
+using Simulator.Shared.Models.HCs.MixerPlanneds;
+using Simulator.Shared.Models.HCs.PlannedSKUs;
 using Simulator.Shared.Models.HCs.SimulationPlanneds;
-using Simulator.Shared.Simulations;
 namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 {
     public static class ReadSimulationPlannedss
     {
-        public static async Task ReadPlannedLines(this SimulationPlannedDTO planned, IQueryRepository Repository)
+        public static async Task ReadPlannedLines(this CompletedSimulationPlannedDTO planned, IServerCrudService service)
         {
-            Func<IQueryable<LinePlanned>, IIncludableQueryable<LinePlanned, object>> includes = x => x
-                  .Include(x => x.HCSimulationPlanned)
-                  .Include(y => y.Line)
-                  .Include(x => x.PreferedMixers).ThenInclude(x => x.Mixer);
-            Expression<Func<LinePlanned, bool>> Criteria = x => x.SimulationPlannedId == planned.Id;
-            string CacheKey = StaticClass.LinePlanneds.Cache.GetAll(planned.Id);
-            var rows = await Repository.GetAllAsync<LinePlanned>(Cache: CacheKey, Criteria: Criteria, Includes: includes);
+            LinePlannedDTO dto = new() { SimulationPlannedId = planned.Id };
+
+            var rows = await service.GetAllAsync<LinePlanned>(dto, parentId: $"{dto.SimulationPlannedId}");
+
+          
 
             if (rows != null && rows.Count > 0)
             {
-                planned.PlannedLines = rows.Select(x => x.Map()).ToList();
+                planned.PlannedLines = rows.Select(x => x.MapToDto<LinePlannedDTO>()).ToList();
                 if (planned.PlannedLines != null)
                 {
                     foreach (var row in planned.PlannedLines)
                     {
-                        await row.ReadPlannedSKU(Repository);
+                        await row.ReadPlannedSKU(service);
                     }
                 }
 
@@ -36,21 +34,19 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 
 
         }
-        public static async Task ReadPlannedMixers(this SimulationPlannedDTO planned, IQueryRepository Repository)
+        public static async Task ReadPlannedMixers(this CompletedSimulationPlannedDTO planned, IServerCrudService service)
         {
-            Func<IQueryable<MixerPlanned>, IIncludableQueryable<MixerPlanned, object>> includes = x => x
-                     .Include(x => x.SimulationPlanned)
-                     .Include(y => y.Mixer!)
-                     .Include(x => x.BackBone!)
-                     .Include(x => x.BackBoneStep!)
-                     .Include(x => x.ProducingTo!);
-            Expression<Func<MixerPlanned, bool>> Criteria = x => x.SimulationPlannedId == planned.Id;
-            string CacheKey = StaticClass.MixerPlanneds.Cache.GetAll(planned.Id);
-            var rows = await Repository.GetAllAsync<MixerPlanned>(Cache: CacheKey, Criteria: Criteria, Includes: includes);
+            MixerPlannedDTO dto = new MixerPlannedDTO()
+            {
+                SimulationPlannedId = planned.Id
+            };
+            var rows = await service.GetAllAsync<MixerPlanned>(dto, parentId: $"{dto.SimulationPlannedId}");
+           
+          
 
             if (rows != null && rows.Count > 0)
             {
-                planned.PlannedMixers = rows.Select(x => x.Map()).ToList();
+                planned.PlannedMixers = rows.Select(x => x.MapToDto<MixerPlannedDTO>()).ToList();
             }
 
 
@@ -58,18 +54,18 @@ namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 
 
         }
-        public static async Task ReadPlannedSKU(this LinePlannedDTO plannedLine, IQueryRepository Repository)
+        public static async Task ReadPlannedSKU(this LinePlannedDTO plannedLine, IServerCrudService service)
         {
-            Func<IQueryable<PlannedSKU>, IIncludableQueryable<PlannedSKU, object>> includes = x => x
-             .Include(x => x.LinePlanned)
-                  .Include(y => y.SKU).ThenInclude(x => x.SKULines);
-            Expression<Func<PlannedSKU, bool>> Criteria = x => x.LinePlannedId == plannedLine.Id;
-            string CacheKey = StaticClass.PlannedSKUs.Cache.GetAll(plannedLine.Id);
-            var rows = await Repository.GetAllAsync(Cache: CacheKey, Criteria: Criteria, Includes: includes);
+            PlannedSKUDTO dto = new PlannedSKUDTO()
+            {
+                LinePlannedId = plannedLine.Id
+            };
+            var rows = await service.GetAllAsync<PlannedSKU>(dto, parentId: $"{dto.LinePlannedId}");
+           
 
             if (rows != null && rows.Count > 0)
             {
-                plannedLine.PlannedSKUDTOs = rows.OrderBy(x => x.Order).Select(x => x.Map()).ToList();
+                plannedLine.PlannedSKUDTOs = rows.OrderBy(x => x.Order).Select(x => x.MapToDto<PlannedSKUDTO>()).ToList();
             }
 
 

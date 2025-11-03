@@ -32,18 +32,15 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
                 MudDialog.Close(DialogResult.Ok(true));
                 return;
             }
-            var result = await GenericService.Post(Model);
+            var result = await ClientService.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+    
                 MudDialog.Close(DialogResult.Ok(true));
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
+          
 
         }
 
@@ -58,10 +55,7 @@ namespace Simulator.Client.HCPages.EquipmentPlannedDownTimes
             {
                 return;
             }
-            var result = await GenericService.GetById<EquipmentPlannedDownTimeDTO, GetEquipmentPlannedDownTimeByIdRequest>(new()
-            {
-                Id = Model.Id
-            });
+            var result = await ClientService.GetById(Model);
             if (result.Succeeded)
             {
                 Model = result.Data;

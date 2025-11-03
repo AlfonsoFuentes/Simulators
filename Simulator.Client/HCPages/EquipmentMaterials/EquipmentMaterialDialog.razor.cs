@@ -2,6 +2,7 @@
 using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.MaterialEquipments;
 using Simulator.Shared.Models.HCs.Materials;
+using System.Collections.Generic;
 
 namespace Simulator.Client.HCPages.EquipmentMaterials
 {
@@ -36,18 +37,15 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
                 MudDialog.Close(DialogResult.Ok(true));
                 return;
             }
-            var result = await GenericService.Post(Model);
+            var result = await ClientService.Save(Model);
 
 
             if (result.Succeeded)
             {
-                _snackBar.ShowSuccess(result.Messages);
+
                 MudDialog.Close(DialogResult.Ok(true));
             }
-            else
-            {
-                _snackBar.ShowError(result.Messages);
-            }
+
 
         }
 
@@ -62,10 +60,8 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
             {
                 return;
             }
-            var result = await GenericService.GetById<MaterialEquipmentDTO, GetMaterialEquipmentByIdRequest>(new()
-            {
-                Id = Model.Id
-            });
+            var result = await ClientService.GetById(Model);
+
             if (result.Succeeded)
             {
                 Model = result.Data;
@@ -79,8 +75,8 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
              x.M_Number.Contains(value, StringComparison.InvariantCultureIgnoreCase) ||
              x.CommonName.Contains(value, StringComparison.InvariantCultureIgnoreCase)
             ;
-            IEnumerable<MaterialDTO> FilteredItems = string.IsNullOrEmpty(value) ? MaterialResponseList.Items.AsEnumerable() :
-                 MaterialResponseList.Items.Where(Criteria);
+            IEnumerable<MaterialDTO> FilteredItems = string.IsNullOrEmpty(value) ? MaterialResponseList.AsEnumerable() :
+                 MaterialResponseList.Where(Criteria);
             return Task.FromResult(FilteredItems);
         }
         public async Task AddMaterial()
@@ -107,31 +103,41 @@ namespace Simulator.Client.HCPages.EquipmentMaterials
 
             }
         }
-        MaterialResponseList MaterialResponseList { get; set; } = new();
+        List<MaterialDTO> MaterialResponseList { get; set; } = new();
         async Task GetAllMaterials()
         {
+            //var result = await ClientService.GetAll(new MaterialDTO()
+            //{
+
+            //    FocusFactory = FocusFactory
+            //});
+            //if (result.Succeeded)
+            //{
+            //    MaterialResponseList = result.Data;
+            //}
             if (Model.IsMixer || Model.IsSkid)
             {
-                var result = await GenericService.GetAll<MaterialResponseList, BackBoneGetAll>(new BackBoneGetAll()
+                var result = await ClientService.GetAll(new BackBoneDto()
                 {
+
                     FocusFactory = FocusFactory
                 });
                 if (result.Succeeded)
                 {
-                    MaterialResponseList = result.Data;
+                    MaterialResponseList = result.Data.Cast<MaterialDTO>().ToList();
                 }
             }
             else
             {
-                var result = await GenericService.GetAll<MaterialResponseList, MaterialGetAllByFocusFactory>(new MaterialGetAllByFocusFactory()
+                var result = await ClientService.GetAll(new MaterialDTO()
                 {
                     MaterialType = MaterialType,
                     FocusFactory = FocusFactory
-                  
+
                 });
                 if (result.Succeeded)
                 {
-                    MaterialResponseList = result.Data;
+                    MaterialResponseList = result.Data.Cast<MaterialDTO>().ToList();
                 }
 
             }

@@ -1,4 +1,5 @@
 ﻿@using Simulator.Shared.Models.CompoundProperties
+@using Simulator.Shared.NewModels.Compounds
 <MudGrid>
     <MudItem xs="12" sm="6">
         <DoubleNumericField Label="Critical Z" @bind-Value=@Model.Critical_Z For="() => Model.Critical_Z" Change=OnModelChanged
@@ -59,9 +60,9 @@
 
 @code {
     [Parameter]
-    public CompoundPropertyDTO Model { get; set; } = null!;
+    public NewCompoundPropertyDTO Model { get; set; } = null!;
     [Parameter]
-    public EventCallback<CompoundPropertyDTO> ModelChanged { get; set; }
+    public EventCallback<NewCompoundPropertyDTO> ModelChanged { get; set; }
 
     [Parameter]
     public EventCallback ValidateAsync { get; set; }

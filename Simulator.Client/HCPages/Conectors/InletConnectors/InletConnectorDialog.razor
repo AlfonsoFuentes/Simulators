@@ -16,8 +16,7 @@
                          Items="@Items"
                          @bind-Values=@Model.Froms
                          Property="(p) => p!.Name"
-                       
-                         ></MultiSelect>
+                        ></MultiSelect>
             <ValidationMessage For="() => Model.Froms.Count" style="color:red; font-size:x-small;" />
 
             <Field Label="To">@ToEquipment</Field>
@@ -32,5 +31,5 @@
     </MudCard>
 </EditForm>
 @code {
-  
+
 }

@@ -1,4 +1,5 @@
-﻿using Simulator.Shared.Models.HCs.MaterialEquipments;
+﻿using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.MaterialEquipments;
 using Simulator.Shared.Models.HCs.Materials;
 using Web.Infrastructure.Managers.Generic;
 
@@ -7,9 +8,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.MaterialEquipments
 
     public class MaterialEquipmentValidator : AbstractValidator<MaterialEquipmentDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public MaterialEquipmentValidator(IGenericService service)
+        public MaterialEquipmentValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -19,23 +20,15 @@ namespace Web.Infrastructure.Validators.FinishinLines.MaterialEquipments
                 .When(x => x.Material != null && x.ProccesEquipmentId != Guid.Empty)
                 .WithMessage(x => $"{x.MaterialM_Number}  already exist in this equipment");
 
-
+           
 
         }
 
         async Task<bool> ReviewIfNameExist(MaterialEquipmentDTO request, MaterialDTO name, CancellationToken cancellationToken)
         {
-            ValidateMaterialEquipmentNameRequest validate = new()
-            {
-                MaterialId = request.MaterialId,
-                EquipmentId = request.ProccesEquipmentId,
-
-
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
+            request.ValidationKey = MaterialEquipmentDTO.MaterialEquipmentCombination;
+            var result = await Service.Validate(request);
+            return result.Succeeded;
         }
 
     }

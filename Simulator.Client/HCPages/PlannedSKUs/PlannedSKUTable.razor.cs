@@ -30,7 +30,7 @@ public partial class PlannedSKUTable
     {
         if (LinePlannedId != Guid.Empty)
         {
-            var result = await GenericService.GetAll<PlannedSKUResponseList, PlannedSKUGetAll>(new PlannedSKUGetAll()
+            var result = await ClientService.GetAll(new PlannedSKUDTO()
             {
                 LinePlannedId = LinePlannedId,
 
@@ -38,7 +38,7 @@ public partial class PlannedSKUTable
             });
             if (result.Succeeded)
             {
-                Items = result.Data.Items;
+                Items = result.Data;
                 await ItemsChanged.InvokeAsync(Items);
             }
           
@@ -111,32 +111,24 @@ public partial class PlannedSKUTable
 
         if (!result!.Canceled)
         {
-            DeletePlannedSKURequest request = new()
-            {
-                Id = response.Id,
-                Name = response.Name,
-
-            };
+          
             if (LinePlannedId != Guid.Empty)
             {
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.Delete(response);
                 if (resultDelete.Succeeded)
                 {
 
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+                    await GetAll();
 
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+                
             }
             else
             {
                 Items.Remove(response);
             }
-            await GetAll();
+          
             await ValidateAsync.InvokeAsync();
         }
 
@@ -160,26 +152,18 @@ public partial class PlannedSKUTable
 
         if (!result!.Canceled)
         {
-            DeleteGroupPlannedSKURequest request = new()
-            {
-                SelecteItems = SelecteItems,
-                LinePlannedId = LinePlannedId,
-
-            };
+           
             if (LinePlannedId != Guid.Empty)
             {
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                 if (resultDelete.Succeeded)
                 {
 
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+             
                     SelecteItems = null!;
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+              
             }
             else
             {
@@ -205,7 +189,7 @@ public partial class PlannedSKUTable
 
         if (LinePlannedId != Guid.Empty)
         {
-            var result = await GenericService.Update(SelectedRow.ToUp());
+            var result = await ClientService.OrderUp(SelectedRow);
             if (result.Succeeded)
             {
 
@@ -229,7 +213,7 @@ public partial class PlannedSKUTable
         if (SelectedRow == null) return;
         if (LinePlannedId != Guid.Empty)
         {
-            var result = await GenericService.Update(SelectedRow.ToDown());
+            var result = await ClientService.OrderUp(SelectedRow);
 
             if (result.Succeeded)
             {

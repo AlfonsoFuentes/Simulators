@@ -21,7 +21,7 @@ public partial class PumpTable
 
     async Task GetAll()
     {
-        var result = await GenericService.GetAll<PumpResponseList, PumpGetAll>(new PumpGetAll()
+        var result = await ClientService.GetAll(new PumpDTO()
         {
             MainProcessId = MainProcessId,
 
@@ -29,7 +29,7 @@ public partial class PumpTable
         });
         if (result.Succeeded)
         {
-            Items = result.Data.Items;
+            Items = result.Data;
         }
     }
     public async Task AddNew()
@@ -93,24 +93,16 @@ public partial class PumpTable
 
         if (!result!.Canceled)
         {
-            DeletePumpRequest request = new()
-            {
-                Id = response.Id,
-                Name = response.Name,
-
-            };
-            var resultDelete = await GenericService.Post(request);
+         
+            var resultDelete = await ClientService.Delete(response);
             if (resultDelete.Succeeded)
             {
                 await GetAll();
-                _snackBar.ShowSuccess(resultDelete.Messages);
+             
 
 
             }
-            else
-            {
-                _snackBar.ShowError(resultDelete.Messages);
-            }
+            
         }
         await RefreshProcessFlowDiagram.InvokeAsync();
 
@@ -134,24 +126,16 @@ public partial class PumpTable
 
         if (!result!.Canceled)
         {
-            DeleteGroupPumpRequest request = new()
-            {
-                SelecteItems = SelecteItems,
-                MainProcessId = MainProcessId,
-
-            };
-            var resultDelete = await GenericService.Post(request);
+           
+            var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
             if (resultDelete.Succeeded)
             {
                 await GetAll();
-                _snackBar.ShowSuccess(resultDelete.Messages);
+             
                 SelecteItems = null!;
 
             }
-            else
-            {
-                _snackBar.ShowError(resultDelete.Messages);
-            }
+         
         }
         await RefreshProcessFlowDiagram.InvokeAsync();
 

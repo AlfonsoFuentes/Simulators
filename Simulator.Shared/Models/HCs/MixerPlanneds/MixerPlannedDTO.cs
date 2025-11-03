@@ -1,4 +1,5 @@
 ﻿using Simulator.Shared.Enums.HCEnums.Enums;
+using Simulator.Shared.Intefaces;
 using Simulator.Shared.Models.HCs.BackBoneSteps;
 using Simulator.Shared.Models.HCs.BaseEquipments;
 using Simulator.Shared.Models.HCs.Materials;
@@ -8,17 +9,9 @@ using System.Text.Json.Serialization;
 
 namespace Simulator.Shared.Models.HCs.MixerPlanneds
 {
-    public class MixerPlannedDTO : BaseResponse, IMessageResponse, IRequest
+    public class MixerPlannedDTO : Dto
     {
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.CreateUpdate;
-
-        public string Legend => Name;
-
-        public string ActionType => Id == Guid.Empty ? "created" : "updated";
-        public string ClassName => StaticClass.MixerPlanneds.ClassName;
-        public string Succesfully => StaticClass.ResponseMessages.ReponseSuccesfullyMessage(Legend, ClassName, ActionType);
-        public string Fail => StaticClass.ResponseMessages.ReponseFailMessage(Legend, ClassName, ActionType);
-        public string NotFound => StaticClass.ResponseMessages.ReponseNotFound(ClassName);
+      
         public Guid SimulationPlannedId { get; set; }
         public Guid MainProcesId { get; set; }
         double _CapacityValue;
@@ -122,111 +115,111 @@ namespace Simulator.Shared.Models.HCs.MixerPlanneds
             if (BackBoneStep.Order > BackBoneSteps.Count) return mixerlevel;
 
             var backbonestepes = BackBoneSteps.Where(x => x.Order <= BackBoneStep.Order && x.BackBoneStepType == BackBoneStepType.Add).ToList();
-            //TODO: Actualizar con MaterialEquipment
+        
             backbonestepes.ForEach(x => { mixerlevel += x.Percentage / 100 * Capacity; });
 
             return mixerlevel;
         }
     }
-    public class DeleteMixerPlannedRequest : DeleteMessageResponse, IRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public override string Legend => Name;
+    //public class DeleteMixerPlannedRequest : DeleteMessageResponse, IRequest
+    //{
+    //    public string Name { get; set; } = string.Empty;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.MixerPlanneds.ClassName;
+    //    public override string ClassName => StaticClass.MixerPlanneds.ClassName;
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.Delete;
-        public Guid SimulationPlannedId { get; set; }
-    }
-    public class GetMixerPlannedByIdRequest : GetByIdMessageResponse, IGetById
-    {
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.Delete;
+    //    public Guid SimulationPlannedId { get; set; }
+    //}
+    //public class GetMixerPlannedByIdRequest : GetByIdMessageResponse, IGetById
+    //{
 
-        public Guid Id { get; set; }
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.GetById;
-        public override string ClassName => StaticClass.MixerPlanneds.ClassName;
-    }
-    public class MixerPlannedGetAll : IGetAll
-    {
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.GetAll;
-        public Guid SimulationPlannedId { get; set; }
-    }
-    public class MixerPlannedResponseList : IResponseAll
-    {
-        public List<MixerPlannedDTO> Items { get; set; } = new();
-    }
-    public class ValidateMixerPlannedNameRequest : ValidateMessageResponse, IRequest
-    {
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+    //    public Guid Id { get; set; }
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.GetById;
+    //    public override string ClassName => StaticClass.MixerPlanneds.ClassName;
+    //}
+    //public class MixerPlannedGetAll : IGetAll
+    //{
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.GetAll;
+    //    public Guid SimulationPlannedId { get; set; }
+    //}
+    //public class MixerPlannedResponseList : IResponseAll
+    //{
+    //    public List<MixerPlannedDTO> Items { get; set; } = new();
+    //}
+    //public class ValidateMixerPlannedNameRequest : ValidateMessageResponse, IRequest
+    //{
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
 
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.Validate;
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.Validate;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.MixerPlanneds.ClassName;
-    }
-    public class DeleteGroupMixerPlannedRequest : DeleteMessageResponse, IRequest
-    {
+    //    public override string ClassName => StaticClass.MixerPlanneds.ClassName;
+    //}
+    //public class DeleteGroupMixerPlannedRequest : DeleteMessageResponse, IRequest
+    //{
 
-        public override string Legend => "Group of MixerPlanned";
+    //    public override string Legend => "Group of MixerPlanned";
 
-        public override string ClassName => StaticClass.MixerPlanneds.ClassName;
+    //    public override string ClassName => StaticClass.MixerPlanneds.ClassName;
 
-        public HashSet<MixerPlannedDTO> SelecteItems { get; set; } = null!;
+    //    public HashSet<MixerPlannedDTO> SelecteItems { get; set; } = null!;
 
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.DeleteGroup;
-        public Guid SimulationPlannedId { get; set; }
-    }
-    public class ChangeMixerPlannedOrderDowmRequest : UpdateMessageResponse, IRequest
-    {
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.DeleteGroup;
+    //    public Guid SimulationPlannedId { get; set; }
+    //}
+    //public class ChangeMixerPlannedOrderDowmRequest : UpdateMessageResponse, IRequest
+    //{
 
-        public Guid? Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public Guid ProductionLineAssignmentId { get; set; }
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.UpdateDown;
-        public int Order { get; set; }
-        public override string Legend => Name;
+    //    public Guid? Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public Guid ProductionLineAssignmentId { get; set; }
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.UpdateDown;
+    //    public int Order { get; set; }
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.MixerPlanneds.ClassName;
-    }
-    public class ChangeMixerPlannedOrderUpRequest : UpdateMessageResponse, IRequest
-    {
-        public Guid ProductionLineAssignmentId { get; set; }
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Order { get; set; }
-        public string EndPointName => StaticClass.MixerPlanneds.EndPoint.UpdateUp;
+    //    public override string ClassName => StaticClass.MixerPlanneds.ClassName;
+    //}
+    //public class ChangeMixerPlannedOrderUpRequest : UpdateMessageResponse, IRequest
+    //{
+    //    public Guid ProductionLineAssignmentId { get; set; }
+    //    public Guid Id { get; set; }
+    //    public string Name { get; set; } = string.Empty;
+    //    public int Order { get; set; }
+    //    public string EndPointName => StaticClass.MixerPlanneds.EndPoint.UpdateUp;
 
-        public override string Legend => Name;
+    //    public override string Legend => Name;
 
-        public override string ClassName => StaticClass.MixerPlanneds.ClassName;
-    }
-    public static class MixerPlannedMapper
-    {
-        public static ChangeMixerPlannedOrderDowmRequest ToDown(this MixerPlannedDTO response)
-        {
-            return new()
-            {
-                Id = response.Id,
-                Name = response.Name,
+    //    public override string ClassName => StaticClass.MixerPlanneds.ClassName;
+    //}
+    //public static class MixerPlannedMapper
+    //{
+    //    public static ChangeMixerPlannedOrderDowmRequest ToDown(this MixerPlannedDTO response)
+    //    {
+    //        return new()
+    //        {
+    //            Id = response.Id,
+    //            Name = response.Name,
 
-                Order = response.Order,
+    //            Order = response.Order,
 
 
-            };
-        }
-        public static ChangeMixerPlannedOrderUpRequest ToUp(this MixerPlannedDTO response)
-        {
-            return new()
-            {
+    //        };
+    //    }
+    //    public static ChangeMixerPlannedOrderUpRequest ToUp(this MixerPlannedDTO response)
+    //    {
+    //        return new()
+    //        {
 
-                Id = response.Id,
-                Name = response.Name,
-                Order = response.Order,
-            };
-        }
+    //            Id = response.Id,
+    //            Name = response.Name,
+    //            Order = response.Order,
+    //        };
+    //    }
 
-    }
+    //}
 }

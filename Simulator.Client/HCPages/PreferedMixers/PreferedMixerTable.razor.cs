@@ -30,7 +30,7 @@ namespace Simulator.Client.HCPages.PreferedMixers
         {
             if (LinePlannedId != Guid.Empty)
             {
-                var result = await GenericService.GetAll<PreferedMixerResponseList, PreferedMixerGetAll>(new PreferedMixerGetAll()
+                var result = await ClientService.GetAll(new PreferedMixerDTO()
                 {
                     LinePlannedId = LinePlannedId,
 
@@ -38,7 +38,7 @@ namespace Simulator.Client.HCPages.PreferedMixers
                 });
                 if (result.Succeeded)
                 {
-                    Items = result.Data.Items;
+                    Items = result.Data;
                     await ItemsChanged.InvokeAsync(Items);
                 }
 
@@ -113,32 +113,24 @@ namespace Simulator.Client.HCPages.PreferedMixers
 
             if (!result!.Canceled)
             {
-                DeletePreferedMixerRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
+               
                 if (LinePlannedId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.Delete(response);
                     if (resultDelete.Succeeded)
                     {
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
 
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                    
                 }
                 else
                 {
                     Items.Remove(response);
                 }
-                await GetAll();
+              
                 await ValidateAsync.InvokeAsync();
             }
 
@@ -162,32 +154,24 @@ namespace Simulator.Client.HCPages.PreferedMixers
 
             if (!result!.Canceled)
             {
-                DeleteGroupPreferedMixerRequest request = new()
-                {
-                    SelecteItems = SelecteItems,
-                    LinePlannedId = LinePlannedId,
-
-                };
+                
                 if (LinePlannedId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                     if (resultDelete.Succeeded)
                     {
+                        await GetAll();
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
                         SelecteItems = null!;
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                    
                 }
                 else
                 {
                     Items.RemoveAll(x => SelecteItems.Contains(x));
                 }
-                await GetAll();
+               
                 await ValidateAsync.InvokeAsync();
             }
 
@@ -207,7 +191,7 @@ namespace Simulator.Client.HCPages.PreferedMixers
 
             if (LinePlannedId != Guid.Empty)
             {
-                var result = await GenericService.Update(SelectedRow.ToUp());
+                var result = await ClientService.OrderUp(SelectedRow);
                 if (result.Succeeded)
                 {
 
@@ -231,7 +215,7 @@ namespace Simulator.Client.HCPages.PreferedMixers
             if (SelectedRow == null) return;
             if (LinePlannedId != Guid.Empty)
             {
-                var result = await GenericService.Update(SelectedRow.ToDown());
+                var result = await ClientService.OrderDown(SelectedRow);
 
                 if (result.Succeeded)
                 {

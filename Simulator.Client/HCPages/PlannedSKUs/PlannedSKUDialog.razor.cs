@@ -35,18 +35,15 @@ public partial class PlannedSKUDialog
             MudDialog.Close(DialogResult.Ok(true));
             return;
         }
-        var result = await GenericService.Post(Model);
+        var result = await ClientService.Save(Model);
 
 
         if (result.Succeeded)
         {
-            _snackBar.ShowSuccess(result.Messages);
+        
             MudDialog.Close(DialogResult.Ok(true));
         }
-        else
-        {
-            _snackBar.ShowError(result.Messages);
-        }
+      
 
     }
 
@@ -61,21 +58,18 @@ public partial class PlannedSKUDialog
         {
             return;
         }
-        var result = await GenericService.GetById<PlannedSKUDTO, GetPlannedSKUByIdRequest>(new()
-        {
-            Id = Model.Id
-        });
+        var result = await ClientService.GetById(Model);
         if (result.Succeeded)
         {
             Model = result.Data;
 
         }
     }
-    SKULineResponseList SKULineResponseList = new();
-    List<SKUDTO?> SKUs => SKULineResponseList.Items.Count == 0 ? new() : SKULineResponseList.Items.Select(x => x.SKU).ToList();
+    List<SKULineDTO> SKULineResponseList = new();
+    List<SKUDTO?> SKUs => SKULineResponseList.Count == 0 ? new() : SKULineResponseList.Select(x => x.SKU).ToList();
     async Task GetAllSKULines()
     {
-        var result = await GenericService.GetAll<SKULineResponseList, SKULineGetAll>(new SKULineGetAll()
+        var result = await ClientService.GetAll(new SKULineDTO()
         {
             LineId = Model.LineId,
         });
@@ -102,7 +96,7 @@ public partial class PlannedSKUDialog
     }
     void ChangeSku()
     {
-        var speedfond = SKULineResponseList.Items.FirstOrDefault(x => x.LineId == Model.LineId && x.SKUId == Model.SKUId);
+        var speedfond = SKULineResponseList.FirstOrDefault(x => x.LineId == Model.LineId && x.SKUId == Model.SKUId);
         if (speedfond != null)
         {
             Model.LineSpeed = speedfond.LineSpeed;

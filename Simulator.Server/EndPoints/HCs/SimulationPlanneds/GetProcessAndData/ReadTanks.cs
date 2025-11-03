@@ -1,21 +1,25 @@
 ﻿
 using Simulator.Server.Databases.Entities.HC;
-using Simulator.Server.EndPoints.HCs.Tanks;
+using Simulator.Shared.Models.HCs.Tanks;
 using Simulator.Shared.Simulations;
 namespace Simulator.Server.EndPoints.HCs.SimulationPlanneds.GetProcessAndData
 {
     public static class ReadSimulationTanks
     {
-        public static async Task ReadTanks(this NewSimulationDTO simulation, Guid MainProcessId, IQueryRepository Repository)
+        public static async Task ReadTanks(this NewSimulationDTO simulation, IServerCrudService service)
         {
-            Expression<Func<Tank, bool>> Criteria = x => x.MainProcessId == MainProcessId;
-            string CacheKey = StaticClass.Tanks.Cache.GetAll(MainProcessId);
-            var rows = await Repository.GetAllAsync<Tank>(Cache: CacheKey, Criteria: Criteria);
+            TankDTO dto = new()
+            {
+                MainProcessId = simulation.Id
+            };
+            var rows = await service.GetAllAsync<Tank>(dto, parentId: $"{dto.MainProcessId}");
 
             if (rows != null && rows.Count > 0)
             {
-                simulation.Tanks = rows.OrderBy(x => x.Name).Select(x => x.Map()).ToList();
+                simulation.Tanks = rows.Select(x => x.MapToDto<TankDTO>()).ToList();
+
             }
+
 
 
         }

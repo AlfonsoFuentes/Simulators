@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using Simulator.Client.Infrastructure.ExtensionMethods;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
 using Simulator.Shared.Enums.HCEnums.Enums;
 using Simulator.Shared.Models.HCs.Tanks;
 using Web.Infrastructure.Managers.Generic;
@@ -8,9 +10,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.Tanks
 
     public class TankValidator : AbstractValidator<TankDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public TankValidator(IGenericService service)
+        public TankValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -22,27 +24,15 @@ namespace Web.Infrastructure.Validators.FinishinLines.Tanks
             RuleFor(x => x.FluidStorage).NotEqual(FluidToStorage.None).WithMessage("Fluid to Storage must be defined!");
 
             RuleFor(x => x.TankCalculationType).NotEqual(TankCalculationType.None).WithMessage("Tank Calculation type must be defined!");
-            RuleFor(x => x.Name).MustAsync(ReviewIfNameExist)
-                .When(x => !string.IsNullOrEmpty(x.Name))
-                .WithMessage(x => $"{x.Name} already exist");
 
-     
+            RuleFor(x => x.Name).MustBeUnique(service, x => x.Name)
+         .WithMessage(x => $"{x.Name} already exists");
+
+
 
         }
 
-        async Task<bool> ReviewIfNameExist(TankDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateTankNameRequest validate = new()
-            {
-                Name = name,
 
-                MainProcessId=request.MainProcessId,
-                Id = request.Id
 
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
-       
     }
 }

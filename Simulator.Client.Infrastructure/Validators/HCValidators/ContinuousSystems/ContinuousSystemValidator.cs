@@ -1,4 +1,6 @@
-﻿using Simulator.Shared.Models.HCs.ContinuousSystems;
+﻿using Simulator.Client.Infrastructure.ExtensionMethods;
+using Simulator.Client.Infrastructure.Managers.ClientCRUDServices;
+using Simulator.Shared.Models.HCs.ContinuousSystems;
 using UnitSystem;
 using Web.Infrastructure.Managers.Generic;
 
@@ -7,9 +9,9 @@ namespace Web.Infrastructure.Validators.FinishinLines.ContinuousSystems
 
     public class ContinuousSystemValidator : AbstractValidator<ContinuousSystemDTO>
     {
-        private readonly IGenericService Service;
+        private readonly IClientCRUDService Service;
 
-        public ContinuousSystemValidator(IGenericService service)
+        public ContinuousSystemValidator(IClientCRUDService service)
         {
             Service = service;
 
@@ -19,27 +21,14 @@ namespace Web.Infrastructure.Validators.FinishinLines.ContinuousSystems
             RuleFor(x => x.FlowValue).NotEqual(0).WithMessage("Mass flow must be defined!");
 
 
-            RuleFor(x => x.Name).MustAsync(ReviewIfNameExist)
-                .When(x => !string.IsNullOrEmpty(x.Name))
-                .WithMessage(x => $"{x.Name} already exist");
+            RuleFor(x => x.Name).MustBeUnique(service, x => x.Name)
+        .WithMessage(x => $"{x.Name} already exists");
 
-           
+
 
         }
 
-        async Task<bool> ReviewIfNameExist(ContinuousSystemDTO request, string name, CancellationToken cancellationToken)
-        {
-            ValidateContinuousSystemNameRequest validate = new()
-            {
-                Name = name,
-
-                MainProcessId = request.MainProcessId,
-                Id = request.Id
-
-            };
-            var result = await Service.Validate(validate);
-            return !result;
-        }
+       
        
     }
 }

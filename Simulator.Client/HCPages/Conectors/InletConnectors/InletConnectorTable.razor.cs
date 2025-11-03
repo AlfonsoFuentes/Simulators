@@ -13,7 +13,7 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
         public List<InletConnectorDTO> Items { get; set; } = new();
 
 
-        InletConnectorResponseList InletConnectorResponseList { get; set; } = new();
+        
         public Guid EquipmentId => Equipment == null ? Guid.Empty : Equipment.Id;
         public Guid MainProcessId => Equipment == null ? Guid.Empty : Equipment.MainProcessId;
         public string EquipmentName => Equipment == null ? string.Empty : Equipment.Name;
@@ -36,14 +36,14 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
         {
             if (EquipmentId != Guid.Empty)
             {
-                var result = await GenericService.GetAll<InletConnectorResponseList, InletsConnectorGetAll>(new InletsConnectorGetAll()
+                var result = await ClientService.GetAll(new InletConnectorDTO()
                 {
                     ToId = EquipmentId,
                 });
                 if (result.Succeeded)
                 {
-                    InletConnectorResponseList = result.Data;
-                    Items = InletConnectorResponseList.Items;
+        
+                    Items = result.Data;
                     await ItemsChanged.InvokeAsync(Items);
 
                 }
@@ -121,7 +121,7 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
         {
             var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete this row? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -134,31 +134,23 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
 
             if (!result!.Canceled)
             {
-                DeleteConectorRequest request = new()
-                {
-                    Id = response.Id,
-                    Name = response.Name,
-
-                };
+              
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.Delete(response);
                     if (resultDelete.Succeeded)
                     {
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
+                        await GetAll();
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                  
                 }
                 else
                 {
                     Items.Remove(response);
                 }
-                await GetAll();
+               
                 await ValidateAsync.InvokeAsync();
 
             }
@@ -183,27 +175,19 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
 
             if (!result!.Canceled)
             {
-                DeleteGroupConectorRequest request = new()
-                {
-                    SelecteItems = SelecteItems.Select(x => x as ConectorDTO).ToHashSet(),
-
-
-                };
+               
                 if (EquipmentId != Guid.Empty)
                 {
-                    var resultDelete = await GenericService.Post(request);
+                    var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                     if (resultDelete.Succeeded)
                     {
 
+                        await GetAll();
 
-                        _snackBar.ShowSuccess(resultDelete.Messages);
                         SelecteItems = null!;
 
                     }
-                    else
-                    {
-                        _snackBar.ShowError(resultDelete.Messages);
-                    }
+                  
                 }
                 else
                 {
@@ -211,7 +195,7 @@ namespace Simulator.Client.HCPages.Conectors.InletConnectors
                 }
 
 
-                await GetAll();
+               
                 await ValidateAsync.InvokeAsync();
 
             }

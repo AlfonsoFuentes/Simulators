@@ -19,9 +19,9 @@
     </MudCard>
     <MudCard>
 
-        @if (SimulationPlannedResponseList != null)
+        @if (PlannedItems != null)
         {
-            <SelectPlannedCards Items="@SimulationPlannedResponseList.Items" MainProcessId="MainProcessId"
+            <SelectPlannedCards Items="@PlannedItems" MainProcessId="MainProcessId"
                                 GetAll="SelectAllPlan" PlannedChanged="SelectPlan"></SelectPlannedCards>
         }
     </MudCard>

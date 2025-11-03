@@ -9,7 +9,7 @@ public partial class MixerPlannedTable
     [Parameter]
     public EventCallback<List<MixerPlannedDTO>> ItemsChanged { get; set; }
     string nameFilter = string.Empty;
-    public Func<MixerPlannedDTO, bool> Criteria => x => x.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
+    public Func<MixerPlannedDTO, bool> Criteria => x => x.MixerDTO!.Name.Contains(nameFilter, StringComparison.InvariantCultureIgnoreCase);
     public List<MixerPlannedDTO> FilteredItems => string.IsNullOrEmpty(nameFilter) ? Items :
         Items.Where(Criteria).ToList();
     [Parameter]
@@ -32,7 +32,7 @@ public partial class MixerPlannedTable
     {
         if(SimulationPlannedId != Guid.Empty)
         {
-            var result = await GenericService.GetAll<MixerPlannedResponseList, MixerPlannedGetAll>(new MixerPlannedGetAll()
+            var result = await ClientService.GetAll(new MixerPlannedDTO()
             {
                 SimulationPlannedId = SimulationPlannedId,
 
@@ -40,7 +40,7 @@ public partial class MixerPlannedTable
             });
             if (result.Succeeded)
             {
-                Items = result.Data.Items;
+                Items = result.Data;
                 await ItemsChanged.InvokeAsync(Items);
             }
            
@@ -95,7 +95,7 @@ public partial class MixerPlannedTable
     {
         var parameters = new DialogParameters<DialogTemplate>
         {
-            { x => x.ContentText, $"Do you really want to delete {response.Name}? This process cannot be undone." },
+            { x => x.ContentText, $"Do you really want to delete this row? This process cannot be undone." },
             { x => x.ButtonText, "Delete" },
             { x => x.Color, Color.Error }
         };
@@ -108,32 +108,24 @@ public partial class MixerPlannedTable
 
         if (!result!.Canceled)
         {
-            DeleteMixerPlannedRequest request = new()
-            {
-                Id = response.Id,
-                Name = response.Name,
-
-            };
+           
             if (SimulationPlannedId != Guid.Empty)
             {
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.Delete(response);
                 if (resultDelete.Succeeded)
                 {
-                    
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+
+                    await GetAll();
 
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+              
             }
             else
             {
                 Items.Remove(response);
             }
-            await GetAll();
+           
             await ValidateAsync.InvokeAsync();
         }
 
@@ -157,32 +149,24 @@ public partial class MixerPlannedTable
 
         if (!result!.Canceled)
         {
-            DeleteGroupMixerPlannedRequest request = new()
-            {
-                SelecteItems = SelecteItems,
-                SimulationPlannedId = SimulationPlannedId,
-
-            };
+            
             if(SimulationPlannedId!=Guid.Empty)
             {
-                var resultDelete = await GenericService.Post(request);
+                var resultDelete = await ClientService.DeleteGroup(SelecteItems.ToList());
                 if (resultDelete.Succeeded)
                 {
-                   
-                    _snackBar.ShowSuccess(resultDelete.Messages);
+                    await GetAll();
+
                     SelecteItems = null!;
 
                 }
-                else
-                {
-                    _snackBar.ShowError(resultDelete.Messages);
-                }
+                
             }
             else
             {
                 Items.RemoveAll(x => SelecteItems.Contains(x));
             }
-            await GetAll();
+          
             await ValidateAsync.InvokeAsync();
         }
 
