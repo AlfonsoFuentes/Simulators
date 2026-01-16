@@ -14,14 +14,14 @@ namespace Simulator.Server.Implementations.Databases
         string _tenantId => _cache2._tenantId;
 
 
-        private readonly IAppCache _cache;
+   
 
 
-        public BlazorHeroContext(DbContextOptions<BlazorHeroContext> options, IAppCache cache, ICache  cache2)
+        public BlazorHeroContext(DbContextOptions<BlazorHeroContext> options,  ICache  cache2)
             : base(options)
         {
 
-            _cache = cache;
+          
             _cache2 = cache2;
         }
 
